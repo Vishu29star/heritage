@@ -1,0 +1,118 @@
+{
+  "project_info": {
+    "project_number": "160852200811",
+    "project_id": "heritageimm-ad896",
+    "storage_bucket": "heritageimm-ad896.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:160852200811:android:ad813f59f748172a20d02e",
+        "android_client_info": {
+          "package_name": "co.chetan.heritage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "160852200811-7vhd1c5i61i2cv68e7m86jnv59r6ged4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFYJsFvoq3Dysz2h-b9F6SPgOA4AUzeQU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "160852200811-7vhd1c5i61i2cv68e7m86jnv59r6ged4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "160852200811-dv4afhb271gg5efnqoqdppt3kh6cvtch.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.heritage"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:160852200811:android:9ef8a92d987c763d20d02e",
+        "android_client_info": {
+          "package_name": "com.chetan.heritage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "160852200811-7vhd1c5i61i2cv68e7m86jnv59r6ged4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFYJsFvoq3Dysz2h-b9F6SPgOA4AUzeQU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "160852200811-7vhd1c5i61i2cv68e7m86jnv59r6ged4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "160852200811-dv4afhb271gg5efnqoqdppt3kh6cvtch.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.heritage"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:160852200811:android:c6c53efa7540ea3820d02e",
+        "android_client_info": {
+          "package_name": "com.example.heritage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "160852200811-7vhd1c5i61i2cv68e7m86jnv59r6ged4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFYJsFvoq3Dysz2h-b9F6SPgOA4AUzeQU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "160852200811-7vhd1c5i61i2cv68e7m86jnv59r6ged4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "160852200811-dv4afhb271gg5efnqoqdppt3kh6cvtch.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.heritage"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
