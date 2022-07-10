@@ -43,4 +43,66 @@ class EngLishStrings extends Strings {
   String get profileUpdated => "Profile Updated!";
   String get verificationEmailSent => "We have send you email verification email please verify it.";
   String get resetPasswordEmail => "We have send you reset password email.Then try again";
+
+  //student form strings
+
+
+  String get studentForm => "Student Form";
+  String get selectDate => "Select date";
+  String get date => "Date";
+  String get enterName => "Enter Name";
+  String get refferedby => "Reffered By";
+  String get DOB => "DOB";
+  String get hintName => "tom";
+  String get hintCityName => "Ludihana";
+  String get cityVillage => "City/Village";
+  String get enterStudentContactNo => "Enter Student Contact No.";
+  String get enterParentContactNo => "Enter Parent Contact No.";
+  String get enterStudentemail => "Enter Student Email";
+  String get enterParentemail => "Enter Parent's Email";
+  String get numberOfChildren => "No. of children (If any)";
+  String get married => "Married";
+  String get emailHint => "tom@gmail.com";
+  String get zero => "0";
+  String get manager => "Manager";
+  String get spousesName => "Spouse’s Name";
+  String get spousesOccupation => "Spouse’s Occupation";
+  String get fathersOccupation => "Father’s Occupation";
+  String get mothersOccupation => "Mother’s Occupation";
+  String get fathersName => "Father’s Name";
+  String get mothersName => "Mother’s Name";
+  String get netFamilyIncomeAnnually => "Net family income(annually)";
+  String get educationalInformation => "Educational Information";
+  String get tenth => "10th";
+  String get twelveth => "12th";
+  String get monthyearDateFormat => "MM/YYYY";
+  String get fromMMYYYY => "From(MM/YYYY)";
+  String get toMMYYYY => "To(MM/YYYY)";
+  String get stream => "Stream";
+  String get scienceHistory => "Science,History";
+  String get boardUniversityCollege => "Board/University/College";
+  String get CBSE => "C.B.S.E";
+  String get percentage => "Percentage";
+  String get percentageHint => "75";
+  String get noofBacklogsifany => "No. of Backlogs (if any)";
+  String get criminalHistory => "Criminal History";
+  String get assessmentInformation => "Assessment Information";
+  String get dubai => "Dubai";
+  String get anyRefusals => "Any Refusal(s)";
+  String get CountryIfapplicable => "Country (If applicable)";
+  String get travelHistory=> "Travel History (mention   country name only)";
+  String get IELTSGenAca=> "IELTS (Gen/ Aca)";
+  String get yearFormat=> "YYYY";
+  String get year=> "Year";
+  String get L=> "L";
+  String get R=> "R";
+  String get W=> "L";
+  String get S=> "S";
+  String get OA=> "O.A.";
+  String get IDPBC=> "IDP / BC";
+  String get eight=> "8";
+  String get next=> "Next";
+  String get canadianUniversity=> "Canadian University";
+  String get anyProvincePreferenceInCanadaIfNoThenMentionNONE=> "Any Province preference (In Canada), if no then mention NONE";
+  String get anyCollegeProgramPreferenceIFNoThenMentionNONE=> "Any College/Program Preference, if no then mention NONE";
 }

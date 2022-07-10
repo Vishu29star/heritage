@@ -1,5 +1,6 @@
 import 'package:Heritage/src/studenntForm/studentFormService.dart';
 import 'package:Heritage/src/studenntForm/studentFormViewModel.dart';
+import 'package:Heritage/utils/extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
@@ -40,7 +41,7 @@ class _StudenFormWidegtState extends State<StudenFormWidegt> {
           iconTheme: IconThemeData(color: Colors.black),
           backgroundColor: Colors.white,
           title: Text(
-            "Student Form",
+            context.resources.strings.studentForm,
             style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 24,

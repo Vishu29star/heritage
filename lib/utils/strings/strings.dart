@@ -40,4 +40,67 @@ abstract class Strings {
   String get profileUpdated;
   String get verificationEmailSent;
   String get resetPasswordEmail;
+
+
+  //student form string
+
+
+  String get studentForm ;
+  String get selectDate ;
+  String get date;
+  String get enterName;
+  String get refferedby;
+  String get DOB;
+  String get hintName;
+  String get hintCityName;
+  String get cityVillage;
+  String get enterStudentContactNo;
+  String get enterParentContactNo;
+  String get enterStudentemail;
+  String get enterParentemail;
+  String get numberOfChildren;
+  String get married;
+  String get emailHint ;
+  String get zero ;
+  String get manager  ;
+  String get spousesName ;
+  String get spousesOccupation  ;
+  String get fathersOccupation  ;
+  String get mothersOccupation  ;
+  String get fathersName ;
+  String get mothersName  ;
+  String get netFamilyIncomeAnnually ;
+  String get educationalInformation;
+  String get tenth;
+  String get twelveth;
+  String get monthyearDateFormat;
+  String get fromMMYYYY;
+  String get toMMYYYY  ;
+  String get stream ;
+  String get scienceHistory ;
+  String get boardUniversityCollege  ;
+  String get CBSE ;
+  String get percentage ;
+  String get percentageHint ;
+  String get noofBacklogsifany ;
+  String get assessmentInformation ;
+  String get criminalHistory ;
+  String get dubai ;
+  String get CountryIfapplicable ;
+  String get travelHistory ;
+  String get anyRefusals ;
+  String get IELTSGenAca ;
+  String get yearFormat ;
+  String get year ;
+  String get L ;
+  String get R ;
+  String get W ;
+  String get S ;
+  String get OA ;
+  String get eight ;
+  String get IDPBC ;
+  String get next ;
+  String get anyProvincePreferenceInCanadaIfNoThenMentionNONE ;
+  String get canadianUniversity ;
+  String get anyCollegeProgramPreferenceIFNoThenMentionNONE ;
 }

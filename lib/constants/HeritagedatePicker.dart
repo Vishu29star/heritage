@@ -1,3 +1,4 @@
+import 'package:Heritage/utils/extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
@@ -69,7 +70,7 @@ class _HeritagedatePickerState extends State<HeritagedatePicker> {
                     color: Colors.white
                 ),
                 padding: EdgeInsets.all(12),
-                child: Center(child: Text(widget.result!=null?DateFormat(widget.dateFormat).format(widget.result):"Select date",style: TextStyle(color: Colors.black,fontSize: edittext_textsize*textmultiply))),
+                child: Center(child: Text(widget.result!=null?DateFormat(widget.dateFormat).format(widget.result):context.resources.strings.selectDate,style: TextStyle(color: Colors.black,fontSize: edittext_textsize*textmultiply))),
               ),
             )
           ],
@@ -97,7 +98,7 @@ class _HeritagedatePickerState extends State<HeritagedatePicker> {
                     color: Colors.white
                 ),
                 padding: EdgeInsets.all(12),
-                child: Center(child: Text(widget.result!=null?DateFormat(widget.dateFormat).format(widget.result):"Select date",style: TextStyle(color: Colors.black,fontSize: edittext_textsize*textmultiply))),
+                child: Center(child: Text(widget.result!=null?DateFormat(widget.dateFormat).format(widget.result):context.resources.strings.selectDate,style: TextStyle(color: Colors.black,fontSize: edittext_textsize*textmultiply))),
               ),
             )
           ],

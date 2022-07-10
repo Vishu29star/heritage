@@ -25,7 +25,7 @@ class PhoneNumberPage extends StatelessWidget {
                   child: Image.asset("assets/images/email_page_img.png",height: 200,),
                 ):Container(),
                 Text(
-                  context.resources.strings.welcome,
+                    context.resources.strings.welcome,
                   style: TextStyle(fontSize: 26, color: context.resources.color.colorPrimary,fontWeight: FontWeight.bold),
                 ),
                 SizedBox(

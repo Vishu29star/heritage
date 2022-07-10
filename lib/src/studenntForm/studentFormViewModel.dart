@@ -1,4 +1,5 @@
 import 'package:Heritage/src/studenntForm/studentFormService.dart';
+import 'package:Heritage/utils/extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -90,31 +91,31 @@ class StudentFormVM extends ChangeNotifier {
                 HeritagedatePicker(
                   rowORColumn: 1,
                   result: date,
-                  dateFormat: 'yyyy-MM-dd',
-                  labelText: "Date",
+                  dateFormat: context.resources.strings.DDMMYYYY,
+                  labelText: context.resources.strings.date,
                 ),
                 Divider(),
                 HeritageTextFeild(
                   controller: nameController,
-                  hintText: "vishal",
-                  labelText: "Enter Name",
+                  hintText: context.resources.strings.hintName,
+                  labelText: context.resources.strings.enterName,
                 ),
                 HeritageTextFeild(
                   controller: refferdByController,
-                  hintText: "chetan",
-                  labelText: "Reffered By",
+                  hintText: context.resources.strings.hintName,
+                  labelText: context.resources.strings.refferedby,
                 ),
                 HeritagedatePicker(
                   rowORColumn: 1,
                   result: DOBDate,
-                  dateFormat: 'yyyy-MM-dd',
-                  labelText: "DOB",
+                  dateFormat: context.resources.strings.DDMMYYYY,
+                  labelText: context.resources.strings.dateOfBirth,
                 ),
                 Divider(),
                 HeritageTextFeild(
                   controller: cityVillageController,
-                  hintText: "Mohali",
-                  labelText: "City/Village",
+                  hintText: context.resources.strings.hintCityName,
+                  labelText: context.resources.strings.cityVillage,
                 ),
               ],
             ),
@@ -134,25 +135,25 @@ class StudentFormVM extends ChangeNotifier {
               children: [
                 HeritageTextFeild(
                   controller: studentContactController,
-                  hintText: "987634543",
-                  labelText: "Enter Student Contact No.",
+                  hintText: context.resources.strings.hintphoneNumber,
+                  labelText: context.resources.strings.enterStudentContactNo,
                 ),
                 HeritageTextFeild(
                   controller: emailStudentController,
-                  hintText: "vishal@gmail.com",
-                  labelText: "Enter Student Email",
+                  hintText: context.resources.strings.emailHint,
+                  labelText: context.resources.strings.enterEmail,
                 ),
                 HeritageTextFeild(
                   controller: emailParentController,
-                  hintText: "chetan@gmail.com",
-                  labelText: "Enter Parent's Email",
+                  hintText: context.resources.strings.enterParentemail,
+                  labelText: context.resources.strings.emailHint,
                 ),
                 HeritageTextFeild(
                   controller: noOfChildren,
-                  hintText: "0",
-                  labelText: "No. of children (If any)",
+                  hintText: context.resources.strings.zero,
+                  labelText: context.resources.strings.numberOfChildren,
                 ),
-                YesNoWidget(labelText: "Married", selected: married),
+                YesNoWidget(labelText: context.resources.strings.married, selected: married),
               ],
             ),
           ),
@@ -173,43 +174,43 @@ class StudentFormVM extends ChangeNotifier {
                 //Divider(),
                 HeritageTextFeild(
                   controller: spouseNameController,
-                  hintText: "Ram",
-                  labelText: "Spouse’s Name",
+                  hintText: context.resources.strings.hintName,
+                  labelText: context.resources.strings.spousesName,
                 ),
                 HeritageTextFeild(
                   controller: spouseOccupationController,
-                  hintText: "Manager",
-                  labelText: "Spouse’s Occupation",
+                  hintText: context.resources.strings.manager,
+                  labelText: context.resources.strings.spousesName,
                 ),
                 HeritageTextFeild(
                   controller: fatherNameController,
-                  hintText: "Sham",
-                  labelText: "Father’s Name",
+                  hintText: context.resources.strings.hintName,
+                  labelText: context.resources.strings.fathersName,
                 ),
                 HeritageTextFeild(
                   controller: fatherOccupationController,
-                  hintText: "Business man",
-                  labelText: "Father’s Occupation",
+                  hintText: context.resources.strings.manager,
+                  labelText: context.resources.strings.fathersOccupation,
                 ),
                 HeritageTextFeild(
                   controller: motherNameController,
-                  hintText: "Radhe",
-                  labelText: "Mother’s Name",
+                  hintText: context.resources.strings.hintName,
+                  labelText: context.resources.strings.mothersName,
                 ),
                 HeritageTextFeild(
                   controller: motherOccupationController,
-                  hintText: "HouseWife",
-                  labelText: "Enter Parent's Email",
+                  hintText: context.resources.strings.manager,
+                  labelText: context.resources.strings.mothersOccupation,
                 ),
                 HeritageTextFeild(
                   controller: parentContactController,
-                  hintText: "234567",
+                  hintText: context.resources.strings.hintphoneNumber,
                   labelText: "Parent’s Contact No.",
                 ),
                 HeritageTextFeild(
                   controller: netFamilyIncomeController,
-                  hintText: "1230087",
-                  labelText: "Net family income(annually)",
+                  hintText: context.resources.strings.hintphoneNumber,
+                  labelText: context.resources.strings.netFamilyIncomeAnnually,
                 ),
               ],
             ),
@@ -231,14 +232,14 @@ class StudentFormVM extends ChangeNotifier {
                 //HeritagedatePicker(rowORColumn: 1, result: DOBdate,dateFormat: 'yyyy-MM-dd',labelText: "DOB",),
                 //Divider(),
                 Text(
-                  "Educational Information",
+                  context.resources.strings.educationalInformation,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
                 SizedBox(
                   height: 16,
                 ),
                 Text(
-                  "10th",
+                  context.resources.strings.tenth,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
@@ -250,8 +251,8 @@ class StudentFormVM extends ChangeNotifier {
                       child: HeritagedatePicker(
                         rowORColumn: 2,
                         result: tenFromDate,
-                        dateFormat: 'MM/YYYY',
-                        labelText: "From(MM/YYYY)",
+                        dateFormat: context.resources.strings.monthyearDateFormat,
+                        labelText: context.resources.strings.fromMMYYYY,
                       ),
                     ),
                     verticleDivider,
@@ -259,8 +260,8 @@ class StudentFormVM extends ChangeNotifier {
                       child: HeritagedatePicker(
                         rowORColumn: 2,
                         result: tenToDate,
-                        dateFormat: 'MM/YYYY',
-                        labelText: "To(MM/YYYY)",
+                        dateFormat:context.resources.strings.monthyearDateFormat,
+                        labelText: context.resources.strings.toMMYYYY,
                       ),
                     ),
                   ],
@@ -270,15 +271,15 @@ class StudentFormVM extends ChangeNotifier {
                     Expanded(
                         child: HeritageTextFeild(
                           controller: tenthStreamController,
-                          hintText: "Science,History",
-                          labelText: "Stream",
+                          hintText: context.resources.strings.scienceHistory,
+                          labelText: context.resources.strings.stream,
                         )),
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
                           controller: tenthBoardController,
-                          hintText: "P.S.E.B",
-                          labelText: "Board/University/College",
+                          hintText: context.resources.strings.CBSE,
+                          labelText: context.resources.strings.boardUniversityCollege,
                         )),
                   ],
                 ),
@@ -287,15 +288,15 @@ class StudentFormVM extends ChangeNotifier {
                     Expanded(
                         child: HeritageTextFeild(
                           controller: tenthPercentagemarksController,
-                          hintText: "67",
-                          labelText: "Percentage",
+                          hintText: context.resources.strings.percentageHint,
+                          labelText: context.resources.strings.percentage,
                         )),
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
                           controller: tenthBacklogController,
-                          hintText: "0",
-                          labelText: "No. of Backlogs (if any)",
+                          hintText: context.resources.strings.zero,
+                          labelText: context.resources.strings.noofBacklogsifany,
                         )),
                   ],
                 ),
@@ -303,7 +304,7 @@ class StudentFormVM extends ChangeNotifier {
                   height: 16,
                 ),
                 Text(
-                  "12th",
+                context.resources.strings.twelveth,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
                 SizedBox(
@@ -315,8 +316,8 @@ class StudentFormVM extends ChangeNotifier {
                       child: HeritagedatePicker(
                         rowORColumn: 2,
                         result: twelveFromDate,
-                        dateFormat: 'MM/YYYY',
-                        labelText: "From(MM/YYYY)",
+                        dateFormat: context.resources.strings.monthyearDateFormat,
+                        labelText: context.resources.strings.fromMMYYYY,
                       ),
                     ),
                     verticleDivider,
@@ -324,8 +325,8 @@ class StudentFormVM extends ChangeNotifier {
                       child: HeritagedatePicker(
                         rowORColumn: 2,
                         result: twelveToDate,
-                        dateFormat: 'MM/YYYY',
-                        labelText: "To(MM/YYYY)",
+                        dateFormat: context.resources.strings.monthyearDateFormat,
+                        labelText: context.resources.strings.toMMYYYY,
                       ),
                     ),
                   ],
@@ -335,15 +336,15 @@ class StudentFormVM extends ChangeNotifier {
                     Expanded(
                         child: HeritageTextFeild(
                           controller: twelveStreamController,
-                          hintText: "Science,History",
-                          labelText: "Stream",
+                          hintText: context.resources.strings.scienceHistory,
+                          labelText: context.resources.strings.stream,
                         )),
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
                           controller: twelveBoardController,
-                          hintText: "P.S.E.B",
-                          labelText: "Board/University/College",
+                          hintText: context.resources.strings.CBSE,
+                          labelText: context.resources.strings.boardUniversityCollege,
                         )),
                   ],
                 ),
@@ -352,15 +353,15 @@ class StudentFormVM extends ChangeNotifier {
                     Expanded(
                         child: HeritageTextFeild(
                           controller: twelvePercentagemarksController,
-                          hintText: "67",
-                          labelText: "Percentage",
+                          hintText: context.resources.strings.percentageHint,
+                          labelText: context.resources.strings.percentage,
                         )),
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
                           controller: twelveBacklogController,
-                          hintText: "0",
-                          labelText: "No. of Backlogs (if any)",
+                          hintText: context.resources.strings.zero,
+                          labelText: context.resources.strings.noofBacklogsifany,
                         )),
                   ],
                 ),
@@ -383,27 +384,27 @@ class StudentFormVM extends ChangeNotifier {
                 //HeritagedatePicker(rowORColumn: 1, result: DOBdate,dateFormat: 'yyyy-MM-dd',labelText: "DOB",),
                 //Divider(),
                 Text(
-                  "Assessment Information",
+                  context.resources.strings.assessmentInformation,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
                 SizedBox(
                   height: 16,
                 ),
                 YesNoWidget(
-                    labelText: "Criminal History",
+                    labelText: context.resources.strings.criminalHistory,
                     selected: criminalHistory),
                 HeritageTextFeild(
                   controller: travelHistoryController,
-                  hintText: "Dubai",
-                  labelText: "Travel History (mention   country name only)",
+                  hintText: context.resources.strings.dubai,
+                  labelText:context.resources.strings.travelHistory,
                 ),
                 HeritageTextFeild(
                   controller: countryController,
-                  hintText: "Canada",
-                  labelText: "Country (If applicable)",
+                  hintText: context.resources.strings.dubai,
+                  labelText:context.resources.strings.CountryIfapplicable,
                 ),
                 YesNoWidget(
-                    labelText: "Any Refusal(s)", selected: anyRefusal),
+                    labelText:context.resources.strings.anyRefusals, selected: anyRefusal),
               ],
             ),
           ),
@@ -424,7 +425,7 @@ class StudentFormVM extends ChangeNotifier {
                 //HeritagedatePicker(rowORColumn: 1, result: DOBdate,dateFormat: 'yyyy-MM-dd',labelText: "DOB",),
                 //Divider(),
                 Text(
-                  "IELTS (Gen/ Aca)",
+                  context.resources.strings.IELTSGenAca,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
                 SizedBox(
@@ -433,37 +434,37 @@ class StudentFormVM extends ChangeNotifier {
                 HeritagedatePicker(
                   rowORColumn: 1,
                   result: ieltsYear,
-                  dateFormat: 'YYYY',
-                  labelText: "Year",
+                  dateFormat: context.resources.strings.yearFormat,
+                  labelText: context.resources.strings.year,
                 ),
                 Row(
                   children: [
                     Expanded(
                         child: HeritageTextFeild(
                           controller: ieltsLController,
-                          hintText: "6",
-                          labelText: "L",
+                          hintText: context.resources.strings.eight,
+                          labelText: context.resources.strings.L,
                         )),
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
                           controller: ieltsRController,
-                          hintText: "7",
-                          labelText: "R",
+                          hintText: context.resources.strings.eight,
+                          labelText: context.resources.strings.R,
                         )),
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
                           controller: ieltsWController,
-                          hintText: "8",
-                          labelText: "W",
+                          hintText: context.resources.strings.eight,
+                          labelText: context.resources.strings.W,
                         )),
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
                           controller: ieltsSController,
-                          hintText: "6",
-                          labelText: "S",
+                          hintText: context.resources.strings.eight,
+                          labelText: context.resources.strings.S,
                         )),
                   ],
                 ),
@@ -472,29 +473,29 @@ class StudentFormVM extends ChangeNotifier {
                     Expanded(
                         child: HeritageTextFeild(
                           controller: travelHistoryController,
-                          hintText: "7",
-                          labelText: "O.A.",
+                          hintText: context.resources.strings.eight,
+                          labelText:context.resources.strings.OA,
                         )),
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
                           controller: countryController,
-                          hintText: "O.A.",
-                          labelText: "IDP / BC",
+                          hintText: context.resources.strings.OA,
+                          labelText: context.resources.strings.IDPBC,
                         )),
                   ],
                 ),
                 HeritageTextFeild(
                   controller: travelHistoryController,
-                  hintText: "Toronto",
+                  hintText: context.resources.strings.dubai,
                   labelText:
-                  "Any Province preference (In Canada), if no then mention NONE",
+                  context.resources.strings.anyProvincePreferenceInCanadaIfNoThenMentionNONE,
                 ),
                 HeritageTextFeild(
                   controller: countryController,
-                  hintText: "Canadian University",
+                  hintText: context.resources.strings.canadianUniversity,
                   labelText:
-                  "Any College/Program Preference, if no then mention NONE",
+                  context.resources.strings.anyCollegeProgramPreferenceIFNoThenMentionNONE,
                 ),
               ],
             ),
@@ -543,7 +544,7 @@ class StudentFormVM extends ChangeNotifier {
             );
            notifyListeners();
           },
-          labelText: "Next",
+          labelText:context.resources.strings.next,
         ));
   }
 }
