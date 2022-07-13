@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+
+import '../../../../constants/FormWidgetTextField.dart';
 import '../../../../src/loginSignup/LoginSignUpViewModel.dart';
 import '../../../../utils/extension.dart';
-import '../../../../constants/FormWidgetTextField.dart';
 
 class PhoneNumberPage extends StatelessWidget {
   final LoginSignUpViewModel model;

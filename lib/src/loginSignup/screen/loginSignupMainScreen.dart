@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import 'package:provider/provider.dart';
+
 import '../../../src/loginSignup/LoginSignUpViewModel.dart';
 import '../../../src/loginSignup/screen/desktop/loginSignUpDesktop.dart';
 import '../../../src/loginSignup/screen/mobile/loginSignUpmobile.dart';
 import '../../../src/loginSignup/screen/tablet/loginSignUpTablet.dart';
 import '../../../utils/extension.dart';
 import '../../../utils/responsive/responsive.dart';
-import 'package:loader_overlay/loader_overlay.dart';
-import 'package:provider/provider.dart';
 
 class LoginSignUpMainScreen extends StatefulWidget {
   final LoginSignUpViewModel model;
@@ -31,7 +32,6 @@ class _LoginSignUpMainScreenState extends State<LoginSignUpMainScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    Size _size = MediaQuery.of(context).size;
     if(widget.model.firstInit<1){
       widget.model.firstInit++;
       widget.model.initPage(context);

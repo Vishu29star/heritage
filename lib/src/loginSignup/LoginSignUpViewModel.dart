@@ -1,19 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../data/firestore_constants.dart';
-import '../../data/remote/mainService.dart';
-import '../../src/home/home.dart';
-import '../../src/mainViewModel.dart';
-import '../../src/loginSignup/LoginSignUpService.dart';
-import '../../utils/encryptry.dart';
-import '../../utils/extension.dart';
 import 'package:intl/intl.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../route/routes.dart';
+import '../../data/firestore_constants.dart';
+import '../../data/remote/mainService.dart';
 import '../../route/myNavigator.dart';
+import '../../route/routes.dart';
+import '../../src/home/home.dart';
+import '../../src/loginSignup/LoginSignUpService.dart';
+import '../../src/mainViewModel.dart';
+import '../../utils/encryptry.dart';
+import '../../utils/extension.dart';
 
 class LoginSignUpViewModel extends ChangeNotifier{
   LoginSignUpViewModel(this.loginSignUpService,this.mainModel);
@@ -142,8 +142,6 @@ class LoginSignUpViewModel extends ChangeNotifier{
         pagePosition = 3;
         pageController.jumpToPage(3);
         passwordErrorText = null;
-      }else{
-        passwordErrorText = context?.resources.strings.invalidPin;
       }
       notifyListeners();
     });
@@ -353,12 +351,14 @@ class LoginSignUpViewModel extends ChangeNotifier{
         user  = userCredential.user!;
         if(!user.emailVerified){
           user.sendEmailVerification();
-          mainModel?.showTopInfoMessage(context!, context?.resources.strings.verificationEmailSent);
+          Future.delayed(Duration(seconds: 4),(){
+            mainModel?.showTopInfoMessage(context!, context?.resources.strings.verificationEmailSent);
+          });
         }
+
         mainModel?.showTopSuccessMessage(context!, context?.resources.strings.loginSuccessfully);
         if(user.displayName!=null){
           context!.loaderOverlay.hide();
-
           Navigator.push(context!, MaterialPageRoute(builder: (context) => const Home()),);
         }else{
           context!.loaderOverlay.hide();

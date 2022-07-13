@@ -1,18 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../../../../constants/FormWidgetTextField.dart';
+
 import '../../../../src/loginSignup/LoginSignUpViewModel.dart';
 import '../../../../src/loginSignup/screen/passwordVerificationScreen.dart';
 import '../../../../src/loginSignup/screen/phoneNumberPage.dart';
 import '../../../../src/loginSignup/screen/setProfile.dart';
-import '../../../../utils/app_style/app_Style.dart';
-import '../../../../utils/colors/appColors.dart';
 import '../../../../utils/extension.dart';
-import '../../../../utils/strings/strings.dart';
-import 'package:pinput/pinput.dart';
-
-import '../../../../utils/date_of_bith_formattor.dart';
 import '../conFirmPasswordPage.dart';
 
 class LoginSignUpMobile extends StatelessWidget {

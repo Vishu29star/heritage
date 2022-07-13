@@ -1,13 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
+
+import 'package:flutter/cupertino.dart';
+
 import '../utils/dimension/AppDimension.dart';
 import '../utils/dimension/Dimensions.dart';
 import '../utils/dimension/dimension_tablet.dart';
 import '../utils/dimension/dimension_web.dart';
 import '../utils/strings/englishString.dart';
 import '../utils/strings/strings.dart';
-
 import 'colors/appColors.dart';
 
 class Resources {

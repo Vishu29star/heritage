@@ -1,16 +1,17 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:responsive_framework/utils/scroll_behavior.dart';
-import 'package:loader_overlay/loader_overlay.dart';
+
 import 'data/locol/prefrencesUtils.dart';
+import 'firebase_options.dart';
+import 'global/global.dart';
+import 'route/myNavigator.dart';
 import 'route/routes.dart';
 import 'src/splash/splashScreen.dart';
-import 'route/myNavigator.dart';
-import 'global/global.dart';
-import 'firebase_options.dart';
 import 'utils/extension.dart';
 
 Future<void> main() async {

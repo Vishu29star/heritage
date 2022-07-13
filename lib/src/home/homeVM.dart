@@ -1,18 +1,16 @@
-import 'dart:math';
-
 import 'package:Heritage/src/cisForm/cis_form_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../data/firestore_constants.dart';
-import '../../route/myNavigator.dart';
-import '../../src/home/homeService.dart';
-import '../studenntForm/student_form_widget.dart';
-import '../../utils/responsive/responsive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../constants/collipsible_nav/collapsible_sidebar/collapsible_item.dart';
+import '../../data/firestore_constants.dart';
+import '../../route/myNavigator.dart';
 import '../../route/routes.dart';
+import '../../src/home/homeService.dart';
+import '../../utils/responsive/responsive.dart';
 import '../mainViewModel.dart';
+import '../studenntForm/student_form_widget.dart';
 
 class HomeVM extends ChangeNotifier{
   final GlobalKey<ScaffoldState> key = GlobalKey(); // Create a key
@@ -43,6 +41,10 @@ class HomeVM extends ChangeNotifier{
 
   openDrawer(){
     key.currentState!.openDrawer();
+  }
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    myNavigator.popAllAndPushNamedReplacement(context!, Routes.login);
   }
 
   getLocalData(){
@@ -104,6 +106,15 @@ class HomeVM extends ChangeNotifier{
         title: const Text('Metting'),
         onTap: () {
           changeHomeItem(2);
+        },
+      ),
+      ListTile(
+        leading: Icon(
+          Icons.logout_sharp,
+        ),
+        title: const Text('Logout'),
+        onTap: () {
+          _signOut();
         },
       ),
     ]);

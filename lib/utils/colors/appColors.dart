@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+
 import '../../utils/colors/base_color.dart';
 
 class AppColor implements BaseColors{

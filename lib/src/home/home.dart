@@ -5,17 +5,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import '../../constants/collipsible_nav/collapsible_sidebar.dart';
-import '../cisForm/cis_form_widget.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import 'package:provider/provider.dart';
+
 import '../../src/home/homeService.dart';
 import '../../src/home/homeVM.dart';
 import '../../src/mainViewModel.dart';
-
 import '../../utils/extension.dart';
-import 'package:loader_overlay/loader_overlay.dart';
-import 'package:provider/provider.dart';
-import 'dart:math' as math show pi;
-import '../../constants/collipsible_nav/collapsible_sidebar/collapsible_item.dart';
 import '../../utils/responsive/responsive.dart';
 
 class Home extends StatefulWidget {
@@ -28,7 +24,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: ChangeNotifierProvider<HomeVM>(
         create: (_) => HomeVM(HomeService(), MainViewMoel()),

@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../../../src/loginSignup/LoginSignUpViewModel.dart';
-import '../../../../utils/extension.dart';
 
+import '../../../../src/loginSignup/LoginSignUpViewModel.dart';
 import '../../../../utils/app_style/app_Style.dart';
+import '../../../../utils/extension.dart';
 import '../conFirmPasswordPage.dart';
 import '../passwordVerificationScreen.dart';
 import '../phoneNumberPage.dart';

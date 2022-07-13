@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+
 import '../../../../utils/app_style/app_Style.dart';
 import '../../../../utils/extension.dart';
-
-import '../../../../constants/FormWidgetTextField.dart';
 import '../../LoginSignUpViewModel.dart';
 import '../conFirmPasswordPage.dart';
 import '../passwordVerificationScreen.dart';

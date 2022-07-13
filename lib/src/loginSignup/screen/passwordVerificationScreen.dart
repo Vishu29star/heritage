@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../utils/extension.dart';
+
 import '../../../constants/FormWidgetTextField.dart';
 import '../../../global/global.dart';
 import '../../../utils/app_style/app_Style.dart';
+import '../../../utils/extension.dart';
 import '../LoginSignUpViewModel.dart';
 
 class PasswordVerificationScreen extends StatelessWidget {
@@ -63,32 +64,6 @@ class PasswordVerificationScreen extends StatelessWidget {
                     width: double.infinity,
                     child: Button(isEnabled: model.passwordErrorText == null ? true : false,onPressed: () =>  model.passwordErrorText == null ? model.loginUser() : null,labelText: context.resources.strings.login,)
                 ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    // TODO: implement callback
-                    onPressed: () => model.passwordErrorText == null ? model.loginUser() : null,
-                    child: Text(
-                      context.resources.strings.login,
-                      style: TextStyle(color: Colors.white,fontSize: 18),
-                    ),
-                    style: ButtonStyle(
-                        padding: MaterialStateProperty.resolveWith<EdgeInsetsGeometry>(
-                              (Set<MaterialState> states) {
-                            return EdgeInsets.all(16);
-                          },
-                        ),
-                        shadowColor: MaterialStateProperty.all<Color>(model.emailErrorText == null ? Theme.of(context).primaryColor:
-                        Colors.grey),
-                        backgroundColor:
-                        MaterialStateProperty.all(model.emailErrorText == null ? Theme.of(context).primaryColor:
-                        Colors.grey),
-                        shape: MaterialStateProperty.all<
-                            RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0),))),
-                  ),
-                )
               ],
             ),
           ),

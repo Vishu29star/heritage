@@ -3,14 +3,14 @@ import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import '../src/mainViewModel.dart';
+
+import '../src/home/home.dart';
 import '../src/loginSignup/LoginSignUpService.dart';
 import '../src/loginSignup/LoginSignUpViewModel.dart';
 import '../src/loginSignup/screen/loginSignupMainScreen.dart';
+import '../src/mainViewModel.dart';
 import '../src/splash/splashScreen.dart';
 import '../src/studenntForm/student_form_widget.dart';
-
-import '../src/home/home.dart';
 
 class Routes {
   static const String home = "home";

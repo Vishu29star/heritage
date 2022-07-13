@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../utils/extension.dart';
 
 import '../../../../constants/FormWidgetTextField.dart';
 import '../../../../utils/date_of_bith_formattor.dart';
+import '../../../../utils/extension.dart';
 import '../../LoginSignUpViewModel.dart';
 
 class SetProfilePage extends StatelessWidget {
