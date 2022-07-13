@@ -51,7 +51,6 @@ class MainService {
 
     return _updateConnectionStatus(result);
   }
-
   void initState() {
     initConnectivity();
     connectivitySubscription = _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
