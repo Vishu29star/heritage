@@ -25,15 +25,16 @@ class HomeVM extends ChangeNotifier{
   int pagePosition = 0;
   bool isCollapsed = true;
   bool isDataLoad = false;
-  late String name, email;
+  late String name, email,userType;
 
   List<String> homeItems = [];
   List<Widget> generateItems =  [];
 
-  firstInt(BuildContext context){
+  firstInt(BuildContext context) async {
+    isDataLoad = false;
+    notifyListeners();
     this.context  = context;
-
-    addNavItems();
+    await addNavItems();
     homeItems.addAll(["Express Entry","Spousal sponsership","Student visa","Care Giver Visa","Care Giver PR","Work Permits","visitor Visa"]);
     isDataLoad = true;
     notifyListeners();
@@ -53,16 +54,18 @@ class HomeVM extends ChangeNotifier{
   }
   addNavItems() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    var first_name = await preferences.getString(FirestoreConstnats.first_name) ?? "first name";
-    var last_name = await preferences.getString(FirestoreConstnats.last_name) ?? "last name";
-    name = first_name + " " + last_name;
+    var first_name = await preferences.getString(FirestoreConstnats.name) ?? "name";
+    name = first_name;
     email = await preferences.getString(FirestoreConstnats.email) ?? "email";
-    generateItems.addAll([ /*DrawerHeader(
-      decoration: BoxDecoration(
-        color: Colors.blue,
-      ),
-      child: Text('Name'),
-    ),*/
+    String userType = "customer";
+    if(email.toLowerCase().trim()=="admin@heritage.com"){
+      userType = "admin";
+    }
+    if(email.toLowerCase().trim()=="super@heritage.com"){
+      userType = "superadmin";
+    }
+    this.userType = userType;
+    generateItems.addAll([
       UserAccountsDrawerHeader( // <-- SEE HERE
         decoration: BoxDecoration(color: Theme.of(context!).primaryColor),
         accountName: Text(

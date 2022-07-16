@@ -2,8 +2,10 @@
   //collection names
 
   static String users = "users";
+  static String user_type = "user_type";
   static String first_name = "first_name";
   static String last_name = "last_name";
+  static String name = "name";
   static String phone_number = "phone_number";
   static String email = "email";
   static String dob = "dob";

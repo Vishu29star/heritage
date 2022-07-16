@@ -1,4 +1,7 @@
+import 'package:Heritage/data/firestore_constants.dart';
+import 'package:Heritage/utils/encryptry.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -35,7 +38,7 @@ class _HomeState extends State<Home> {
             }
 
             return LoaderOverlay(
-              useDefaultLoading: false,
+              useDefaultLoading: model.isDataLoad,
               overlayWidget: Center(
                 child: SpinKitCubeGrid(
                   color: context.resources.color.colorPrimary,
@@ -45,11 +48,11 @@ class _HomeState extends State<Home> {
               overlayColor: Colors.black,
               overlayOpacity: 0.8,
               child: model.mainModel!.isNetworkPresent
-                  ?model.isDataLoad ? Responsive(
+                  ? model.isDataLoad ? Responsive(
                       mobile: HomeItem(model, 1),
                       tablet: HomeItem(model, 2),
                       desktop: HomeItem(model, 3),
-                    ):CircularProgressIndicator()
+                    ):Container()
                   : Center(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -106,11 +109,23 @@ class HomeItem extends StatelessWidget {
             ),
           ),
         ),
-        body: getHomeBody(model, context)!,
+        body: model.userType=="customer" ? getHomeBody(model, context)! : getAdminBody(model, context),
       ),
     );
   }
 
+  Widget? getAdminBody(HomeVM model, BuildContext context){
+    switch (model.pagePosition) {
+      case 0:
+        return UserList(
+          model,
+        );
+      case 1:
+        return UserList(model);
+      case 2:
+        return UserList(model);
+    }
+  }
 
   Widget? getHomeBody(HomeVM model, BuildContext context) {
     switch (model.pagePosition) {
@@ -125,6 +140,48 @@ class HomeItem extends StatelessWidget {
     }
   }
 }
+
+class UserList extends StatelessWidget {
+  final HomeVM model;
+  const UserList(this.model, {Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+
+    final Stream<QuerySnapshot> userStream  =  model.homeService!.usersStream;
+    return StreamBuilder<QuerySnapshot>(
+      stream: userStream,
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Something went wrong');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Text("Loading");
+        }
+        return ListView(
+          children: snapshot.data!.docs.map((DocumentSnapshot document) {
+            Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+            String name ="";
+            if(data.containsKey(FirestoreConstnats.first_name)){
+              name = encrydecry().decryptMsg(data[FirestoreConstnats.first_name]).toString().capitalize() +" "+encrydecry().decryptMsg(data[FirestoreConstnats.last_name]).toString().capitalize();
+            }
+            String email = encrydecry().decryptMsg(data[FirestoreConstnats.email]);
+            return Column(
+              children: [
+                ListTile(
+                  title: Text(name),
+                  subtitle: Text(email),
+                ),
+                Divider()
+              ],
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+}
+
 
 class DashBoardBody extends StatelessWidget {
   final HomeVM model;
