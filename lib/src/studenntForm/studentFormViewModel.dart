@@ -528,6 +528,8 @@ class StudentFormVM extends ChangeNotifier {
     return formWidgets;
   }
 
+
+
   Widget button1() {
     return SizedBox(
         height: 50,
@@ -535,7 +537,6 @@ class StudentFormVM extends ChangeNotifier {
         child: Button(
           isEnabled: true,
           onPressed: () {
-            print("erftghyjk");
             pagePostion = pagePostion + 1;
             pageController.animateToPage(
               pagePostion,

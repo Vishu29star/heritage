@@ -1,5 +1,6 @@
-import 'package:Heritage/data/firestore_constants.dart';
-import 'package:Heritage/utils/encryptry.dart';
+import 'package:Heritage/constants/HeritageErrorWidget(.dart';
+import 'package:Heritage/src/home/userWidget/UserDetail.dart';
+import 'package:Heritage/src/home/userWidget/userList.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,11 +12,13 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
+import '../../constants/HeritageCircularProgressBar.dart';
 import '../../src/home/homeService.dart';
 import '../../src/home/homeVM.dart';
 import '../../src/mainViewModel.dart';
 import '../../utils/extension.dart';
 import '../../utils/responsive/responsive.dart';
+
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -36,7 +39,6 @@ class _HomeState extends State<Home> {
               model.firstInit++;
               model.firstInt(context);
             }
-
             return LoaderOverlay(
               useDefaultLoading: model.isDataLoad,
               overlayWidget: Center(
@@ -117,13 +119,13 @@ class HomeItem extends StatelessWidget {
   Widget? getAdminBody(HomeVM model, BuildContext context){
     switch (model.pagePosition) {
       case 0:
-        return UserList(
+        return AdminDashboardBody(
           model,
         );
       case 1:
-        return UserList(model);
+        return AdminDashboardBody(model);
       case 2:
-        return UserList(model);
+        return AdminDashboardBody(model);
     }
   }
 
@@ -141,9 +143,9 @@ class HomeItem extends StatelessWidget {
   }
 }
 
-class UserList extends StatelessWidget {
+class AdminDashboardBody extends StatelessWidget {
   final HomeVM model;
-  const UserList(this.model, {Key? key}) : super(key: key);
+  const AdminDashboardBody(this.model, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
 
@@ -152,35 +154,23 @@ class UserList extends StatelessWidget {
       stream: userStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
-          return Text('Something went wrong');
+          return HeritageErrorWidget();
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text("Loading");
+          return HeritageProgressBar();
         }
-        return ListView(
-          children: snapshot.data!.docs.map((DocumentSnapshot document) {
-            Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-            String name ="";
-            if(data.containsKey(FirestoreConstnats.first_name)){
-              name = encrydecry().decryptMsg(data[FirestoreConstnats.first_name]).toString().capitalize() +" "+encrydecry().decryptMsg(data[FirestoreConstnats.last_name]).toString().capitalize();
-            }
-            String email = encrydecry().decryptMsg(data[FirestoreConstnats.email]);
-            return Column(
-              children: [
-                ListTile(
-                  title: Text(name),
-                  subtitle: Text(email),
-                ),
-                Divider()
-              ],
-            );
-          }).toList(),
+        return Responsive.isMobile(context) ? UserList(snapshot,model):Row(
+          children: [
+            Expanded(flex:3,child: UserList(snapshot,model)),
+            Expanded(flex:7,child: UserDetail(model)),
+          ],
         );
       },
     );
   }
 }
+
 
 
 class DashBoardBody extends StatelessWidget {

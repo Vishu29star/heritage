@@ -32,7 +32,7 @@ class HomeVM extends ChangeNotifier{
 
   firstInt(BuildContext context) async {
     isDataLoad = false;
-    notifyListeners();
+    //notifyListeners();
     this.context  = context;
     await addNavItems();
     homeItems.addAll(["Express Entry","Spousal sponsership","Student visa","Care Giver Visa","Care Giver PR","Work Permits","visitor Visa"]);
@@ -179,5 +179,23 @@ class HomeVM extends ChangeNotifier{
         }
         break;
     }
+  }
+
+
+  //Admin users data
+
+String selectedUserId = "";
+
+  selectuser(String selectedUserId,{bool isFirst = false}){
+    print("drftgyhujikoiubyvtcr");
+    this.selectedUserId = selectedUserId;
+    if(!isFirst){
+      notifyListeners();
+    }else{
+      Future.delayed(Duration(seconds: 1),(){
+        notifyListeners();
+      });
+    }
+
   }
 }

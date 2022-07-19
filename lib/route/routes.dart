@@ -1,4 +1,6 @@
 import 'package:Heritage/src/cisForm/cis_form_widget.dart';
+import 'package:Heritage/src/home/homeVM.dart';
+import 'package:Heritage/src/home/userWidget/UserDetail.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,7 @@ class Routes {
   static const String login = "login";
   static const String studentForm = "studentForm";
   static const String cisForm = "cisForm";
+  static const String userDetail = "userDetail";
 
   static Route<T> fadeThrough<T>(RouteSettings settings, WidgetBuilder page,
       {int duration = 300}) {
@@ -52,6 +55,23 @@ class Routes {
             builder: (_) => LoginSignUpMainScreen(loginViewModel),
           );
         }
+
+
+      case userDetail:
+        if (args is Map<String, dynamic>){
+          HomeVM model = args["model"] as HomeVM;
+          return CupertinoPageRoute(
+            builder: (_) => UserDetail(model),
+          );
+        }
+        return MaterialPageRoute(builder: (_) {
+          return Scaffold(
+            body: Center(
+              child: Text("Error!! Route"),
+            ),
+          );
+        });
+
 
       case home:
         return CupertinoPageRoute(

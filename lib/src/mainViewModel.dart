@@ -37,33 +37,37 @@ class MainViewMoel extends ChangeNotifier {
     }
   }
   Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    switch(result){
-      case ConnectivityResult.bluetooth:
-        showInterNetMessage("Bluetooth Connection");
-        isNetworkPresent = false;
-        // TODO: Handle this case.
-        break;
-      case ConnectivityResult.wifi:
-        showInterNetMessage("Wifi Connection");
-        // TODO: Handle this case.
-        break;
-      case ConnectivityResult.ethernet:
-        showInterNetMessage("Ethernet Connection");
-        // TODO: Handle this case.
-        break;
-      case ConnectivityResult.mobile:
-        showInterNetMessage("Mobile Connection");
-        // TODO: Handle this case.
-        break;
-        /*5tJAMJW3yhFlcaDXF6z93w==
+    Future.delayed(Duration(seconds: 2),(){
+      switch(result){
+        case ConnectivityResult.bluetooth:
+          showInterNetMessage("Bluetooth Connection");
+          isNetworkPresent = false;
+          // TODO: Handle this case.
+          break;
+        case ConnectivityResult.wifi:
+
+          showInterNetMessage("Wifi Connection");
+          // TODO: Handle this case.
+          break;
+        case ConnectivityResult.ethernet:
+          showInterNetMessage("Ethernet Connection");
+          // TODO: Handle this case.
+          break;
+        case ConnectivityResult.mobile:
+          showInterNetMessage("Mobile Connection");
+          // TODO: Handle this case.
+          break;
+      /*5tJAMJW3yhFlcaDXF6z93w==
         * */
-      case ConnectivityResult.none:
-        showInterNetMessage("No Connection");
-        isNetworkPresent = false;
-        // TODO: Handle this case.
-        break;
-    }
-    notifyListeners();
+        case ConnectivityResult.none:
+          showInterNetMessage("No Connection");
+          isNetworkPresent = false;
+          // TODO: Handle this case.
+          break;
+      }
+      notifyListeners();
+    });
+
   }
 
   showInterNetMessage(String message){
