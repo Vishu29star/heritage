@@ -1,12 +1,17 @@
+import 'package:Heritage/data/remote/apiModels/apiResponse.dart';
 import 'package:Heritage/src/studenntForm/studentFormService.dart';
 import 'package:Heritage/utils/extension.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../constants/FormWidgetTextField.dart';
 import '../../constants/HeritageYesNoWidget.dart';
 import '../../constants/HeritagedatePicker.dart';
+import '../../data/firestore_constants.dart';
 import '../../utils/Utils.dart';
+import '../../utils/encryptry.dart';
 import '../mainViewModel.dart';
 
 class StudentFormVM extends ChangeNotifier {
@@ -16,6 +21,11 @@ class StudentFormVM extends ChangeNotifier {
   final StudentFormService? studentFormService;
 
   late BuildContext context;
+  late String currentUID;
+
+  bool isLoading =  true;
+  dynamic errorText =  null;
+  int firstInt = 0;
   DateTime date = DateTime.now();
   TextEditingController nameController = TextEditingController();
   TextEditingController refferdByController = TextEditingController();
@@ -80,8 +90,50 @@ class StudentFormVM extends ChangeNotifier {
 
 
 
-  List<Widget> getWidgetList(BuildContext context){
+  Future<void> checkForStudentForm(BuildContext context,String uid) async {
+    bool isnewData = false;
     this.context = context;
+    this.currentUID= uid;
+    mainModel?.showhideprogress(true, context);
+    firstInt++;
+    isLoading = true;
+    Future.delayed(Duration(microseconds: 100),(){
+      notifyListeners();
+    });
+    try{
+      ApiResponse? result = await studentFormService?.checkForStudentForm(currentUID);
+      if(result != null && result.status=="success"){
+        ApiResponse? studentData = await studentFormService?.getUserStudentForm(result.data.toString());
+      }else{
+        var uuid = Uuid();
+        Map<String,dynamic> data = {
+          FirestoreConstnats.case_id:uuid.v1() ,
+          FirestoreConstnats.createdAt:FieldValue.serverTimestamp(),
+          FirestoreConstnats.updatedAt:FieldValue.serverTimestamp(),
+          FirestoreConstnats.logs:FieldValue.arrayUnion([{FirestoreConstnats.time:FieldValue.serverTimestamp(),FirestoreConstnats.uid:currentUID}])
+        };
+        await studentFormService?.createUserStudentForm(data);
+        //need to work on update user FormData
+        //await studentFormService?.createUserStudentForm(data);
+        isnewData = true;
+      }
+    }catch(e){
+      print(e);
+      errorText = e.toString();
+    }
+    if(isnewData){
+      Future.delayed(Duration(microseconds: 500),(){
+        notifyListeners();
+      });
+    }
+    if(!isnewData){
+      notifyListeners();
+    }
+
+  }
+
+  List<Widget> getWidgetList(){
+
     form1Widget = Column(
       children: [
         Expanded(

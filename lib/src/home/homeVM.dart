@@ -17,6 +17,7 @@ class HomeVM extends ChangeNotifier{
   HomeVM(this.homeService,this.mainModel);
   final MainViewMoel? mainModel;
   final HomeService? homeService;
+  String selectedUserId = "";
 
   BuildContext? context;
   var width;
@@ -57,6 +58,7 @@ class HomeVM extends ChangeNotifier{
     var first_name = await preferences.getString(FirestoreConstnats.name) ?? "name";
     name = first_name;
     email = await preferences.getString(FirestoreConstnats.email) ?? "email";
+    selectedUserId = await preferences.getString(FirestoreConstnats.uid) ?? "selectedUserId";
     String userType = "customer";
     if(email.toLowerCase().trim()=="admin@heritage.com"){
       userType = "admin";
@@ -144,11 +146,11 @@ class HomeVM extends ChangeNotifier{
   }
 
 
-  handleServiceClick(String title ){
+  handleServiceClick(String title,String userId ){
     switch(title){
       case "Student visa":
         if(Responsive.isMobile(context!)){
-          myNavigator.pushNamed(context!, Routes.studentForm);
+          myNavigator.pushNamed(context!, Routes.studentForm,arguments: userId);
         }else{
           showDialog(
               context: context!,
@@ -157,7 +159,7 @@ class HomeVM extends ChangeNotifier{
                     shape: RoundedRectangleBorder(
                         borderRadius:
                         BorderRadius.circular(20.0)),
-                    child: Container(constraints: BoxConstraints(minWidth: 300, maxWidth: 450),child:StudenFormWidegt()));
+                    child: Container(constraints: BoxConstraints(minWidth: 300, maxWidth: 450),child:StudenFormWidegt(userId: userId,)));
               }
           );
         }
@@ -184,7 +186,7 @@ class HomeVM extends ChangeNotifier{
 
   //Admin users data
 
-String selectedUserId = "";
+
 
   selectuser(String selectedUserId,{bool isFirst = false}){
     print("drftgyhujikoiubyvtcr");

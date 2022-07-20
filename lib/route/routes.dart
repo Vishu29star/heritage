@@ -78,8 +78,9 @@ class Routes {
           builder: (_) => Home(),
         );
       case studentForm:
+        String userid = args as String;
         return MaterialPageRoute(
-          builder: (_) => StudenFormWidegt(),
+          builder: (_) => StudenFormWidegt(userId: userid,),
         );
       case cisForm:
         return MaterialPageRoute(

@@ -35,6 +35,16 @@ class UserDetail extends StatelessWidget {
             Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
             children.add(headingWithValue(context.resources.strings.email,data[FirestoreConstnats.email]));
 
+            for(int i = 0;i<model.homeItems.length;i++){
+              children.add(
+                  ListTile(
+                    onTap: (){
+                      model.handleServiceClick(model.homeItems[i],model.selectedUserId);
+                    },
+                title: Text(model.homeItems[i].toString()),
+                subtitle: Text("Blah, Blah",),));
+            }
+
             return ListView(
               padding: EdgeInsets.all(16),
               children: children,

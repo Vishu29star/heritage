@@ -221,7 +221,7 @@ class DashBoardBody extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () {
-             model.handleServiceClick(item);
+             model.handleServiceClick(item,model.selectedUserId);
           },
           child: Stack(
             fit: StackFit.expand,
