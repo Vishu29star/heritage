@@ -7,7 +7,8 @@ class YesNoWidget extends StatefulWidget {
   String selected;
   String value1;
   String value2;
-  YesNoWidget({Key? key,required this.labelText, required this.selected,this.value1 = "yes",this.value2 = "no"}) : super(key: key);
+  Function? onSelection;
+  YesNoWidget({Key? key,required this.labelText, required this.selected,this.onSelection,this.value1 = "yes",this.value2 = "no"}) : super(key: key);
 
   @override
   _YesNoWidgetState createState() => _YesNoWidgetState();
@@ -57,6 +58,7 @@ class _YesNoWidgetState extends State<YesNoWidget> {
                 onTap: (){
                   setState(() {
                     widget.selected = widget.value1;
+                    widget.onSelection!(widget.selected);
                   });
                 },
                 child: Neumorphic(
@@ -76,6 +78,7 @@ class _YesNoWidgetState extends State<YesNoWidget> {
                 onTap: (){
                   setState(() {
                     widget.selected = widget.value2;
+                    widget.onSelection!(widget.selected);
                   });
                 },
                 child: Neumorphic(

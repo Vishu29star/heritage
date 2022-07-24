@@ -4,6 +4,7 @@ import 'package:Heritage/utils/extension.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -29,6 +30,11 @@ class StudentFormVM extends ChangeNotifier {
   bool isLoading =  true;
   dynamic errorText ;
   int firstInt = 0;
+  var nameErrorText = null;
+  var cityVillageErrorText = null;
+  var studentContactError = null;
+  var studentemailError = null;
+  var emailParentError = null;
   DateTime date = DateTime.now();
   TextEditingController nameController = TextEditingController();
   TextEditingController refferdByController = TextEditingController();
@@ -155,7 +161,85 @@ class StudentFormVM extends ChangeNotifier {
 
   }
 
+  void setData(Map<String, dynamic> data){
+    //form 1
+    if(data.containsKey(FirestoreConstants.student_form_date)){
+      date = DateTime.fromMillisecondsSinceEpoch(data[FirestoreConstants.student_form_date]);
+    }
+    if(data.containsKey(FirestoreConstants.student_form_name)){
+      nameController.text = data[FirestoreConstants.student_form_name];
+    }
+    if(data.containsKey(FirestoreConstants.student_form_reffered_by)){
+      refferdByController.text = data[FirestoreConstants.student_form_reffered_by];
+    }
+    if(data.containsKey(FirestoreConstants.student_form_DOB)){
+      DOBDate = DateTime.fromMillisecondsSinceEpoch(data[FirestoreConstants.student_form_DOB]);
+    }
+    if(data.containsKey(FirestoreConstants.student_form_city_village)){
+      cityVillageController.text = data[FirestoreConstants.student_form_city_village];
+    }
+
+    //form 2
+    if(data.containsKey(FirestoreConstants.student_form_contact)){
+      studentContactController.text = data[FirestoreConstants.student_form_contact];
+    }
+    if(data.containsKey(FirestoreConstants.student_form_email)){
+      emailStudentController.text = data[FirestoreConstants.student_form_email];
+    }
+    if(data.containsKey(FirestoreConstants.student_form_parent_email)){
+      emailParentController.text = data[FirestoreConstants.student_form_parent_email];
+    }
+    if(data.containsKey(FirestoreConstants.student_form_number_of_children)){
+      noOfChildren.text = data[FirestoreConstants.student_form_number_of_children];
+    }
+    if(data.containsKey(FirestoreConstants.student_form_married)){
+      married = data[FirestoreConstants.student_form_married];
+    }
+
+    //form 3
+    if(data.containsKey(FirestoreConstants.student_spouse_name)){
+      spouseNameController.text = data[FirestoreConstants.student_spouse_name];
+    }
+    if(data.containsKey(FirestoreConstants.student_spouse_occupation)){
+      spouseOccupationController.text = data[FirestoreConstants.student_spouse_occupation];
+    }
+    if(data.containsKey(FirestoreConstants.student_father_name)){
+      fatherNameController.text = data[FirestoreConstants.student_father_name];
+    }
+    if(data.containsKey(FirestoreConstants.student_father_occupation)){
+      fatherOccupationController.text = data[FirestoreConstants.student_father_occupation];
+    }
+    if(data.containsKey(FirestoreConstants.student_mother_name)){
+      motherNameController.text = data[FirestoreConstants.student_mother_name];
+    }
+    if(data.containsKey(FirestoreConstants.student_mother_occupation)){
+      motherOccupationController.text = data[FirestoreConstants.student_mother_occupation];
+    }
+    if(data.containsKey(FirestoreConstants.student_parent_contact)){
+      parentContactController.text = data[FirestoreConstants.student_parent_contact];
+    }
+    if(data.containsKey(FirestoreConstants.student_family_net_income)){
+      netFamilyIncomeController.text  = data[FirestoreConstants.student_family_net_income];
+    }
+  }
+
+
+  onBackPress(){
+    if(pagePostion==0){
+      Navigator.of(context).pop();
+    }else{
+      pagePostion--;
+      pageController.animateToPage(
+        pagePostion,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.linear,
+      );
+     // notifyListeners();
+    }
+  }
+
   List<Widget> getWidgetList(Map<String, dynamic> data){
+    setData(data);
     form1Widget = Column(
       children: [
         Expanded(
@@ -163,6 +247,10 @@ class StudentFormVM extends ChangeNotifier {
             child: Column(
               children: [
                 HeritagedatePicker(
+                  isEnable: false,
+                  onDateSelection: (dd){
+                    date = dd;
+                  },
                   rowORColumn: 1,
                   result: date,
                   dateFormat: context.resources.strings.DDMMYYYY,
@@ -170,6 +258,7 @@ class StudentFormVM extends ChangeNotifier {
                 ),
                 Divider(),
                 HeritageTextFeild(
+                  errorText: nameErrorText,
                   controller: nameController,
                   hintText: context.resources.strings.hintName,
                   labelText: context.resources.strings.enterName,
@@ -180,6 +269,10 @@ class StudentFormVM extends ChangeNotifier {
                   labelText: context.resources.strings.refferedby,
                 ),
                 HeritagedatePicker(
+                  isDOB:true,
+                  onDateSelection: (dd){
+                    DOBDate = dd;
+                  },
                   rowORColumn: 1,
                   result: DOBDate,
                   dateFormat: context.resources.strings.DDMMYYYY,
@@ -187,6 +280,7 @@ class StudentFormVM extends ChangeNotifier {
                 ),
                 Divider(),
                 HeritageTextFeild(
+                  errorText: cityVillageErrorText,
                   controller: cityVillageController,
                   hintText: context.resources.strings.hintCityName,
                   labelText: context.resources.strings.cityVillage,
@@ -208,26 +302,38 @@ class StudentFormVM extends ChangeNotifier {
             child: Column(
               children: [
                 HeritageTextFeild(
+                  errorText: studentContactError,
                   controller: studentContactController,
                   hintText: context.resources.strings.hintphoneNumber,
                   labelText: context.resources.strings.enterStudentContactNo,
+                  keyboardType: TextInputType.phone,
+                  prefixText: context.resources.strings.phoneNumberPrefix,
+                  inputformator: [ FilteringTextInputFormatter.allow(RegExp("[0-9]")),LengthLimitingTextInputFormatter(10),],
                 ),
                 HeritageTextFeild(
+                  errorText: studentemailError,
                   controller: emailStudentController,
                   hintText: context.resources.strings.emailHint,
                   labelText: context.resources.strings.enterEmail,
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 HeritageTextFeild(
+                  errorText: emailParentError,
                   controller: emailParentController,
                   hintText: context.resources.strings.enterParentemail,
                   labelText: context.resources.strings.emailHint,
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 HeritageTextFeild(
+                  keyboardType: TextInputType.phone,
                   controller: noOfChildren,
                   hintText: context.resources.strings.zero,
                   labelText: context.resources.strings.numberOfChildren,
+                  inputformator: [ FilteringTextInputFormatter.allow(RegExp("[0-9]")),LengthLimitingTextInputFormatter(2),],
                 ),
-                YesNoWidget(labelText: context.resources.strings.married, selected: married),
+                YesNoWidget(labelText: context.resources.strings.married, selected: married,onSelection: (result){
+                  married = result;
+                },),
               ],
             ),
           ),
@@ -247,44 +353,55 @@ class StudentFormVM extends ChangeNotifier {
                 //HeritagedatePicker(rowORColumn: 1, result: DOBdate,dateFormat: 'yyyy-MM-dd',labelText: "DOB",),
                 //Divider(),
                 HeritageTextFeild(
+                  keyboardType: TextInputType.name,
                   controller: spouseNameController,
                   hintText: context.resources.strings.hintName,
                   labelText: context.resources.strings.spousesName,
                 ),
                 HeritageTextFeild(
+                  keyboardType: TextInputType.name,
                   controller: spouseOccupationController,
                   hintText: context.resources.strings.manager,
                   labelText: context.resources.strings.spousesName,
                 ),
                 HeritageTextFeild(
+                  keyboardType: TextInputType.name,
                   controller: fatherNameController,
                   hintText: context.resources.strings.hintName,
                   labelText: context.resources.strings.fathersName,
                 ),
                 HeritageTextFeild(
+                  keyboardType: TextInputType.name,
                   controller: fatherOccupationController,
                   hintText: context.resources.strings.manager,
                   labelText: context.resources.strings.fathersOccupation,
                 ),
                 HeritageTextFeild(
+                  keyboardType: TextInputType.name,
                   controller: motherNameController,
                   hintText: context.resources.strings.hintName,
                   labelText: context.resources.strings.mothersName,
                 ),
                 HeritageTextFeild(
+                  keyboardType: TextInputType.name,
                   controller: motherOccupationController,
                   hintText: context.resources.strings.manager,
                   labelText: context.resources.strings.mothersOccupation,
                 ),
                 HeritageTextFeild(
+                  keyboardType: TextInputType.phone,
                   controller: parentContactController,
                   hintText: context.resources.strings.hintphoneNumber,
                   labelText: "Parent’s Contact No.",
+                  prefixText: context.resources.strings.phoneNumberPrefix,
+                  inputformator: [ FilteringTextInputFormatter.allow(RegExp("[0-9]")),LengthLimitingTextInputFormatter(10),],
                 ),
                 HeritageTextFeild(
+                  keyboardType: TextInputType.number,
                   controller: netFamilyIncomeController,
                   hintText: context.resources.strings.hintphoneNumber,
                   labelText: context.resources.strings.netFamilyIncomeAnnually,
+                  inputformator: [ FilteringTextInputFormatter.allow(RegExp("[0-9]")),LengthLimitingTextInputFormatter(10),],
                 ),
               ],
             ),
@@ -610,16 +727,163 @@ class StudentFormVM extends ChangeNotifier {
         width: double.infinity,
         child: Button(
           isEnabled: true,
-          onPressed: () {
-            pagePostion = pagePostion + 1;
-            pageController.animateToPage(
-              pagePostion,
-              duration: Duration(milliseconds: 300),
-              curve: Curves.linear,
-            );
-           notifyListeners();
+          onPressed: () async {
+            checkTheData();
           },
           labelText:context.resources.strings.next,
         ));
+  }
+
+  Future<void> checkTheData() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if(!isValidate()){
+      mainModel!.showTopErrorMessage(context, "Please enter valid Data");
+      return;
+    }
+    try{
+      var result = await studentFormService!.updateStudentForm(getMapData(), studentCaseId);
+      pagePostion = pagePostion + 1;
+      print("pagePostion");
+      print(pagePostion);
+      pageController.animateToPage(
+        pagePostion,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.linear,
+      );
+    }catch(e){
+      print(e);
+    }
+    //notifyListeners();
+  }
+
+  Map<String ,dynamic> getMapData(){
+    Map<String ,dynamic> data = {};
+    switch(pagePostion){
+      case 0:{
+        data.addAll(
+            {FirestoreConstants.student_form_date:date.millisecondsSinceEpoch,
+              FirestoreConstants.student_form_DOB:DOBDate.millisecondsSinceEpoch,
+              FirestoreConstants.student_form_name:nameController.text,
+              FirestoreConstants.student_form_reffered_by:refferdByController.text,
+              FirestoreConstants.student_form_city_village:cityVillageController.text,
+            }
+        );
+        break;
+      }
+      case 1:{
+        print("DOmarriedBDate");
+        print(married);
+        data.addAll(
+            {FirestoreConstants.student_form_contact:studentContactController.text,
+              FirestoreConstants.student_form_email:emailStudentController.text,
+              FirestoreConstants.student_form_parent_email:emailParentController.text,
+              FirestoreConstants.student_form_number_of_children:noOfChildren.text,
+              FirestoreConstants.student_form_married:married,
+            }
+        );
+
+        break;
+      }
+      case 2:{
+        print("DOmarriedBDate");
+        print(married);
+        data.addAll(
+            {FirestoreConstants.student_spouse_name:spouseNameController.text,
+              FirestoreConstants.student_spouse_occupation:spouseOccupationController.text,
+              FirestoreConstants.student_father_name:fatherNameController.text,
+              FirestoreConstants.student_father_occupation:fatherOccupationController.text,
+              FirestoreConstants.student_mother_name:motherNameController.text,
+              FirestoreConstants.student_mother_occupation:motherOccupationController.text,
+              FirestoreConstants.student_parent_contact:parentContactController.text,
+              FirestoreConstants.student_family_net_income:netFamilyIncomeController.text,
+            }
+        );
+
+        break;
+      }
+    }
+    return data;
+  }
+
+ bool isValidate(){
+    bool isValid = true;
+    switch(pagePostion){
+      case 0:{
+        if(nameController.text.isEmpty && nameController.text.length<3){
+          nameErrorText = "Please enter atleast 3 character";
+          isValid = false;
+        }
+        if(cityVillageController.text.isEmpty && cityVillageController.text.length<3){
+          cityVillageErrorText = "Please enter valid city or village";
+          isValid = false;
+        }
+        if(isValid){
+          nameErrorText = null;
+          cityVillageErrorText = null;
+        }
+        break;
+      }
+      case 1:{
+        if(studentContactController.text.isEmpty && studentContactController.text.length<10){
+          studentContactError = "Please enter valid phone number";
+          isValid = false;
+        }
+        if (emailStudentController.text.isEmpty) {
+          isValid = false;
+          studentemailError =  context.resources.strings.cantBeEmpty;
+        }
+        if (emailStudentController.text.length < 4) {
+          isValid = false;
+          studentemailError =  context.resources.strings.tooShort;
+        }
+        if(!isEmail(emailStudentController.text)){
+          isValid = false;
+          studentemailError =  context.resources.strings.notValidEmail;
+        }
+        if (emailParentController.text.isEmpty) {
+          isValid = false;
+          emailParentError =  context.resources.strings.cantBeEmpty;
+        }
+        if (emailParentController.text.length < 4) {
+          isValid = false;
+          emailParentError =  context.resources.strings.tooShort;
+        }
+        if(!isEmail(emailParentController.text)){
+          isValid = false;
+          emailParentError =  context.resources.strings.notValidEmail;
+        }
+        if(isValid){
+          studentContactError = null;
+          studentemailError = null;
+          emailParentError = null;
+        }
+        break;
+      }
+      case 2:{
+        /*if(nameController.text.isEmpty && nameController.text.length<3){
+          nameErrorText = "Please enter atleast 3 character";
+          isValid = false;
+        }
+        if(cityVillageController.text.isEmpty && cityVillageController.text.length<3){
+          cityVillageErrorText = "Please enter valid city or village";
+          isValid = false;
+        }
+        if(isValid){
+          nameErrorText = null;
+          cityVillageErrorText = null;
+        }*/
+        break;
+      }
+
+    }
+    return isValid;
+  }
+  bool isEmail(String em) {
+
+    String p = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+
+    RegExp regExp = new RegExp(p);
+
+    return regExp.hasMatch(em);
   }
 }

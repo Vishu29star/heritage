@@ -12,7 +12,10 @@ class HeritagedatePicker extends StatefulWidget {
   DateTime result;
   String dateFormat;
   String labelText;
-  HeritagedatePicker({Key? key,required this.rowORColumn,required this.result,required this.dateFormat,required this.labelText}) : super(key: key);
+  Function? onDateSelection;
+  bool isEnable;
+  bool isDOB;
+  HeritagedatePicker({Key? key,required this.rowORColumn,required this.result,required this.dateFormat,required this.labelText,this.onDateSelection,this.isEnable = true, this.isDOB = false}) : super(key: key);
 
   @override
   _HeritagedatePickerState createState() => _HeritagedatePickerState();
@@ -59,6 +62,7 @@ class _HeritagedatePickerState extends State<HeritagedatePicker> {
             Text(widget.labelText,style: TextStyle(color: Theme.of(context).primaryColor,fontWeight: FontWeight.w700),),
             InkWell(
               onTap: (){
+                if(widget.isEnable)
                 openDatePicker();
               },
               child: Neumorphic(
@@ -87,6 +91,7 @@ class _HeritagedatePickerState extends State<HeritagedatePicker> {
             SizedBox(height: 8*multiply,),
             InkWell(
               onTap: (){
+                if(widget.isEnable)
                 openDatePicker();
               },
               child: Neumorphic(
@@ -113,18 +118,18 @@ class _HeritagedatePickerState extends State<HeritagedatePicker> {
       widget.result = (await showMonthYearPicker(
         context: context,
         initialDate: DateTime.now(),
-        firstDate: DateTime(1960),
-        lastDate: DateTime(2030),
+        firstDate: DateTime(1970),
+        lastDate: widget.isDOB?DateTime.now():DateTime(2030),
       ))!;
     }else{
       widget.result = (await showDatePicker(
-
           context: context, //context of current state
           initialDate: DateTime.now(),
-          firstDate: DateTime(1950), //DateTime.now() - not to allow to choose before today.
-          lastDate: DateTime(2030)
+          firstDate: DateTime(1970), //DateTime.now() - not to allow to choose before today.
+        lastDate: widget.isDOB?DateTime.now():DateTime(2030),
       ))!;
     }
+    widget.onDateSelection!(widget.result);
     setState(() {
 
     });

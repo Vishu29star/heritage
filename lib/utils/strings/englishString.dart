@@ -19,7 +19,7 @@ class EngLishStrings extends Strings {
   String get lastName => 'Last name';
   String get phonenumber => 'Phone Number';
   String get dateOfBirth => 'Date of birth';
-  String get DDMMYYYY => 'DD/MM/YYYY';
+  String get DDMMYYYY => 'dd/MM/yyyy';
   String get hintphoneNumber => '9876567898';
   String get phoneNumberPrefix => '+91 ';
   String get enterValidPhoneNumber => 'Enter valid phone number';
