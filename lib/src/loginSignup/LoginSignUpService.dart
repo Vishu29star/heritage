@@ -11,7 +11,7 @@ class LoginSignUpService extends MainService{
 
     print("emailController.text");
     print(text);
-    var querySnapshot = await userRefrence.where(FirestoreConstnats.email,isEqualTo: text).get();
+    var querySnapshot = await userRefrence.where(FirestoreConstants.email,isEqualTo: text).get();
     print("querySnapshot.size");
     print(querySnapshot.size);
     if(querySnapshot.size>0){
@@ -24,16 +24,16 @@ class LoginSignUpService extends MainService{
   }
   
  Future<void> updateUserData(Map<String, dynamic> data) async {
-   data.addAll({FirestoreConstnats.updatedAt:FieldValue.serverTimestamp()});
-   print(data[FirestoreConstnats.uid]);
-   userRefrence.doc(data[FirestoreConstnats.uid]).update(data);
+   data.addAll({FirestoreConstants.updatedAt:FieldValue.serverTimestamp()});
+   print(data[FirestoreConstants.uid]);
+   userRefrence.doc(data[FirestoreConstants.uid]).update(data);
  }
 
 
  Future<void> setUserData(Map<String, dynamic> data) async {
-   data.addAll({FirestoreConstnats.updatedAt:FieldValue.serverTimestamp()});
-   print(data[FirestoreConstnats.uid]);
-   userRefrence.doc(data[FirestoreConstnats.uid]).set(data);
+   data.addAll({FirestoreConstants.updatedAt:FieldValue.serverTimestamp()});
+   print(data[FirestoreConstants.uid]);
+   userRefrence.doc(data[FirestoreConstants.uid]).set(data);
  }
  Future<UserCredential> registerUserWithPassword (String email, String password) async  {
    UserCredential credential = await MainService.auth.createUserWithEmailAndPassword(email: email, password: password);

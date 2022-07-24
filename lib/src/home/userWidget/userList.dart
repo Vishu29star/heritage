@@ -25,14 +25,14 @@ class UserList extends StatelessWidget {
     model.selectuser(snapshot.data!.docs.first.id,isFirst:true);
     }
     String name ="";
-    if(data.containsKey(FirestoreConstnats.first_name)){
-    name = encrydecry().decryptMsg(data[FirestoreConstnats.first_name]).toString().capitalize() +" "+encrydecry().decryptMsg(data[FirestoreConstnats.last_name]).toString().capitalize();
+    if(data.containsKey(FirestoreConstants.first_name)){
+    name = encrydecry().decryptMsg(data[FirestoreConstants.first_name]).toString().capitalize() +" "+encrydecry().decryptMsg(data[FirestoreConstants.last_name]).toString().capitalize();
     }
-    String email = encrydecry().decryptMsg(data[FirestoreConstnats.email]);
+    String email = encrydecry().decryptMsg(data[FirestoreConstants.email]);
     return ListTile(
-    selected: model.selectedUserId == data[FirestoreConstnats.uid],
+    selected: model.selectedUserId == data[FirestoreConstants.uid],
     onTap:(){
-      model.selectuser(data[FirestoreConstnats.uid]);
+      model.selectuser(data[FirestoreConstants.uid]);
       if( Responsive.isMobile(context)){
         var passValue = {"model":model};
         myNavigator.pushNamed(context, Routes.userDetail,arguments: passValue);

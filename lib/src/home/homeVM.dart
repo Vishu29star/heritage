@@ -18,6 +18,7 @@ class HomeVM extends ChangeNotifier{
   final MainViewMoel? mainModel;
   final HomeService? homeService;
   String selectedUserId = "";
+  String currentUserId = "";
 
   BuildContext? context;
   var width;
@@ -55,18 +56,23 @@ class HomeVM extends ChangeNotifier{
   }
   addNavItems() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    var first_name = await preferences.getString(FirestoreConstnats.name) ?? "name";
+    var first_name = await preferences.getString(FirestoreConstants.name) ?? "name";
     name = first_name;
-    email = await preferences.getString(FirestoreConstnats.email) ?? "email";
-    selectedUserId = await preferences.getString(FirestoreConstnats.uid) ?? "selectedUserId";
+    email = await preferences.getString(FirestoreConstants.email) ?? "email";
+    currentUserId = await preferences.getString(FirestoreConstants.uid) ?? "currentUserId";
+    print("vgbhnjkm");
+    print(currentUserId);
     String userType = "customer";
     if(email.toLowerCase().trim()=="admin@heritage.com"){
+      print("rdftghbjnkm");
       userType = "admin";
     }
     if(email.toLowerCase().trim()=="super@heritage.com"){
+      print("lhfghkjlk;l");
       userType = "superadmin";
     }
     this.userType = userType;
+    print(userType);
     generateItems.addAll([
       UserAccountsDrawerHeader( // <-- SEE HERE
         decoration: BoxDecoration(color: Theme.of(context!).primaryColor),
@@ -186,11 +192,10 @@ class HomeVM extends ChangeNotifier{
 
   //Admin users data
 
-
-
   selectuser(String selectedUserId,{bool isFirst = false}){
-    print("drftgyhujikoiubyvtcr");
     this.selectedUserId = selectedUserId;
+    print("selectedUserId");
+    print(selectedUserId);
     if(!isFirst){
       notifyListeners();
     }else{

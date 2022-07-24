@@ -4,6 +4,7 @@ import 'package:Heritage/utils/extension.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../constants/FormWidgetTextField.dart';
@@ -11,7 +12,7 @@ import '../../constants/HeritageYesNoWidget.dart';
 import '../../constants/HeritagedatePicker.dart';
 import '../../data/firestore_constants.dart';
 import '../../utils/Utils.dart';
-import '../../utils/encryptry.dart';
+
 import '../mainViewModel.dart';
 
 class StudentFormVM extends ChangeNotifier {
@@ -21,10 +22,12 @@ class StudentFormVM extends ChangeNotifier {
   final StudentFormService? studentFormService;
 
   late BuildContext context;
+  late String formUserId;
   late String currentUID;
+  late SharedPreferences preferences;
 
   bool isLoading =  true;
-  dynamic errorText =  null;
+  dynamic errorText ;
   int firstInt = 0;
   DateTime date = DateTime.now();
   TextEditingController nameController = TextEditingController();
@@ -88,41 +91,61 @@ class StudentFormVM extends ChangeNotifier {
   var form6Widget;
   List<Widget> formWidgets = [];
 
+  var studentCaseId = null;
+  var studentData;
+
 
 
   Future<void> checkForStudentForm(BuildContext context,String uid) async {
     bool isnewData = false;
     this.context = context;
-    this.currentUID= uid;
-    mainModel?.showhideprogress(true, context);
-    firstInt++;
+    formUserId= uid;
+    print(formUserId);
+    preferences = await SharedPreferences.getInstance();
+    currentUID = await preferences.getString(FirestoreConstants.uid) ?? "currentUserId";
+    print("vgbhnjkm");
+    print(currentUID);
     isLoading = true;
     Future.delayed(Duration(microseconds: 100),(){
+      mainModel?.showhideprogress(true, context);
       notifyListeners();
     });
     try{
-      ApiResponse? result = await studentFormService?.checkForStudentForm(currentUID);
+      ApiResponse? result = await studentFormService?.checkForStudentForm(formUserId);
       if(result != null && result.status=="success"){
-        ApiResponse? studentData = await studentFormService?.getUserStudentForm(result.data.toString());
-      }else{
-        var uuid = Uuid();
+        studentCaseId = result.data.toString();
+        ApiResponse? studentDataResponse = await studentFormService?.getUserStudentForm(studentCaseId);
+        Map<String,dynamic> studentData = studentDataResponse!.data;
+        List<dynamic> list = studentData[FirestoreConstants.logs];
+        list.insert(0,{FirestoreConstants.time:DateTime.now().millisecondsSinceEpoch,FirestoreConstants.uid:currentUID});
         Map<String,dynamic> data = {
-          FirestoreConstnats.case_id:uuid.v1() ,
-          FirestoreConstnats.createdAt:FieldValue.serverTimestamp(),
-          FirestoreConstnats.updatedAt:FieldValue.serverTimestamp(),
-          FirestoreConstnats.logs:FieldValue.arrayUnion([{FirestoreConstnats.time:FieldValue.serverTimestamp(),FirestoreConstnats.uid:currentUID}])
+          FirestoreConstants.updatedAt:FieldValue.serverTimestamp(),
+          FirestoreConstants.logs:list
+        };
+        await studentFormService?.updateStudentForm(data,studentCaseId);
+      }
+      else{
+        var uuid = Uuid();
+        var case_id = uuid.v1();
+        Map<String,dynamic> data = {
+          FirestoreConstants.case_id:case_id,
+          FirestoreConstants.createdAt:FieldValue.serverTimestamp(),
+          FirestoreConstants.updatedAt:FieldValue.serverTimestamp(),
+          FirestoreConstants.logs:FieldValue.arrayUnion([{FirestoreConstants.time:DateTime.now().millisecondsSinceEpoch,FirestoreConstants.uid:currentUID}])
         };
         await studentFormService?.createUserStudentForm(data);
-        //need to work on update user FormData
-        //await studentFormService?.createUserStudentForm(data);
+        studentCaseId = case_id;
+        studentFormService?.updateUserWithStudentFormId(case_id,formUserId);
         isnewData = true;
       }
     }catch(e){
       print(e);
       errorText = e.toString();
     }
+    isLoading = false;
+    mainModel?.showhideprogress(false, context);
     if(isnewData){
-      Future.delayed(Duration(microseconds: 500),(){
+      Future.delayed(Duration(milliseconds: 500),(){
         notifyListeners();
       });
     }
@@ -132,8 +155,7 @@ class StudentFormVM extends ChangeNotifier {
 
   }
 
-  List<Widget> getWidgetList(){
-
+  List<Widget> getWidgetList(Map<String, dynamic> data){
     form1Widget = Column(
       children: [
         Expanded(

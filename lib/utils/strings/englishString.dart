@@ -15,6 +15,7 @@ class EngLishStrings extends Strings {
   String get welcome => 'Welcome';
   String get invalidPin => 'Invalid Pin';
   String get firstName => 'First name';
+  String get name => 'Name';
   String get lastName => 'Last name';
   String get phonenumber => 'Phone Number';
   String get dateOfBirth => 'Date of birth';
@@ -102,6 +103,7 @@ class EngLishStrings extends Strings {
   String get IDPBC=> "IDP / BC";
   String get eight=> "8";
   String get next=> "Next";
+  String get userDetail=> "User Detail";
   String get canadianUniversity=> "Canadian University";
   String get anyProvincePreferenceInCanadaIfNoThenMentionNONE=> "Any Province preference (In Canada), if no then mention NONE";
   String get anyCollegeProgramPreferenceIFNoThenMentionNONE=> "Any College/Program Preference, if no then mention NONE";

@@ -111,7 +111,7 @@ class HomeItem extends StatelessWidget {
             ),
           ),
         ),
-        body: model.userType=="customer" ? getHomeBody(model, context)! : getAdminBody(model, context),
+        body: model.userType == "customer" ? getHomeBody(model, context)! : getAdminBody(model, context),
       ),
     );
   }
@@ -221,7 +221,7 @@ class DashBoardBody extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () {
-             model.handleServiceClick(item,model.selectedUserId);
+             model.handleServiceClick(item,model.currentUserId);
           },
           child: Stack(
             fit: StackFit.expand,

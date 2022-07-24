@@ -10,6 +10,7 @@ abstract class Strings {
   String get welcome ;
   String get invalidPin ;
   String get firstName ;
+  String get name ;
   String get lastName ;
   String get phonenumber ;
   String get dateOfBirth ;
@@ -103,4 +104,5 @@ abstract class Strings {
   String get anyProvincePreferenceInCanadaIfNoThenMentionNONE ;
   String get canadianUniversity ;
   String get anyCollegeProgramPreferenceIFNoThenMentionNONE ;
+  String get userDetail ;
 }

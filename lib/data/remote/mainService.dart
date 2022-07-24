@@ -24,8 +24,8 @@ Map<ServerType, String> on8Srvers = {
 //Note: after changing server you have to change Firebase
 //configration too for ios and android
 ServerType appServerType = ServerType.dev;
-String userCollection = appServerType.name+ FirestoreConstnats.users;
-String studentFormCollection = appServerType.name+ FirestoreConstnats.studentForms;
+String userCollection = appServerType.name+ FirestoreConstants.users;
+String studentFormCollection = appServerType.name+ FirestoreConstants.studentForms;
 
 class MainService {
   static final FirebaseAuth auth = FirebaseAuth.instance;
@@ -70,7 +70,7 @@ class MainService {
 
     print("emailController.text");
     print(text);
-    var querySnapshot = await userRefrence.where(FirestoreConstnats.email,isEqualTo: text).get();
+    var querySnapshot = await userRefrence.where(FirestoreConstants.email,isEqualTo: text).get();
     print("querySnapshot.size");
     print(querySnapshot.size);
     if(querySnapshot.size>0){
@@ -83,15 +83,15 @@ class MainService {
   }
 
   Future<void> updateUserDataMain(String collectioName ,Map<String, dynamic> data) async {
-    data.addAll({FirestoreConstnats.updatedAt:FieldValue.serverTimestamp()});
-    print(data[FirestoreConstnats.uid]);
-    userRefrence.doc(data[FirestoreConstnats.uid]).update(data);
+    data.addAll({FirestoreConstants.updatedAt:FieldValue.serverTimestamp()});
+    print(data[FirestoreConstants.uid]);
+    userRefrence.doc(data[FirestoreConstants.uid]).update(data);
   }
 
   Future<void> setUserDataMain(String collectioName ,Map<String, dynamic> data) async {
-    data.addAll({FirestoreConstnats.updatedAt:FieldValue.serverTimestamp()});
-    print(data[FirestoreConstnats.uid]);
-    userRefrence.doc(data[FirestoreConstnats.uid]).set(data);
+    data.addAll({FirestoreConstants.updatedAt:FieldValue.serverTimestamp()});
+    print(data[FirestoreConstants.uid]);
+    userRefrence.doc(data[FirestoreConstants.uid]).set(data);
   }
   Future<UserCredential> registerUserWithPasswordMain (String email, String password) async  {
     UserCredential credential = await MainService.auth.createUserWithEmailAndPassword(email: email, password: password);

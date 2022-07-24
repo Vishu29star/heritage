@@ -15,11 +15,22 @@ class UserDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if(model.selectedUserId == ""){
-      return HeritageProgressBar();
+      return Center(child: HeritageProgressBar());
     }
     final Stream<DocumentSnapshot> userStream  =  model.homeService!.userdoc.doc(model.selectedUserId).snapshots();
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: Colors.black),
+          backgroundColor: Colors.white,
+          title: Text(
+            context.resources.strings.userDetail,
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 24,
+                color: Theme.of(context).primaryColor),
+          ),
+        ),
         body: StreamBuilder<DocumentSnapshot>(
           stream: userStream,
           builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
@@ -33,16 +44,44 @@ class UserDetail extends StatelessWidget {
 
             List<Widget> children = [];
             Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-            children.add(headingWithValue(context.resources.strings.email,data[FirestoreConstnats.email]));
-
-            for(int i = 0;i<model.homeItems.length;i++){
-              children.add(
-                  ListTile(
-                    onTap: (){
-                      model.handleServiceClick(model.homeItems[i],model.selectedUserId);
-                    },
-                title: Text(model.homeItems[i].toString()),
-                subtitle: Text("Blah, Blah",),));
+            children.add(Text("Select Service",style: TextStyle(fontSize: 20,color: Colors.black,fontWeight: FontWeight.w600),));
+            children.add(SizedBox(height: 16,));
+            children.add( Container(
+              height: 80,
+              child: ListView.builder(
+                itemCount: model.homeItems.length,
+                scrollDirection: Axis.horizontal,
+                //padding: EdgeInsets.only(left: 8.0),
+                itemBuilder: (context, i) {
+                  return Container(
+                    width: 250,
+                    margin: EdgeInsets.only(left: i == 0 ? 0 : 12),
+                    child: ListTile(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      onTap: (){
+                        model.handleServiceClick(model.homeItems[i],model.selectedUserId);
+                      },
+                      title: Text(model.homeItems[i].toString()),
+                      subtitle: Text("Blah, Blah",),),
+                  );
+                },
+              ),
+            ),);
+            if(data.containsKey(FirestoreConstants.first_name)){
+              children.add(headingWithValue(context.resources.strings.name,encrydecry().decryptMsg(data[FirestoreConstants.first_name])+" "+encrydecry().decryptMsg(data[FirestoreConstants.first_name]),decrypt: false));
+            }
+            children.add(headingWithValue(context.resources.strings.email,data[FirestoreConstants.email]));
+            if(data.containsKey(FirestoreConstants.phone_number)){
+              children.add(headingWithValue(context.resources.strings.phonenumber,data[FirestoreConstants.phone_number]));
+            }
+            if(data.containsKey(FirestoreConstants.pincode)){
+              children.add(headingWithValue(context.resources.strings.pincode,data[FirestoreConstants.pincode]));
+            }
+            if(data.containsKey(FirestoreConstants.dob)){
+              children.add(headingWithValue(context.resources.strings.dateOfBirth,data[FirestoreConstants.dob]));
             }
 
             return ListView(
@@ -55,7 +94,7 @@ class UserDetail extends StatelessWidget {
     );
 
   }
-  Widget headingWithValue(String head, String value){
+  Widget headingWithValue(String head, String value,{bool decrypt = true}){
 
     return Container(
         padding: EdgeInsets.symmetric(vertical: 16),
@@ -63,7 +102,7 @@ class UserDetail extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(flex:3,child: Text(head)),
-            Expanded(flex:7,child: Text(encrydecry().decryptMsg(value))),
+            Expanded(flex:7,child: Text(decrypt?encrydecry().decryptMsg(value):value)),
           ],
         )
     );
