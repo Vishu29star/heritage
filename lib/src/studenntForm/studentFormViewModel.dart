@@ -14,6 +14,7 @@ import '../../constants/HeritagedatePicker.dart';
 import '../../data/firestore_constants.dart';
 import '../../utils/Utils.dart';
 
+import '../../utils/comman/commanWidget.dart';
 import '../mainViewModel.dart';
 
 class StudentFormVM extends ChangeNotifier {
@@ -220,6 +221,94 @@ class StudentFormVM extends ChangeNotifier {
     }
     if(data.containsKey(FirestoreConstants.student_family_net_income)){
       netFamilyIncomeController.text  = data[FirestoreConstants.student_family_net_income];
+    }
+    //student form 4
+    if(data.containsKey(FirestoreConstants.student_tenth_from_date)){
+      tenFromDate = DateTime.fromMillisecondsSinceEpoch(data[FirestoreConstants.student_tenth_from_date]);
+    }
+    if(data.containsKey(FirestoreConstants.student_tenth_to_date)){
+      tenToDate = DateTime.fromMillisecondsSinceEpoch(data[FirestoreConstants.student_tenth_to_date]);
+    }
+    if(data.containsKey(FirestoreConstants.student_tenth_stream)){
+      tenthStreamController.text  = data[FirestoreConstants.student_tenth_stream];
+    }
+    if(data.containsKey(FirestoreConstants.student_tenth_board)){
+      tenthBoardController.text  = data[FirestoreConstants.student_tenth_board];
+    }
+    if(data.containsKey(FirestoreConstants.student_tenth_marks_percentage)){
+      tenthPercentagemarksController.text  = data[FirestoreConstants.student_tenth_marks_percentage];
+    }
+    if(data.containsKey(FirestoreConstants.student_tenth_backlog)){
+      tenthBacklogController.text  = data[FirestoreConstants.student_tenth_backlog];
+    }
+
+    if(data.containsKey(FirestoreConstants.student_twelve_from_date)){
+      twelveFromDate = DateTime.fromMillisecondsSinceEpoch(data[FirestoreConstants.student_twelve_from_date]);
+    }
+    if(data.containsKey(FirestoreConstants.student_twelve_to_date)){
+      twelveToDate = DateTime.fromMillisecondsSinceEpoch(data[FirestoreConstants.student_twelve_to_date]);
+    }
+    if(data.containsKey(FirestoreConstants.student_twelve_stream)){
+      twelveStreamController.text  = data[FirestoreConstants.student_twelve_stream];
+    }
+    if(data.containsKey(FirestoreConstants.student_twelve_marks_percentage)){
+      twelvePercentagemarksController.text  = data[FirestoreConstants.student_twelve_marks_percentage];
+    }
+    if(data.containsKey(FirestoreConstants.student_twelve_board)){
+      twelveBoardController.text  = data[FirestoreConstants.student_twelve_board];
+    }
+    if(data.containsKey(FirestoreConstants.student_twelve_backlog)){
+      twelveBacklogController.text  = data[FirestoreConstants.student_twelve_backlog];
+    }
+
+    //student form 5
+    if(data.containsKey(FirestoreConstants.student_travel_history)){
+      travelHistoryController.text = data[FirestoreConstants.student_travel_history];
+    }
+    if(data.containsKey(FirestoreConstants.student_country)){
+      countryController.text = data[FirestoreConstants.student_country];
+    }
+    if(data.containsKey(FirestoreConstants.student_criminal_history)){
+      criminalHistory = data[FirestoreConstants.student_criminal_history];
+    }
+    if(data.containsKey(FirestoreConstants.student_any_refusal)){
+      anyRefusal = data[FirestoreConstants.student_any_refusal];
+    }
+
+    //student form 6
+    if(data.containsKey(FirestoreConstants.student_ielts_year)){
+      ieltsYear = DateTime.fromMillisecondsSinceEpoch(data[FirestoreConstants.student_ielts_year]);
+    }
+    if(data.containsKey(FirestoreConstants.student_ielts_l)){
+      ieltsLController.text = data[FirestoreConstants.student_ielts_l];
+    }
+    if(data.containsKey(FirestoreConstants.student_ielts_r)){
+      ieltsRController.text = data[FirestoreConstants.student_ielts_r];
+    }
+    if(data.containsKey(FirestoreConstants.student_ielts_w)){
+      ieltsWController.text = data[FirestoreConstants.student_ielts_w];
+    }
+    if(data.containsKey(FirestoreConstants.student_ielts_s)){
+      ieltsSController.text = data[FirestoreConstants.student_ielts_s];
+    }
+    if(data.containsKey(FirestoreConstants.student_ielts_OA)){
+      ieltsOAController.text = data[FirestoreConstants.student_ielts_OA];
+    }
+    if(data.containsKey(FirestoreConstants.student_ielts_IDBBC)){
+      ieltsIDBBCController.text = data[FirestoreConstants.student_ielts_IDBBC];
+    }
+    if(data.containsKey(FirestoreConstants.student_ielts_any_province)){
+      anyProvinceController = data[FirestoreConstants.student_ielts_any_province];
+    }
+    if(data.containsKey(FirestoreConstants.student_ielts_any_college)){
+      anyCollegeController = data[FirestoreConstants.student_ielts_any_college];
+    }
+
+    if(data.containsKey(FirestoreConstants.student_ielts_advisor)){
+      advisorController = data[FirestoreConstants.student_ielts_advisor];
+    }
+    if(data.containsKey(FirestoreConstants.student_ielts_remark)){
+      remarkController = data[FirestoreConstants.student_ielts_remark];
     }
   }
 
@@ -440,6 +529,9 @@ class StudentFormVM extends ChangeNotifier {
                   children: [
                     Expanded(
                       child: HeritagedatePicker(
+                        onDateSelection: (dd){
+                          tenFromDate = dd;
+                        },
                         rowORColumn: 2,
                         result: tenFromDate,
                         dateFormat: context.resources.strings.monthyearDateFormat,
@@ -449,6 +541,9 @@ class StudentFormVM extends ChangeNotifier {
                     verticleDivider,
                     Expanded(
                       child: HeritagedatePicker(
+                        onDateSelection: (dd){
+                          tenToDate = dd;
+                        },
                         rowORColumn: 2,
                         result: tenToDate,
                         dateFormat:context.resources.strings.monthyearDateFormat,
@@ -461,6 +556,7 @@ class StudentFormVM extends ChangeNotifier {
                   children: [
                     Expanded(
                         child: HeritageTextFeild(
+                          keyboardType: TextInputType.text,
                           controller: tenthStreamController,
                           hintText: context.resources.strings.scienceHistory,
                           labelText: context.resources.strings.stream,
@@ -468,6 +564,7 @@ class StudentFormVM extends ChangeNotifier {
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
+                          keyboardType: TextInputType.text,
                           controller: tenthBoardController,
                           hintText: context.resources.strings.CBSE,
                           labelText: context.resources.strings.boardUniversityCollege,
@@ -478,6 +575,8 @@ class StudentFormVM extends ChangeNotifier {
                   children: [
                     Expanded(
                         child: HeritageTextFeild(
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          inputformator: [DecimalTextInputFormatter(decimalRange: 2),LengthLimitingTextInputFormatter(5),],
                           controller: tenthPercentagemarksController,
                           hintText: context.resources.strings.percentageHint,
                           labelText: context.resources.strings.percentage,
@@ -485,6 +584,7 @@ class StudentFormVM extends ChangeNotifier {
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
+                          keyboardType: TextInputType.text,
                           controller: tenthBacklogController,
                           hintText: context.resources.strings.zero,
                           labelText: context.resources.strings.noofBacklogsifany,
@@ -505,6 +605,9 @@ class StudentFormVM extends ChangeNotifier {
                   children: [
                     Expanded(
                       child: HeritagedatePicker(
+                        onDateSelection: (dd){
+                          twelveFromDate = dd;
+                        },
                         rowORColumn: 2,
                         result: twelveFromDate,
                         dateFormat: context.resources.strings.monthyearDateFormat,
@@ -514,6 +617,9 @@ class StudentFormVM extends ChangeNotifier {
                     verticleDivider,
                     Expanded(
                       child: HeritagedatePicker(
+                        onDateSelection: (dd){
+                          twelveToDate = dd;
+                        },
                         rowORColumn: 2,
                         result: twelveToDate,
                         dateFormat: context.resources.strings.monthyearDateFormat,
@@ -526,6 +632,7 @@ class StudentFormVM extends ChangeNotifier {
                   children: [
                     Expanded(
                         child: HeritageTextFeild(
+                          keyboardType: TextInputType.text,
                           controller: twelveStreamController,
                           hintText: context.resources.strings.scienceHistory,
                           labelText: context.resources.strings.stream,
@@ -533,6 +640,7 @@ class StudentFormVM extends ChangeNotifier {
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
+                          keyboardType: TextInputType.text,
                           controller: twelveBoardController,
                           hintText: context.resources.strings.CBSE,
                           labelText: context.resources.strings.boardUniversityCollege,
@@ -543,6 +651,7 @@ class StudentFormVM extends ChangeNotifier {
                   children: [
                     Expanded(
                         child: HeritageTextFeild(
+                          keyboardType: TextInputType.number,
                           controller: twelvePercentagemarksController,
                           hintText: context.resources.strings.percentageHint,
                           labelText: context.resources.strings.percentage,
@@ -550,6 +659,8 @@ class StudentFormVM extends ChangeNotifier {
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          inputformator: [DecimalTextInputFormatter(decimalRange: 2),LengthLimitingTextInputFormatter(5),],
                           controller: twelveBacklogController,
                           hintText: context.resources.strings.zero,
                           labelText: context.resources.strings.noofBacklogsifany,
@@ -582,6 +693,9 @@ class StudentFormVM extends ChangeNotifier {
                   height: 16,
                 ),
                 YesNoWidget(
+                  onSelection: (result){
+                    criminalHistory = result;
+                  },
                     labelText: context.resources.strings.criminalHistory,
                     selected: criminalHistory),
                 HeritageTextFeild(
@@ -595,6 +709,9 @@ class StudentFormVM extends ChangeNotifier {
                   labelText:context.resources.strings.CountryIfapplicable,
                 ),
                 YesNoWidget(
+                    onSelection: (result){
+                      anyRefusal = result;
+                    },
                     labelText:context.resources.strings.anyRefusals, selected: anyRefusal),
               ],
             ),
@@ -623,6 +740,9 @@ class StudentFormVM extends ChangeNotifier {
                   height: 16,
                 ),
                 HeritagedatePicker(
+                  onDateSelection: (dd){
+                    ieltsYear = dd;
+                  },
                   rowORColumn: 1,
                   result: ieltsYear,
                   dateFormat: context.resources.strings.yearFormat,
@@ -635,6 +755,8 @@ class StudentFormVM extends ChangeNotifier {
                           controller: ieltsLController,
                           hintText: context.resources.strings.eight,
                           labelText: context.resources.strings.L,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          inputformator: [DecimalTextInputFormatter(decimalRange: 2),LengthLimitingTextInputFormatter(3),],
                         )),
                     verticleDivider,
                     Expanded(
@@ -642,6 +764,8 @@ class StudentFormVM extends ChangeNotifier {
                           controller: ieltsRController,
                           hintText: context.resources.strings.eight,
                           labelText: context.resources.strings.R,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          inputformator: [DecimalTextInputFormatter(decimalRange: 2),LengthLimitingTextInputFormatter(3),],
                         )),
                     verticleDivider,
                     Expanded(
@@ -649,6 +773,8 @@ class StudentFormVM extends ChangeNotifier {
                           controller: ieltsWController,
                           hintText: context.resources.strings.eight,
                           labelText: context.resources.strings.W,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          inputformator: [DecimalTextInputFormatter(decimalRange: 2),LengthLimitingTextInputFormatter(3),],
                         )),
                     verticleDivider,
                     Expanded(
@@ -656,6 +782,8 @@ class StudentFormVM extends ChangeNotifier {
                           controller: ieltsSController,
                           hintText: context.resources.strings.eight,
                           labelText: context.resources.strings.S,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          inputformator: [DecimalTextInputFormatter(decimalRange: 2),LengthLimitingTextInputFormatter(3),],
                         )),
                   ],
                 ),
@@ -663,30 +791,41 @@ class StudentFormVM extends ChangeNotifier {
                   children: [
                     Expanded(
                         child: HeritageTextFeild(
-                          controller: travelHistoryController,
+                          controller: ieltsOAController,
                           hintText: context.resources.strings.eight,
                           labelText:context.resources.strings.OA,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          inputformator: [DecimalTextInputFormatter(decimalRange: 2),LengthLimitingTextInputFormatter(3),],
                         )),
                     verticleDivider,
                     Expanded(
                         child: HeritageTextFeild(
-                          controller: countryController,
+                          controller: ieltsIDBBCController,
                           hintText: context.resources.strings.OA,
                           labelText: context.resources.strings.IDPBC,
                         )),
                   ],
                 ),
                 HeritageTextFeild(
-                  controller: travelHistoryController,
+                  controller: anyProvinceController,
                   hintText: context.resources.strings.dubai,
-                  labelText:
-                  context.resources.strings.anyProvincePreferenceInCanadaIfNoThenMentionNONE,
+                  labelText: context.resources.strings.anyProvincePreferenceInCanadaIfNoThenMentionNONE,
                 ),
                 HeritageTextFeild(
-                  controller: countryController,
+                  controller: anyCollegeController,
                   hintText: context.resources.strings.canadianUniversity,
                   labelText:
                   context.resources.strings.anyCollegeProgramPreferenceIFNoThenMentionNONE,
+                ),
+                HeritageTextFeild(
+                  controller: remarkController,
+                  //hintText: context.resources.strings.dubai,
+                  labelText: context.resources.strings.remark,
+                ),
+                HeritageTextFeild(
+                  controller: advisorController,
+                 // hintText: context.resources.strings.canadianUniversity,
+                  labelText: context.resources.strings.nameOfAdvisor,
                 ),
               ],
             ),
@@ -742,14 +881,20 @@ class StudentFormVM extends ChangeNotifier {
     }
     try{
       var result = await studentFormService!.updateStudentForm(getMapData(), studentCaseId);
-      pagePostion = pagePostion + 1;
-      print("pagePostion");
-      print(pagePostion);
-      pageController.animateToPage(
-        pagePostion,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.linear,
-      );
+      if(pagePostion==5){
+        mainModel!.showTopSuccessMessage(context, "Student Form Submitted");
+        Navigator.pop(context);
+      }else{
+        pagePostion = pagePostion + 1;
+        print("pagePostion");
+        print(pagePostion);
+        pageController.animateToPage(
+          pagePostion,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.linear,
+        );
+      }
+
     }catch(e){
       print(e);
     }
@@ -763,9 +908,9 @@ class StudentFormVM extends ChangeNotifier {
         data.addAll(
             {FirestoreConstants.student_form_date:date.millisecondsSinceEpoch,
               FirestoreConstants.student_form_DOB:DOBDate.millisecondsSinceEpoch,
-              FirestoreConstants.student_form_name:nameController.text,
-              FirestoreConstants.student_form_reffered_by:refferdByController.text,
-              FirestoreConstants.student_form_city_village:cityVillageController.text,
+              FirestoreConstants.student_form_name:nameController.text.trim(),
+              FirestoreConstants.student_form_reffered_by:refferdByController.text.trim(),
+              FirestoreConstants.student_form_city_village:cityVillageController.text.trim(),
             }
         );
         break;
@@ -774,10 +919,10 @@ class StudentFormVM extends ChangeNotifier {
         print("DOmarriedBDate");
         print(married);
         data.addAll(
-            {FirestoreConstants.student_form_contact:studentContactController.text,
-              FirestoreConstants.student_form_email:emailStudentController.text,
-              FirestoreConstants.student_form_parent_email:emailParentController.text,
-              FirestoreConstants.student_form_number_of_children:noOfChildren.text,
+            {FirestoreConstants.student_form_contact:studentContactController.text.trim(),
+              FirestoreConstants.student_form_email:emailStudentController.text.trim(),
+              FirestoreConstants.student_form_parent_email:emailParentController.text.trim(),
+              FirestoreConstants.student_form_number_of_children:noOfChildren.text.trim(),
               FirestoreConstants.student_form_married:married,
             }
         );
@@ -788,17 +933,62 @@ class StudentFormVM extends ChangeNotifier {
         print("DOmarriedBDate");
         print(married);
         data.addAll(
-            {FirestoreConstants.student_spouse_name:spouseNameController.text,
-              FirestoreConstants.student_spouse_occupation:spouseOccupationController.text,
-              FirestoreConstants.student_father_name:fatherNameController.text,
-              FirestoreConstants.student_father_occupation:fatherOccupationController.text,
-              FirestoreConstants.student_mother_name:motherNameController.text,
-              FirestoreConstants.student_mother_occupation:motherOccupationController.text,
-              FirestoreConstants.student_parent_contact:parentContactController.text,
-              FirestoreConstants.student_family_net_income:netFamilyIncomeController.text,
+            {FirestoreConstants.student_spouse_name:spouseNameController.text.trim(),
+              FirestoreConstants.student_spouse_occupation:spouseOccupationController.text.trim(),
+              FirestoreConstants.student_father_name:fatherNameController.text.trim(),
+              FirestoreConstants.student_father_occupation:fatherOccupationController.text.trim(),
+              FirestoreConstants.student_mother_name:motherNameController.text.trim(),
+              FirestoreConstants.student_mother_occupation:motherOccupationController.text.trim(),
+              FirestoreConstants.student_parent_contact:parentContactController.text.trim(),
+              FirestoreConstants.student_family_net_income:netFamilyIncomeController.text.trim(),
             }
         );
 
+        break;
+      }
+      case 3:{
+        data.addAll(
+            {FirestoreConstants.student_tenth_to_date:tenToDate.millisecondsSinceEpoch,
+              FirestoreConstants.student_tenth_from_date:tenFromDate.millisecondsSinceEpoch,
+              FirestoreConstants.student_tenth_backlog:tenthBacklogController.text.trim(),
+              FirestoreConstants.student_tenth_board:tenthBoardController.text.trim(),
+              FirestoreConstants.student_tenth_stream:tenthStreamController.text.trim(),
+              FirestoreConstants.student_tenth_marks_percentage:tenthPercentagemarksController.text.trim(),
+              FirestoreConstants.student_twelve_from_date:twelveFromDate.millisecondsSinceEpoch,
+              FirestoreConstants.student_twelve_to_date:twelveToDate.millisecondsSinceEpoch,
+              FirestoreConstants.student_twelve_backlog:twelveBacklogController.text.trim(),
+              FirestoreConstants.student_twelve_board:twelveBoardController.text.trim(),
+              FirestoreConstants.student_twelve_stream:twelveStreamController.text.trim(),
+              FirestoreConstants.student_twelve_marks_percentage:twelvePercentagemarksController.text.trim(),
+            }
+        );
+        break;
+      }
+      case 4:{
+        data.addAll(
+            {FirestoreConstants.student_criminal_history:criminalHistory,
+              FirestoreConstants.student_any_refusal:anyRefusal,
+              FirestoreConstants.student_travel_history:travelHistoryController.text.trim(),
+              FirestoreConstants.student_country:countryController.text.trim(),
+            }
+        );
+        break;
+      }
+      case 4:{
+        data.addAll(
+            {FirestoreConstants.student_ielts_year:ieltsYear.millisecondsSinceEpoch,
+              FirestoreConstants.student_ielts_l:ieltsLController.text.trim(),
+              FirestoreConstants.student_ielts_s:ieltsSController.text.trim(),
+              FirestoreConstants.student_ielts_r:ieltsRController.text.trim(),
+              FirestoreConstants.student_ielts_w:ieltsWController.text.trim(),
+              FirestoreConstants.student_ielts_OA:ieltsOAController.text.trim(),
+              FirestoreConstants.student_ielts_IDBBC:ieltsIDBBCController.text.trim(),
+              FirestoreConstants.student_ielts_any_province:anyProvinceController.text.trim(),
+              FirestoreConstants.student_ielts_any_college:anyCollegeController.text.trim(),
+              FirestoreConstants.student_ielts_remark:remarkController.text.trim(),
+              FirestoreConstants.student_ielts_advisor:advisorController.text.trim(),
+            }
+        );
         break;
       }
     }
@@ -809,11 +999,11 @@ class StudentFormVM extends ChangeNotifier {
     bool isValid = true;
     switch(pagePostion){
       case 0:{
-        if(nameController.text.isEmpty && nameController.text.length<3){
+        if(nameController.text.trim().isEmpty && nameController.text.trim().length<3){
           nameErrorText = "Please enter atleast 3 character";
           isValid = false;
         }
-        if(cityVillageController.text.isEmpty && cityVillageController.text.length<3){
+        if(cityVillageController.text.trim().isEmpty && cityVillageController.text.trim().length<3){
           cityVillageErrorText = "Please enter valid city or village";
           isValid = false;
         }
@@ -824,15 +1014,15 @@ class StudentFormVM extends ChangeNotifier {
         break;
       }
       case 1:{
-        if(studentContactController.text.isEmpty && studentContactController.text.length<10){
+        if(studentContactController.text.trim().isEmpty && studentContactController.text.trim().length<10){
           studentContactError = "Please enter valid phone number";
           isValid = false;
         }
-        if (emailStudentController.text.isEmpty) {
+        if (emailStudentController.text.trim().isEmpty) {
           isValid = false;
           studentemailError =  context.resources.strings.cantBeEmpty;
         }
-        if (emailStudentController.text.length < 4) {
+        if (emailStudentController.text.trim().length < 4) {
           isValid = false;
           studentemailError =  context.resources.strings.tooShort;
         }
@@ -840,7 +1030,7 @@ class StudentFormVM extends ChangeNotifier {
           isValid = false;
           studentemailError =  context.resources.strings.notValidEmail;
         }
-        if (emailParentController.text.isEmpty) {
+        if (emailParentController.text.trim().isEmpty) {
           isValid = false;
           emailParentError =  context.resources.strings.cantBeEmpty;
         }
@@ -852,6 +1042,9 @@ class StudentFormVM extends ChangeNotifier {
           isValid = false;
           emailParentError =  context.resources.strings.notValidEmail;
         }
+        if(married==""){
+          isValid = false;
+        }
         if(isValid){
           studentContactError = null;
           studentemailError = null;
@@ -860,24 +1053,113 @@ class StudentFormVM extends ChangeNotifier {
         break;
       }
       case 2:{
-        /*if(nameController.text.isEmpty && nameController.text.length<3){
-          nameErrorText = "Please enter atleast 3 character";
+        if(spouseNameController.text.trim().isEmpty && spouseNameController.text.length<3){
           isValid = false;
         }
-        if(cityVillageController.text.isEmpty && cityVillageController.text.length<3){
-          cityVillageErrorText = "Please enter valid city or village";
+        if(spouseOccupationController.text.trim().isEmpty ){
           isValid = false;
         }
-        if(isValid){
-          nameErrorText = null;
-          cityVillageErrorText = null;
-        }*/
+        if(fatherNameController.text.trim().isEmpty && fatherNameController.text.length<3){
+          isValid = false;
+        }
+        if(fatherOccupationController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(motherNameController.text.trim().isEmpty && motherNameController.text.length<3){
+          isValid = false;
+        }
+        if(motherOccupationController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(parentContactController.text.trim().isEmpty && parentContactController.text.trim().length<10){
+          isValid = false;
+        }
+        if(netFamilyIncomeController.text.trim().isEmpty && netFamilyIncomeController.text.trim().length<5){
+          isValid = false;
+        }
+
+        break;
+      }
+      case 3:{
+        if(tenToDate.isBefore(tenFromDate)){
+          isValid = false;
+        }
+        if(tenthStreamController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(tenthBoardController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(tenthPercentagemarksController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(twelveToDate.isBefore(twelveFromDate)){
+          isValid = false;
+        }
+        if(twelveStreamController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(twelveBoardController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(twelvePercentagemarksController.text.trim().isEmpty ){
+          isValid = false;
+        }
         break;
       }
 
+      case 4:{
+        if(travelHistoryController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(countryController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(criminalHistory == ""){
+          isValid = false;
+        }
+        if(anyRefusal == ""){
+          isValid = false;
+        }
+        break;
+      }
+      case 5:{
+        if(ieltsLController.text.trim().isEmpty){
+          isValid = false;
+        }
+        if(ieltsSController.text.trim().isEmpty){
+          isValid = false;
+        }
+        if(ieltsRController.text.trim().isEmpty){
+          isValid = false;
+        }
+        if(ieltsWController.text.trim().isEmpty){
+          isValid = false;
+        }
+        if(ieltsOAController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(ieltsIDBBCController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(anyProvinceController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(anyCollegeController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(advisorController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(remarkController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        break;
+      }
     }
     return isValid;
   }
+
   bool isEmail(String em) {
 
     String p = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';

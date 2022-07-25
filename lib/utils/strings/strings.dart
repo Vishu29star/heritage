@@ -105,4 +105,6 @@ abstract class Strings {
   String get canadianUniversity ;
   String get anyCollegeProgramPreferenceIFNoThenMentionNONE ;
   String get userDetail ;
+  String get remark ;
+  String get nameOfAdvisor ;
 }

@@ -76,7 +76,7 @@ class EngLishStrings extends Strings {
   String get educationalInformation => "Educational Information";
   String get tenth => "10th";
   String get twelveth => "12th";
-  String get monthyearDateFormat => "MM/YYYY";
+  String get monthyearDateFormat => "MM/yyyy";
   String get fromMMYYYY => "From(MM/YYYY)";
   String get toMMYYYY => "To(MM/YYYY)";
   String get stream => "Stream";
@@ -93,7 +93,7 @@ class EngLishStrings extends Strings {
   String get CountryIfapplicable => "Country (If applicable)";
   String get travelHistory=> "Travel History (mention   country name only)";
   String get IELTSGenAca=> "IELTS (Gen/ Aca)";
-  String get yearFormat=> "YYYY";
+  String get yearFormat=> "yyyy";
   String get year=> "Year";
   String get L=> "L";
   String get R=> "R";
@@ -105,6 +105,8 @@ class EngLishStrings extends Strings {
   String get next=> "Next";
   String get userDetail=> "User Detail";
   String get canadianUniversity=> "Canadian University";
+  String get remark=> "Remarks";
+  String get nameOfAdvisor=> "Name of Advisor";
   String get anyProvincePreferenceInCanadaIfNoThenMentionNONE=> "Any Province preference (In Canada), if no then mention NONE";
   String get anyCollegeProgramPreferenceIFNoThenMentionNONE=> "Any College/Program Preference, if no then mention NONE";
 }
