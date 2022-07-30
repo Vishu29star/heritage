@@ -429,7 +429,7 @@ class StudentFormVM extends ChangeNotifier {
                   hintText: context.resources.strings.customerComment,
                   labelText: context.resources.strings.customerComment,
                 ),
-                if()HeritageTextFeild(
+                HeritageTextFeild(
                   controller: form1EmployeeCommentController,
                   hintText: context.resources.strings.employeeComment,
                   labelText: context.resources.strings.employeeComment,
