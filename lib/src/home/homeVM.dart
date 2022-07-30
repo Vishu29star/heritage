@@ -1,4 +1,7 @@
 import 'package:Heritage/src/cisForm/cis_form_widget.dart';
+import 'package:Heritage/utils/encryptry.dart';
+import 'package:Heritage/utils/extension.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +22,7 @@ class HomeVM extends ChangeNotifier{
   final HomeService? homeService;
   String selectedUserId = "";
   String currentUserId = "";
+  List<Map<String,dynamic>> searchResult = [];
 
   BuildContext? context;
   var width;
@@ -31,6 +35,9 @@ class HomeVM extends ChangeNotifier{
 
   List<String> homeItems = [];
   List<Widget> generateItems =  [];
+  List<dynamic> searchTypes = [];
+  dynamic? selectedSearchType  ;
+  bool isSearching = false;
 
   firstInt(BuildContext context) async {
     isDataLoad = false;
@@ -192,6 +199,59 @@ class HomeVM extends ChangeNotifier{
 
   //Admin users data
 
+  final TextEditingController searchController = new TextEditingController();
+  String _searchText = '';
+  bool showClearText = false;
+
+  initSearch(){
+    initSearchTypes();
+    searchController.addListener(() {
+      if(searchController.text.trim().length == 0){
+        searchResult.clear();
+        notifyListeners();
+      }
+    });
+    print("ftgvybuhnijmokl,.;,l");
+  }
+
+  initSearchTypes(){
+    print("vgbhjnkmlkjbhjnkm");
+    searchTypes.add({"key":context!.resources.strings.firstName,"value":FirestoreConstants.first_name,"isSelected":false});
+    searchTypes.add({"key":context!.resources.strings.lastName,"value":FirestoreConstants.last_name,"isSelected":false});
+    searchTypes.add({"key":context!.resources.strings.phonenumber,"value":FirestoreConstants.phone_number,"isSelected":false});
+    searchTypes.add({"key":context!.resources.strings.email,"value":FirestoreConstants.email,"isSelected":false});
+    searchTypes.add({"key":context!.resources.strings.createdAt,"value":FirestoreConstants.createdAt,"isSelected":false});
+    searchTypes.add({"key":context!.resources.strings.updatedAt,"value":FirestoreConstants.updatedAt,"isSelected":false});
+    selectedSearchType  = searchTypes[0];
+  }
+  
+  searchUser() async {
+    isSearching = true;
+    notifyListeners();
+    QuerySnapshot? querySnapshot = await homeService?.searchUser(encrydecry().encryptMsg(searchController.text.trim()),selectedSearchType["value"]);
+    if(querySnapshot!=null){
+      print("querySnapshot.size");
+      print(querySnapshot.size);
+      searchResult.clear();
+      var data = querySnapshot.docs.map((e) => e.data() as Map<String ,dynamic>).toList();
+      searchResult.addAll(data);
+    }
+    isSearching = false;
+    notifyListeners();
+  }
+
+
+  changeSearchType(int index){
+    for(int i = 0 ;i<searchTypes.length;i++){
+      if(index == i){
+        searchTypes[i]["isSelected"] = true;
+        selectedSearchType = searchTypes[index]!;
+      }else{
+        searchTypes[i]["isSelected"] = false;
+      }
+    }
+    notifyListeners();
+  }
   selectuser(String selectedUserId,{bool isFirst = false}){
     this.selectedUserId = selectedUserId;
     print("selectedUserId");

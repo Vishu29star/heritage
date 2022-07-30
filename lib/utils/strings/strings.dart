@@ -107,4 +107,9 @@ abstract class Strings {
   String get userDetail ;
   String get remark ;
   String get nameOfAdvisor ;
+  String get comment ;
+  String get createdAt ;
+  String get updatedAt ;
+  String get customerComment ;
+  String get employeeComment ;
 }

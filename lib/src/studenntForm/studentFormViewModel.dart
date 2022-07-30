@@ -61,13 +61,11 @@ class StudentFormVM extends ChangeNotifier {
   late DateTime twelveToDate = DateTime.now();
   late DateTime ieltsYear = DateTime.now();
   TextEditingController tenthStreamController = TextEditingController();
-  TextEditingController tenthPercentagemarksController =
-  TextEditingController();
+  TextEditingController tenthPercentagemarksController = TextEditingController();
   TextEditingController tenthBacklogController = TextEditingController();
   TextEditingController tenthBoardController = TextEditingController();
   TextEditingController twelveStreamController = TextEditingController();
-  TextEditingController twelvePercentagemarksController =
-  TextEditingController();
+  TextEditingController twelvePercentagemarksController = TextEditingController();
   TextEditingController twelveBacklogController = TextEditingController();
   TextEditingController twelveBoardController = TextEditingController();
   TextEditingController travelHistoryController = TextEditingController();
@@ -87,6 +85,20 @@ class StudentFormVM extends ChangeNotifier {
   TextEditingController anyCollegeController = TextEditingController();
   TextEditingController remarkController = TextEditingController();
   TextEditingController advisorController = TextEditingController();
+
+  TextEditingController form1EmployeeCommentController = TextEditingController();
+  TextEditingController form1CustomerCommentController = TextEditingController();
+  TextEditingController form2EmployeeCommentController = TextEditingController();
+  TextEditingController form2CustomerCommentController = TextEditingController();
+  TextEditingController form3EmployeeCommentController = TextEditingController();
+  TextEditingController form3CustomerCommentController = TextEditingController();
+  TextEditingController form4EmployeeCommentController = TextEditingController();
+  TextEditingController form4CustomerCommentController = TextEditingController();
+  TextEditingController form5EmployeeCommentController = TextEditingController();
+  TextEditingController form5CustomerCommentController = TextEditingController();
+  TextEditingController form6EmployeeCommentController = TextEditingController();
+  TextEditingController form6CustomerCommentController = TextEditingController();
+
   int pagePostion = 0;
   PageController pageController =
   PageController(initialPage: 0, keepPage: true, viewportFraction: 1);
@@ -179,6 +191,15 @@ class StudentFormVM extends ChangeNotifier {
     if(data.containsKey(FirestoreConstants.student_form_city_village)){
       cityVillageController.text = data[FirestoreConstants.student_form_city_village];
     }
+    if(data.containsKey(FirestoreConstants.student_form_city_village)){
+      cityVillageController.text = data[FirestoreConstants.student_form_city_village];
+    }
+    if(data.containsKey(FirestoreConstants.form_1_employee_comment)){
+      form1EmployeeCommentController.text = data[FirestoreConstants.form_1_employee_comment];
+    }
+    if(data.containsKey(FirestoreConstants.form_1_customer_comment)){
+      form1CustomerCommentController.text = data[FirestoreConstants.form_1_customer_comment];
+    }
 
     //form 2
     if(data.containsKey(FirestoreConstants.student_form_contact)){
@@ -195,6 +216,12 @@ class StudentFormVM extends ChangeNotifier {
     }
     if(data.containsKey(FirestoreConstants.student_form_married)){
       married = data[FirestoreConstants.student_form_married];
+    }
+    if(data.containsKey(FirestoreConstants.form_2_employee_comment)){
+      form2EmployeeCommentController.text = data[FirestoreConstants.form_2_employee_comment];
+    }
+    if(data.containsKey(FirestoreConstants.form_2_customer_comment)){
+      form2CustomerCommentController.text = data[FirestoreConstants.form_2_customer_comment];
     }
 
     //form 3
@@ -221,6 +248,12 @@ class StudentFormVM extends ChangeNotifier {
     }
     if(data.containsKey(FirestoreConstants.student_family_net_income)){
       netFamilyIncomeController.text  = data[FirestoreConstants.student_family_net_income];
+    }
+    if(data.containsKey(FirestoreConstants.form_3_employee_comment)){
+      form3EmployeeCommentController.text = data[FirestoreConstants.form_3_employee_comment];
+    }
+    if(data.containsKey(FirestoreConstants.form_3_customer_comment)){
+      form3CustomerCommentController.text = data[FirestoreConstants.form_3_customer_comment];
     }
     //student form 4
     if(data.containsKey(FirestoreConstants.student_tenth_from_date)){
@@ -260,6 +293,12 @@ class StudentFormVM extends ChangeNotifier {
     if(data.containsKey(FirestoreConstants.student_twelve_backlog)){
       twelveBacklogController.text  = data[FirestoreConstants.student_twelve_backlog];
     }
+    if(data.containsKey(FirestoreConstants.form_4_employee_comment)){
+      form4EmployeeCommentController.text = data[FirestoreConstants.form_4_employee_comment];
+    }
+    if(data.containsKey(FirestoreConstants.form_4_customer_comment)){
+      form4CustomerCommentController.text = data[FirestoreConstants.form_4_customer_comment];
+    }
 
     //student form 5
     if(data.containsKey(FirestoreConstants.student_travel_history)){
@@ -274,7 +313,12 @@ class StudentFormVM extends ChangeNotifier {
     if(data.containsKey(FirestoreConstants.student_any_refusal)){
       anyRefusal = data[FirestoreConstants.student_any_refusal];
     }
-
+    if(data.containsKey(FirestoreConstants.form_5_employee_comment)){
+      form5EmployeeCommentController.text = data[FirestoreConstants.form_5_employee_comment];
+    }
+    if(data.containsKey(FirestoreConstants.form_5_customer_comment)){
+      form5CustomerCommentController.text = data[FirestoreConstants.form_5_customer_comment];
+    }
     //student form 6
     if(data.containsKey(FirestoreConstants.student_ielts_year)){
       ieltsYear = DateTime.fromMillisecondsSinceEpoch(data[FirestoreConstants.student_ielts_year]);
@@ -309,6 +353,12 @@ class StudentFormVM extends ChangeNotifier {
     }
     if(data.containsKey(FirestoreConstants.student_ielts_remark)){
       remarkController = data[FirestoreConstants.student_ielts_remark];
+    }
+    if(data.containsKey(FirestoreConstants.form_6_employee_comment)){
+      form6EmployeeCommentController.text = data[FirestoreConstants.form_6_employee_comment];
+    }
+    if(data.containsKey(FirestoreConstants.form_6_customer_comment)){
+      form6CustomerCommentController.text = data[FirestoreConstants.form_6_customer_comment];
     }
   }
 
@@ -374,6 +424,16 @@ class StudentFormVM extends ChangeNotifier {
                   hintText: context.resources.strings.hintCityName,
                   labelText: context.resources.strings.cityVillage,
                 ),
+                HeritageTextFeild(
+                  controller: form1CustomerCommentController,
+                  hintText: context.resources.strings.customerComment,
+                  labelText: context.resources.strings.customerComment,
+                ),
+                if()HeritageTextFeild(
+                  controller: form1EmployeeCommentController,
+                  hintText: context.resources.strings.employeeComment,
+                  labelText: context.resources.strings.employeeComment,
+                ),
               ],
             ),
           ),
@@ -423,6 +483,17 @@ class StudentFormVM extends ChangeNotifier {
                 YesNoWidget(labelText: context.resources.strings.married, selected: married,onSelection: (result){
                   married = result;
                 },),
+
+                HeritageTextFeild(
+                  controller: form2CustomerCommentController,
+                  hintText: context.resources.strings.customerComment,
+                  labelText: context.resources.strings.customerComment,
+                ),
+                HeritageTextFeild(
+                  controller: form2EmployeeCommentController,
+                  hintText: context.resources.strings.employeeComment,
+                  labelText: context.resources.strings.employeeComment,
+                ),
               ],
             ),
           ),
@@ -491,6 +562,17 @@ class StudentFormVM extends ChangeNotifier {
                   hintText: context.resources.strings.hintphoneNumber,
                   labelText: context.resources.strings.netFamilyIncomeAnnually,
                   inputformator: [ FilteringTextInputFormatter.allow(RegExp("[0-9]")),LengthLimitingTextInputFormatter(10),],
+                ),
+
+                HeritageTextFeild(
+                  controller: form3CustomerCommentController,
+                  hintText: context.resources.strings.customerComment,
+                  labelText: context.resources.strings.customerComment,
+                ),
+                HeritageTextFeild(
+                  controller: form3EmployeeCommentController,
+                  hintText: context.resources.strings.employeeComment,
+                  labelText: context.resources.strings.employeeComment,
                 ),
               ],
             ),
@@ -665,6 +747,17 @@ class StudentFormVM extends ChangeNotifier {
                           hintText: context.resources.strings.zero,
                           labelText: context.resources.strings.noofBacklogsifany,
                         )),
+
+                    HeritageTextFeild(
+                      controller: form4CustomerCommentController,
+                      hintText: context.resources.strings.customerComment,
+                      labelText: context.resources.strings.customerComment,
+                    ),
+                    HeritageTextFeild(
+                      controller: form4EmployeeCommentController,
+                      hintText: context.resources.strings.employeeComment,
+                      labelText: context.resources.strings.employeeComment,
+                    ),
                   ],
                 ),
               ],
@@ -713,6 +806,17 @@ class StudentFormVM extends ChangeNotifier {
                       anyRefusal = result;
                     },
                     labelText:context.resources.strings.anyRefusals, selected: anyRefusal),
+
+                HeritageTextFeild(
+                  controller: form5CustomerCommentController,
+                  hintText: context.resources.strings.customerComment,
+                  labelText: context.resources.strings.customerComment,
+                ),
+                HeritageTextFeild(
+                  controller: form5EmployeeCommentController,
+                  hintText: context.resources.strings.employeeComment,
+                  labelText: context.resources.strings.employeeComment,
+                ),
               ],
             ),
           ),
@@ -827,10 +931,23 @@ class StudentFormVM extends ChangeNotifier {
                  // hintText: context.resources.strings.canadianUniversity,
                   labelText: context.resources.strings.nameOfAdvisor,
                 ),
+
+
+                HeritageTextFeild(
+                  controller: form6CustomerCommentController,
+                  hintText: context.resources.strings.customerComment,
+                  labelText: context.resources.strings.customerComment,
+                ),
+                HeritageTextFeild(
+                  controller: form6EmployeeCommentController,
+                  hintText: context.resources.strings.employeeComment,
+                  labelText: context.resources.strings.employeeComment,
+                ),
               ],
             ),
           ),
         ),
+
         SizedBox(
           height: 20,
         ),
@@ -911,6 +1028,8 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.student_form_name:nameController.text.trim(),
               FirestoreConstants.student_form_reffered_by:refferdByController.text.trim(),
               FirestoreConstants.student_form_city_village:cityVillageController.text.trim(),
+              FirestoreConstants.form_1_employee_comment:form1EmployeeCommentController.text.trim(),
+              FirestoreConstants.form_1_customer_comment:form1CustomerCommentController.text.trim(),
             }
         );
         break;
@@ -924,6 +1043,8 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.student_form_parent_email:emailParentController.text.trim(),
               FirestoreConstants.student_form_number_of_children:noOfChildren.text.trim(),
               FirestoreConstants.student_form_married:married,
+              FirestoreConstants.form_2_employee_comment:form2EmployeeCommentController.text.trim(),
+              FirestoreConstants.form_2_customer_comment:form2CustomerCommentController.text.trim(),
             }
         );
 
@@ -941,6 +1062,10 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.student_mother_occupation:motherOccupationController.text.trim(),
               FirestoreConstants.student_parent_contact:parentContactController.text.trim(),
               FirestoreConstants.student_family_net_income:netFamilyIncomeController.text.trim(),
+              FirestoreConstants.form_3_employee_comment:form3EmployeeCommentController.text.trim(),
+              FirestoreConstants.form_3_customer_comment:form3CustomerCommentController.text.trim(),
+
+
             }
         );
 
@@ -960,6 +1085,8 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.student_twelve_board:twelveBoardController.text.trim(),
               FirestoreConstants.student_twelve_stream:twelveStreamController.text.trim(),
               FirestoreConstants.student_twelve_marks_percentage:twelvePercentagemarksController.text.trim(),
+              FirestoreConstants.form_4_employee_comment:form4EmployeeCommentController.text.trim(),
+              FirestoreConstants.form_4_customer_comment:form4CustomerCommentController.text.trim(),
             }
         );
         break;
@@ -970,6 +1097,8 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.student_any_refusal:anyRefusal,
               FirestoreConstants.student_travel_history:travelHistoryController.text.trim(),
               FirestoreConstants.student_country:countryController.text.trim(),
+              FirestoreConstants.form_5_employee_comment:form5EmployeeCommentController.text.trim(),
+              FirestoreConstants.form_5_customer_comment:form5CustomerCommentController.text.trim(),
             }
         );
         break;
@@ -987,6 +1116,8 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.student_ielts_any_college:anyCollegeController.text.trim(),
               FirestoreConstants.student_ielts_remark:remarkController.text.trim(),
               FirestoreConstants.student_ielts_advisor:advisorController.text.trim(),
+              FirestoreConstants.form_6_employee_comment:form6EmployeeCommentController.text.trim(),
+              FirestoreConstants.form_6_customer_comment:form6CustomerCommentController.text.trim(),
             }
         );
         break;

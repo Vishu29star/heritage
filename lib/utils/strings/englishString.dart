@@ -106,7 +106,12 @@ class EngLishStrings extends Strings {
   String get userDetail=> "User Detail";
   String get canadianUniversity=> "Canadian University";
   String get remark=> "Remarks";
+  String get comment=> "comment";
+  String get customerComment=> "Customer comment";
+  String get employeeComment=> "Employee comment";
   String get nameOfAdvisor=> "Name of Advisor";
+  String get createdAt=> "Created at";
+  String get updatedAt=> "Updated at";
   String get anyProvincePreferenceInCanadaIfNoThenMentionNONE=> "Any Province preference (In Canada), if no then mention NONE";
   String get anyCollegeProgramPreferenceIFNoThenMentionNONE=> "Any College/Program Preference, if no then mention NONE";
 }

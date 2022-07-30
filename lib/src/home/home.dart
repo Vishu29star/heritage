@@ -89,8 +89,6 @@ class HomeItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("model.isCollapsed");
-    print(model.isCollapsed);
     Size size = MediaQuery.of(context).size;
     double drawerWidth = Responsive.isDesktop(context) ? size.width * 0.3 : Responsive.isTablet(context) ? size.width * 0.3 : size.width * 0.5;
     return SafeArea(

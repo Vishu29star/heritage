@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../../constants/HeritageCircularProgressBar.dart';
 import '../../../constants/HeritageErrorWidget(.dart';
+import '../../../utils/responsive/responsive.dart';
 import '../homeVM.dart';
 
 class UserDetail extends StatelessWidget {
@@ -20,7 +21,7 @@ class UserDetail extends StatelessWidget {
     final Stream<DocumentSnapshot> userStream  =  model.homeService!.userdoc.doc(model.selectedUserId).snapshots();
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
+        appBar: Responsive.isMobile(context) ? AppBar(
           iconTheme: IconThemeData(color: Colors.black),
           backgroundColor: Colors.white,
           title: Text(
@@ -30,6 +31,11 @@ class UserDetail extends StatelessWidget {
                 fontSize: 24,
                 color: Theme.of(context).primaryColor),
           ),
+        ) : PreferredSize(
+            preferredSize: Size.fromHeight(0.0), // here the desired height
+            child: AppBar(
+              // ...
+            )
         ),
         body: StreamBuilder<DocumentSnapshot>(
           stream: userStream,
