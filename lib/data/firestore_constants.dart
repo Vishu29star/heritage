@@ -21,6 +21,7 @@
   static String pincode = "pincode";
   static String uid = "uid";
   static String studentFormCaseID = "studentFormCaseID";
+  static String studentFormPercent = "studentFormPercent";
 
   //studentForm feilds
   static String case_id = "case_id";

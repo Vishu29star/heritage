@@ -74,6 +74,7 @@ class StudentFormVM extends ChangeNotifier {
   String married = "";
   String anyRefusal = "";
   String criminalHistory = "";
+  double profilePerCent = 0.0;
 
   TextEditingController ieltsLController = TextEditingController();
   TextEditingController ieltsRController = TextEditingController();
@@ -748,17 +749,18 @@ class StudentFormVM extends ChangeNotifier {
                           labelText: context.resources.strings.noofBacklogsifany,
                         )),
 
-                    HeritageTextFeild(
-                      controller: form4CustomerCommentController,
-                      hintText: context.resources.strings.customerComment,
-                      labelText: context.resources.strings.customerComment,
-                    ),
-                    HeritageTextFeild(
-                      controller: form4EmployeeCommentController,
-                      hintText: context.resources.strings.employeeComment,
-                      labelText: context.resources.strings.employeeComment,
-                    ),
+
                   ],
+                ),
+                HeritageTextFeild(
+                  controller: form4CustomerCommentController,
+                  hintText: context.resources.strings.customerComment,
+                  labelText: context.resources.strings.customerComment,
+                ),
+                HeritageTextFeild(
+                  controller: form4EmployeeCommentController,
+                  hintText: context.resources.strings.employeeComment,
+                  labelText: context.resources.strings.employeeComment,
                 ),
               ],
             ),
@@ -998,6 +1000,7 @@ class StudentFormVM extends ChangeNotifier {
     }
     try{
       var result = await studentFormService!.updateStudentForm(getMapData(), studentCaseId);
+      studentFormService?.updateUserPercentStudentFormId(formUserId,profilePerCent);
       if(pagePostion==5){
         mainModel!.showTopSuccessMessage(context, "Student Form Submitted");
         Navigator.pop(context);
@@ -1019,6 +1022,7 @@ class StudentFormVM extends ChangeNotifier {
   }
 
   Map<String ,dynamic> getMapData(){
+    profilePerCent = 0.0;
     Map<String ,dynamic> data = {};
     switch(pagePostion){
       case 0:{
@@ -1032,6 +1036,7 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.form_1_customer_comment:form1CustomerCommentController.text.trim(),
             }
         );
+        profilePerCent = 11.11;
         break;
       }
       case 1:{
@@ -1047,7 +1052,7 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.form_2_customer_comment:form2CustomerCommentController.text.trim(),
             }
         );
-
+        profilePerCent = 22.22;
         break;
       }
       case 2:{
@@ -1064,11 +1069,9 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.student_family_net_income:netFamilyIncomeController.text.trim(),
               FirestoreConstants.form_3_employee_comment:form3EmployeeCommentController.text.trim(),
               FirestoreConstants.form_3_customer_comment:form3CustomerCommentController.text.trim(),
-
-
             }
         );
-
+        profilePerCent = 39.99;
         break;
       }
       case 3:{
@@ -1089,6 +1092,7 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.form_4_customer_comment:form4CustomerCommentController.text.trim(),
             }
         );
+        profilePerCent = 66.65;
         break;
       }
       case 4:{
@@ -1101,9 +1105,10 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.form_5_customer_comment:form5CustomerCommentController.text.trim(),
             }
         );
+        profilePerCent = 75.53;
         break;
       }
-      case 4:{
+      case 5:{
         data.addAll(
             {FirestoreConstants.student_ielts_year:ieltsYear.millisecondsSinceEpoch,
               FirestoreConstants.student_ielts_l:ieltsLController.text.trim(),
@@ -1120,6 +1125,7 @@ class StudentFormVM extends ChangeNotifier {
               FirestoreConstants.form_6_customer_comment:form6CustomerCommentController.text.trim(),
             }
         );
+        profilePerCent = 100;
         break;
       }
     }

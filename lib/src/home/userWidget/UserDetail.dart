@@ -49,7 +49,24 @@ class UserDetail extends StatelessWidget {
             }
 
             List<Widget> children = [];
+            int studentPercent = 0;
+            Color studentPercentColor  = Colors.green;
             Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+            if(data.containsKey(FirestoreConstants.studentFormCaseID)){
+              if(data.containsKey(FirestoreConstants.studentFormPercent)){
+                studentPercent = data[FirestoreConstants.studentFormPercent];
+                if(studentPercent<25){
+                  studentPercentColor  = Colors.redAccent;
+                }else if(studentPercent<50){
+                  studentPercentColor  = Colors.orangeAccent;
+                }
+                else if(studentPercent<75){
+                  studentPercentColor  = Colors.blueAccent;
+                }
+              }else{
+                studentPercentColor = Colors.redAccent;
+              }
+            }
             children.add(Text("Select Service",style: TextStyle(fontSize: 20,color: Colors.black,fontWeight: FontWeight.w600),));
             children.add(SizedBox(height: 16,));
             children.add( Container(
@@ -71,7 +88,13 @@ class UserDetail extends StatelessWidget {
                         model.handleServiceClick(model.homeItems[i],model.selectedUserId);
                       },
                       title: Text(model.homeItems[i].toString()),
-                      subtitle: Text("Blah, Blah",),),
+                      subtitle: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [Text("Blah, Blah",),
+                        if(model.homeItems[i]== "Student visa" && data.containsKey(FirestoreConstants.studentFormCaseID))
+                          Text(studentPercent.toString()+"%",style: TextStyle(color: studentPercentColor),)
+                          ],
+                      )),
                   );
                 },
               ),

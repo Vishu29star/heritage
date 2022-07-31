@@ -159,7 +159,7 @@ class HomeVM extends ChangeNotifier{
   }
 
 
-  handleServiceClick(String title,String userId ){
+  handleServiceClick(String title,String userId){
     switch(title){
       case "Student visa":
         if(Responsive.isMobile(context!)){
