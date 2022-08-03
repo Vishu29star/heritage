@@ -12,4 +12,27 @@ class HomeService extends MainService{
    var snapshot =  await userdoc.where(searchType,isEqualTo: search).get();
    return snapshot;
   }
+
+  Future<void> deleteEmployyeComment() async {
+    final instance = FirebaseFirestore.instance;
+    final batch = instance.batch();
+    try{
+      QuerySnapshot snapshot = await instance.collection(studentFormCollection).get();
+      for (DocumentSnapshot ds in snapshot.docs){
+        Map<String , dynamic> map = {
+          FirestoreConstants.form_1_employee_comment:"",
+          FirestoreConstants.form_2_employee_comment:"",
+          FirestoreConstants.form_3_employee_comment:"",
+          FirestoreConstants.form_4_employee_comment:"",
+          FirestoreConstants.form_5_employee_comment:"",
+          FirestoreConstants.form_6_employee_comment:"",
+        };
+        batch.update(instance.collection(studentFormCollection).doc(ds.id), map);
+      }
+     var result = await batch.commit();
+      print("tfvygbuhnijmko,l.;");
+    }catch(e){
+      print(e);
+    }
+  }
 }

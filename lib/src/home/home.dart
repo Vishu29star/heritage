@@ -13,6 +13,7 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
 import '../../constants/HeritageCircularProgressBar.dart';
+import '../../data/firestore_constants.dart';
 import '../../src/home/homeService.dart';
 import '../../src/home/homeVM.dart';
 import '../../src/mainViewModel.dart';
@@ -183,35 +184,67 @@ class DashBoardBody extends StatelessWidget {
         : Responsive.isTablet(context)
             ? 2
             : 1;
-    for (int i = 0; i < model.homeItems.length; i++) {
-      int count = 1;
-      double ratio = 1.50;
-      if (i == model.homeItems.length - 1) {
-        if (crossAxisCount == 2 || crossAxisCount == 3) {
-          count = crossAxisCount;
-          ratio = 3.50;
+
+    return StreamBuilder<DocumentSnapshot>(
+      stream: model.homeService!.userdoc.doc(model.currentUserId).snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return HeritageErrorWidget();
         }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return HeritageProgressBar();
+        }
+
+        for (int i = 0; i < model.homeItems.length; i++) {
+          int count = 1;
+          double ratio = 1.50;
+          if (i == model.homeItems.length - 1) {
+            if (crossAxisCount == 2 || crossAxisCount == 3) {
+              count = crossAxisCount;
+              ratio = 3.50;
+            }
+          }
+          children.add(StaggeredGridTile.fit(
+              crossAxisCellCount: count,
+              child: _buildServiceCardNew(model.homeItems[i], ratio,snapshot)));
+        }
+        return Scaffold(
+            body: Center(
+              child: Padding(
+                  padding: EdgeInsets.all(16.sp),
+                  child: SingleChildScrollView(
+                    child: StaggeredGrid.count(
+                      crossAxisCount: crossAxisCount,
+                      mainAxisSpacing: 20.sp,
+                      crossAxisSpacing: 20.sp,
+                      children: children,
+                    ),
+                  )),
+            ));
       }
-      children.add(StaggeredGridTile.fit(
-          crossAxisCellCount: count,
-          child: _buildServiceCardNew(model.homeItems[i], ratio)));
-    }
-    return Scaffold(
-        body: Center(
-          child: Padding(
-              padding: EdgeInsets.all(16.sp),
-              child: SingleChildScrollView(
-                child: StaggeredGrid.count(
-                  crossAxisCount: crossAxisCount,
-                  mainAxisSpacing: 20.sp,
-                  crossAxisSpacing: 20.sp,
-                  children: children,
-                ),
-              )),
-        ));
+    );
   }
 
-  Widget _buildServiceCardNew(String item, double aspectRatio) {
+  Widget _buildServiceCardNew(String item, double aspectRatio, AsyncSnapshot<DocumentSnapshot<Object?>> snapshot) {
+    int studentPercent = 0;
+    Color studentPercentColor  = Colors.green;
+    Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+    if(data.containsKey(FirestoreConstants.studentFormCaseID)){
+      if(data.containsKey(FirestoreConstants.studentFormPercent)){
+        studentPercent = data[FirestoreConstants.studentFormPercent];
+        if(studentPercent<25){
+          studentPercentColor  = Colors.redAccent;
+        }else if(studentPercent<50){
+          studentPercentColor  = Colors.orangeAccent;
+        }
+        else if(studentPercent<75){
+          studentPercentColor  = Colors.blueAccent;
+        }
+      }else{
+        studentPercentColor = Colors.redAccent;
+      }
+    }
     return AspectRatio(
       aspectRatio: aspectRatio,
       child: Material(
@@ -263,16 +296,33 @@ class DashBoardBody extends StatelessWidget {
                     SizedBox(
                       height: 8.0,
                     ),
-                    Text(
-                      "Blah, Blah",
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        height: 1.25,
-                        letterSpacing: 0.15,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Blah, Blah",
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.sp,
+                            height: 1.25,
+                            letterSpacing: 0.15,
+                          ),
+                        ),
+                        item == "Student visa"?Text(
+                          studentPercent.toString(),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: studentPercentColor,
+                            fontSize: 14.sp,
+                            height: 1.25,
+                            letterSpacing: 0.15,
+                          ),
+                        ):Container(),
+
+                      ],
                     ),
                   ],
                 ),

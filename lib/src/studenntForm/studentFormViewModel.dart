@@ -343,17 +343,17 @@ class StudentFormVM extends ChangeNotifier {
       ieltsIDBBCController.text = data[FirestoreConstants.student_ielts_IDBBC];
     }
     if(data.containsKey(FirestoreConstants.student_ielts_any_province)){
-      anyProvinceController = data[FirestoreConstants.student_ielts_any_province];
+      anyProvinceController.text = data[FirestoreConstants.student_ielts_any_province];
     }
     if(data.containsKey(FirestoreConstants.student_ielts_any_college)){
-      anyCollegeController = data[FirestoreConstants.student_ielts_any_college];
+      anyCollegeController.text = data[FirestoreConstants.student_ielts_any_college];
     }
 
     if(data.containsKey(FirestoreConstants.student_ielts_advisor)){
-      advisorController = data[FirestoreConstants.student_ielts_advisor];
+      advisorController.text = data[FirestoreConstants.student_ielts_advisor];
     }
     if(data.containsKey(FirestoreConstants.student_ielts_remark)){
-      remarkController = data[FirestoreConstants.student_ielts_remark];
+      remarkController.text = data[FirestoreConstants.student_ielts_remark];
     }
     if(data.containsKey(FirestoreConstants.form_6_employee_comment)){
       form6EmployeeCommentController.text = data[FirestoreConstants.form_6_employee_comment];

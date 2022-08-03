@@ -44,7 +44,10 @@ class HomeVM extends ChangeNotifier{
     //notifyListeners();
     this.context  = context;
     await addNavItems();
+
     homeItems.addAll(["Express Entry","Spousal sponsership","Student visa","Care Giver Visa","Care Giver PR","Work Permits","visitor Visa"]);
+
+
     isDataLoad = true;
     notifyListeners();
   }
@@ -126,6 +129,18 @@ class HomeVM extends ChangeNotifier{
           changeHomeItem(2);
         },
       ),
+      if(userType == "superadmin")...[
+    ListTile(
+    leading: Icon(
+    Icons.delete,
+    ),
+    title: const Text('Delete Employee Comment'),
+    onTap: () {
+      deleteEmployyeComment();
+    }, ),
+      ],
+
+
       ListTile(
         leading: Icon(
           Icons.logout_sharp,
@@ -143,6 +158,11 @@ class HomeVM extends ChangeNotifier{
     print("isCollapsed");
     print(isCollapsed);
     notifyListeners();
+  }
+
+  Future<void> deleteEmployyeComment() async {
+
+  homeService!.deleteEmployyeComment();
   }
   changeHomeItem(int pagePosition){
     print("pagePosition");

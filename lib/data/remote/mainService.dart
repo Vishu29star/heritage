@@ -25,7 +25,7 @@ Map<ServerType, String> on8Srvers = {
 //configration too for ios and android
 ServerType appServerType = ServerType.dev;
 String userCollection = appServerType.name+ FirestoreConstants.users;
-String studentFormCollection = appServerType.name+ FirestoreConstants.studentForms;
+String studentFormCollection = appServerType.name + FirestoreConstants.studentForms;
 
 class MainService {
   static final FirebaseAuth auth = FirebaseAuth.instance;

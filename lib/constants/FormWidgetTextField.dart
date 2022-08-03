@@ -50,7 +50,9 @@ class HeritageTextFeild extends StatelessWidget {
       multiply = 1.6;
       textmultiply = 1.4;
     }
-
+    print("hintrcfvtybunim,Text");
+    print(labelText);
+    print(hintText);
     if(Responsive.isDesktop(context)){
       return Container(
         margin: EdgeInsets.symmetric(vertical:10*multiply),
