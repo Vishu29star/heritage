@@ -64,7 +64,16 @@ class _StudenFormWidegtState extends State<StudenFormWidegt> {
                       leading: IconButton(
                         icon: Icon(Icons.arrow_back, color: Colors.black),
                         onPressed: () => model.onBackPress(),
-                      ),
+                      ),actions: [
+                        model.studentPercent > 99 ? TextButton(onPressed: (){
+                          if(model.currentUserType == "customer"){
+                            model.createPdf(false);
+                          }else{
+                            showOptionsDialog(context,model);
+                          }
+
+                        }, child: Text("Download Profile")) : Container()
+                    ],
                       iconTheme: IconThemeData(color: Colors.black),
                       backgroundColor: Colors.white,
                       title: Row(
@@ -100,6 +109,37 @@ class _StudenFormWidegtState extends State<StudenFormWidegt> {
     );
   }
 
+  Future<void> showOptionsDialog(BuildContext context, StudentFormVM model) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Optons"),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: [
+                  GestureDetector(
+                    child: Text("With Employee Comments"),
+                    onTap: () {
+
+                      model.createPdf(true);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  Padding(padding: EdgeInsets.all(10)),
+                  GestureDetector(
+                    child: Text("Without Employee Comments"),
+                    onTap: () {
+                      model.createPdf(false);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
   Widget formBody(StudentFormVM model) {
     print("rftgyhujikolp");
     final Stream<DocumentSnapshot> studentFormStream = model

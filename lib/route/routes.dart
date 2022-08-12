@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:Heritage/src/cisForm/cis_form_widget.dart';
 import 'package:Heritage/src/home/homeVM.dart';
 import 'package:Heritage/src/home/userWidget/UserDetail.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+import '../constants/pdfPreview.dart';
 import '../src/home/home.dart';
 import '../src/loginSignup/LoginSignUpService.dart';
 import '../src/loginSignup/LoginSignUpViewModel.dart';
@@ -13,6 +16,7 @@ import '../src/loginSignup/screen/loginSignupMainScreen.dart';
 import '../src/mainViewModel.dart';
 import '../src/splash/splashScreen.dart';
 import '../src/studenntForm/student_form_widget.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class Routes {
   static const String home = "home";
@@ -21,6 +25,7 @@ class Routes {
   static const String studentForm = "studentForm";
   static const String cisForm = "cisForm";
   static const String userDetail = "userDetail";
+  static const String pdfPreview = "pdfPreview";
 
   static Route<T> fadeThrough<T>(RouteSettings settings, WidgetBuilder page,
       {int duration = 300}) {
@@ -85,6 +90,11 @@ class Routes {
       case cisForm:
         return MaterialPageRoute(
           builder: (_) => CISFormWidget(),
+        );
+      case pdfPreview:
+        Uint8List pdf = args as Uint8List;
+        return MaterialPageRoute(
+          builder: (_) => PdfPreviewPage( pdf,),
         );
       default:
          return MaterialPageRoute(builder: (_) {

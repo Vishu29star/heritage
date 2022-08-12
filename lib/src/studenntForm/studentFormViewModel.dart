@@ -1,21 +1,32 @@
 import 'package:Heritage/data/remote/apiModels/apiResponse.dart';
+import 'package:Heritage/route/routes.dart';
 import 'package:Heritage/src/studenntForm/studentFormService.dart';
 import 'package:Heritage/utils/extension.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:Heritage/route/myNavigator.dart';
 
 import '../../constants/FormWidgetTextField.dart';
 import '../../constants/HeritageYesNoWidget.dart';
 import '../../constants/HeritagedatePicker.dart';
+import '../../constants/pdfPreview.dart';
 import '../../data/firestore_constants.dart';
 import '../../utils/Utils.dart';
 
 import '../../utils/comman/commanWidget.dart';
+import '../../utils/responsive/responsive.dart';
 import '../mainViewModel.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'dart:io';
+import 'package:intl/intl.dart';
+
 
 class StudentFormVM extends ChangeNotifier {
   StudentFormVM(this.studentFormService, this.mainModel);
@@ -26,12 +37,15 @@ class StudentFormVM extends ChangeNotifier {
   late BuildContext context;
   late String formUserId;
   late String currentUID;
+  late String currentUserEmail;
+  late String currentUserType = "customer";
   late SharedPreferences preferences;
 
   bool isLoading =  true;
   dynamic errorText ;
   int firstInt = 0;
   var nameErrorText = null;
+  var pdfFont ;
   var cityVillageErrorText = null;
   var studentContactError = null;
   var studentemailError = null;
@@ -112,6 +126,7 @@ class StudentFormVM extends ChangeNotifier {
   List<Widget> formWidgets = [];
 
   var studentCaseId = null;
+  int studentPercent = 0;
   var studentData;
 
 
@@ -123,6 +138,16 @@ class StudentFormVM extends ChangeNotifier {
     print(formUserId);
     preferences = await SharedPreferences.getInstance();
     currentUID = await preferences.getString(FirestoreConstants.uid) ?? "currentUserId";
+    currentUserEmail = await preferences.getString(FirestoreConstants.email) ?? "email";
+
+    if(currentUserEmail.toLowerCase().trim()=="admin@heritage.com"){
+      print("rdftghbjnkm");
+      currentUserType = "admin";
+    }
+    if(currentUserEmail.toLowerCase().trim()=="super@heritage.com"){
+      print("lhfghkjlk;l");
+      currentUserType = "superadmin";
+    }
     print("vgbhnjkm");
     print(currentUID);
     isLoading = true;
@@ -133,7 +158,8 @@ class StudentFormVM extends ChangeNotifier {
     try{
       ApiResponse? result = await studentFormService?.checkForStudentForm(formUserId);
       if(result != null && result.status=="success"){
-        studentCaseId = result.data.toString();
+        studentCaseId = result.data[FirestoreConstants.studentFormCaseID].toString();
+        studentPercent = checkAndGetValue(result.data,FirestoreConstants.studentFormPercent,defaultValue: 0);
         ApiResponse? studentDataResponse = await studentFormService?.getUserStudentForm(studentCaseId);
         Map<String,dynamic> studentData = studentDataResponse!.data;
         List<dynamic> list = studentData[FirestoreConstants.logs];
@@ -379,6 +405,7 @@ class StudentFormVM extends ChangeNotifier {
   }
 
   List<Widget> getWidgetList(Map<String, dynamic> data){
+    studentData = data;
     setData(data);
     form1Widget = Column(
       children: [
@@ -445,6 +472,7 @@ class StudentFormVM extends ChangeNotifier {
         button1(),
       ],
     );
+
     form2Widget = Column(
       children: [
         Expanded(
@@ -470,8 +498,8 @@ class StudentFormVM extends ChangeNotifier {
                 HeritageTextFeild(
                   errorText: emailParentError,
                   controller: emailParentController,
-                  hintText: context.resources.strings.enterParentemail,
-                  labelText: context.resources.strings.emailHint,
+                  hintText: context.resources.strings.emailHint,
+                  labelText: context.resources.strings.enterParentemail,
                   keyboardType: TextInputType.emailAddress,
                 ),
                 HeritageTextFeild(
@@ -523,7 +551,7 @@ class StudentFormVM extends ChangeNotifier {
                   keyboardType: TextInputType.name,
                   controller: spouseOccupationController,
                   hintText: context.resources.strings.manager,
-                  labelText: context.resources.strings.spousesName,
+                  labelText: context.resources.strings.spousesOccupation,
                 ),
                 HeritageTextFeild(
                   keyboardType: TextInputType.name,
@@ -592,8 +620,6 @@ class StudentFormVM extends ChangeNotifier {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //HeritagedatePicker(rowORColumn: 1, result: DOBdate,dateFormat: 'yyyy-MM-dd',labelText: "DOB",),
-                //Divider(),
                 Text(
                   context.resources.strings.educationalInformation,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
@@ -977,8 +1003,6 @@ class StudentFormVM extends ChangeNotifier {
     return formWidgets;
   }
 
-
-
   Widget button1() {
     return SizedBox(
         height: 50,
@@ -1304,5 +1328,258 @@ class StudentFormVM extends ChangeNotifier {
     RegExp regExp = new RegExp(p);
 
     return regExp.hasMatch(em);
+  }
+
+  savepdf(pw.Document pdf) async {
+    var ppp = await pdf.save();
+
+    /*https://stackoverflow.com/questions/61373742/flutter-web-display-pdf-file-generated-in-application-uint8list-format*/
+   /* var directory = await getApplicationDocumentsDirectory();
+    String name = "StudentForm${DateTime.now().millisecondsSinceEpoch.toString()}.pdf";
+    final File file = File('${directory.path}/'+name);
+    await file.writeAsBytes(await pdf.save());*/
+    mainModel?.showhideprogress(false, context);
+    notifyListeners();
+    mainModel!.showTopSuccessMessage(context, "Student Form Pdf Created");
+    if(Responsive.isMobile(context)){
+    myNavigator.pushNamed(context, Routes.pdfPreview, arguments: ppp);
+    }
+    else{
+      showDialog(
+          context: context,
+          builder: (BuildContext context){
+            return Dialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                    BorderRadius.circular(20.0)),
+                child: Container(constraints: BoxConstraints(minWidth: 300, maxWidth: 450),child:PdfPreviewPage(ppp)));
+          }
+      );
+    }
+
+
+  }
+
+  createPdf(bool withEmployeComment) async {
+    mainModel?.showhideprogress(true, context);
+    notifyListeners();
+    final imageLogo1 = pw.MemoryImage((await rootBundle.load('assets/images/heritage_logo1.jpeg')).buffer.asUint8List());
+    final imageLogo2 = pw.MemoryImage((await rootBundle.load('assets/images/heritage_logo_2.jpeg')).buffer.asUint8List());
+    pdfFont = await PdfGoogleFonts.nunitoExtraLight();
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.Page(
+          build: (pw.Context context) {
+            return pw.Column(
+              children: [
+                getPdfHeader(imageLogo2),
+                pw.SizedBox(height: 20),
+                pw.Table(
+                    border: pw.TableBorder.all(color: PdfColors.black),
+                    children: [
+                      getTableRow(this.context.resources.strings.date,DateFormat(this.context.resources.strings.DDMMYYYY).format(DateTime.fromMillisecondsSinceEpoch(studentData[FirestoreConstants.student_form_date])).toString()),
+                      getTableRow(this.context.resources.strings.enterName,studentData[FirestoreConstants.student_form_name]),
+                      getTableRow(this.context.resources.strings.refferedby,studentData[FirestoreConstants.student_form_reffered_by]),
+                      getTableRow(this.context.resources.strings.dateOfBirth,DateFormat(this.context.resources.strings.DDMMYYYY).format(DateTime.fromMillisecondsSinceEpoch(studentData[FirestoreConstants.student_form_DOB])).toString()),
+                      getTableRow(this.context.resources.strings.cityVillage,studentData[FirestoreConstants.student_form_city_village]),
+                      getTableRow(this.context.resources.strings.customerComment,checkAndGetValue(studentData, FirestoreConstants.form_1_customer_comment,defaultValue: "")),
+                      if(withEmployeComment)
+                        getTableRow(this.context.resources.strings.employeeComment,checkAndGetValue(studentData, FirestoreConstants.form_1_employee_comment,defaultValue: "")),
+
+                      getTableRow(this.context.resources.strings.enterStudentContactNo,studentData[FirestoreConstants.student_form_contact].toString()),
+                      getTableRow(this.context.resources.strings.enterEmail,studentData[FirestoreConstants.student_form_email].toString()),
+                      getTableRow(this.context.resources.strings.enterParentemail,studentData[FirestoreConstants.student_form_parent_email].toString()),
+                      getTableRow(this.context.resources.strings.numberOfChildren,studentData[FirestoreConstants.student_form_number_of_children].toString()),
+                      getTableRow(this.context.resources.strings.married,studentData[FirestoreConstants.student_form_married].toString()),
+                      getTableRow(this.context.resources.strings.customerComment,studentData[FirestoreConstants.form_2_customer_comment].toString()),
+                      if(withEmployeComment)
+                        getTableRow(this.context.resources.strings.employeeComment,checkAndGetValue(studentData, FirestoreConstants.form_2_employee_comment,defaultValue: "")),
+                    ]
+                )
+              ],
+            );
+          }
+      ),
+    );
+    pdf.addPage(
+      pw.Page(
+          build: (pw.Context context) {
+            return pw.Column(
+              children: [
+                getPdfHeader(imageLogo2),
+                pw.SizedBox(height: 20),
+                pw.Table(
+                    border: pw.TableBorder.all(color: PdfColors.black),
+                    children: [
+                      getTableRow(this.context.resources.strings.spousesName,studentData[FirestoreConstants.student_spouse_name].toString()),
+                      getTableRow(this.context.resources.strings.spousesOccupation,studentData[FirestoreConstants.student_spouse_occupation].toString()),
+                      getTableRow(this.context.resources.strings.fathersName,studentData[FirestoreConstants.student_father_name].toString()),
+                      getTableRow(this.context.resources.strings.fathersOccupation,studentData[FirestoreConstants.student_father_occupation].toString()),
+                      getTableRow(this.context.resources.strings.mothersName,studentData[FirestoreConstants.student_mother_name].toString()),
+                      getTableRow(this.context.resources.strings.mothersOccupation,studentData[FirestoreConstants.student_mother_occupation].toString()),
+                      getTableRow("Parent’s Contact No.",studentData[FirestoreConstants.student_parent_contact].toString()),
+                      getTableRow(this.context.resources.strings.netFamilyIncomeAnnually,studentData[FirestoreConstants.student_family_net_income].toString()),
+                      getTableRow(this.context.resources.strings.customerComment,studentData[FirestoreConstants.form_3_customer_comment].toString()),
+                      if(withEmployeComment)
+                        getTableRow(this.context.resources.strings.employeeComment,checkAndGetValue(studentData, FirestoreConstants.form_3_employee_comment,defaultValue: "")),
+                    ]
+                )
+              ],
+            );
+          }
+      ),
+    );
+    pdf.addPage(
+      pw.Page(
+          build: (pw.Context context) {
+            return pw.Column(
+              children: [
+                getPdfHeader(imageLogo2),
+                pw.SizedBox(height: 20),
+                pw.Table(
+                    border: pw.TableBorder.all(color: PdfColors.black),
+                    children: [
+                      getSingleTableRow(this.context.resources.strings.educationalInformation),
+                      getSingleTableRow(this.context.resources.strings.tenth),
+                      getTableRow(this.context.resources.strings.fromMMYYYY,DateFormat(this.context.resources.strings.monthyearDateFormat).format(DateTime.fromMillisecondsSinceEpoch(studentData[FirestoreConstants.student_tenth_from_date])).toString()),
+                      getTableRow(this.context.resources.strings.toMMYYYY,DateFormat(this.context.resources.strings.monthyearDateFormat).format(DateTime.fromMillisecondsSinceEpoch(studentData[FirestoreConstants.student_tenth_to_date])).toString()),
+                      getTableRow(this.context.resources.strings.stream,studentData[FirestoreConstants.student_tenth_stream].toString()),
+                      getTableRow(this.context.resources.strings.boardUniversityCollege,studentData[FirestoreConstants.student_tenth_board].toString()),
+                      getTableRow(this.context.resources.strings.percentage,studentData[FirestoreConstants.student_tenth_marks_percentage].toString()),
+                      getTableRow(this.context.resources.strings.noofBacklogsifany,studentData[FirestoreConstants.student_tenth_backlog].toString()),
+                      getSingleTableRow(this.context.resources.strings.twelveth),
+                      getTableRow(this.context.resources.strings.fromMMYYYY,DateFormat(this.context.resources.strings.monthyearDateFormat).format(DateTime.fromMillisecondsSinceEpoch(studentData[FirestoreConstants.student_twelve_from_date])).toString()),
+                      getTableRow(this.context.resources.strings.toMMYYYY,DateFormat(this.context.resources.strings.monthyearDateFormat).format(DateTime.fromMillisecondsSinceEpoch(studentData[FirestoreConstants.student_twelve_to_date])).toString()),
+                      getTableRow(this.context.resources.strings.stream,studentData[FirestoreConstants.student_twelve_stream].toString()),
+                      getTableRow(this.context.resources.strings.boardUniversityCollege,studentData[FirestoreConstants.student_twelve_board].toString()),
+                      getTableRow(this.context.resources.strings.percentage,studentData[FirestoreConstants.student_twelve_marks_percentage].toString()),
+                      getTableRow(this.context.resources.strings.customerComment,studentData[FirestoreConstants.form_4_customer_comment].toString()),
+                      if(withEmployeComment)
+                        getTableRow(this.context.resources.strings.employeeComment,checkAndGetValue(studentData, FirestoreConstants.form_4_employee_comment,defaultValue: "")),
+                    ]
+                )
+              ],
+            );
+
+
+          }
+      ),
+    );
+
+    pdf.addPage(
+      pw.Page(
+          build: (pw.Context context) {
+            return pw.Column(
+              children: [
+                getPdfHeader(imageLogo2),
+                pw.SizedBox(height: 20),
+                pw.Table(
+                    border: pw.TableBorder.all(color: PdfColors.black),
+                    children: [
+                      getSingleTableRow(this.context.resources.strings.assessmentInformation),
+                      getTableRow(this.context.resources.strings.criminalHistory,studentData[FirestoreConstants.student_criminal_history].toString()),
+                      getTableRow(this.context.resources.strings.travelHistory,studentData[FirestoreConstants.student_travel_history].toString()),
+                      getTableRow(this.context.resources.strings.CountryIfapplicable,studentData[FirestoreConstants.student_country].toString()),
+                      getTableRow(this.context.resources.strings.anyRefusals,studentData[FirestoreConstants.student_any_refusal].toString()),
+                      getTableRow(this.context.resources.strings.customerComment,studentData[FirestoreConstants.form_5_customer_comment].toString()),
+                      if(withEmployeComment)
+                        getTableRow(this.context.resources.strings.employeeComment,checkAndGetValue(studentData, FirestoreConstants.form_5_employee_comment,defaultValue: "")),
+                    ]
+                )
+              ],
+            );
+          }
+      ),
+    );
+
+    pdf.addPage(
+      pw.Page(
+          build: (pw.Context context) {
+            return pw.Column(
+              children: [
+                getPdfHeader(imageLogo2),
+                pw.SizedBox(height: 20),
+                pw.Table(
+                    border: pw.TableBorder.all(color: PdfColors.black),
+                    children: [
+                      getSingleTableRow(this.context.resources.strings.IELTSGenAca),
+                      getTableRow(this.context.resources.strings.year,DateFormat(this.context.resources.strings.yearFormat).format(DateTime.fromMillisecondsSinceEpoch(studentData[FirestoreConstants.student_ielts_year])).toString()),
+                      getTableRow(this.context.resources.strings.L,studentData[FirestoreConstants.student_ielts_l].toString()),
+                      getTableRow(this.context.resources.strings.R,studentData[FirestoreConstants.student_ielts_r].toString()),
+                      getTableRow(this.context.resources.strings.W,studentData[FirestoreConstants.student_ielts_w].toString()),
+                      getTableRow(this.context.resources.strings.S,studentData[FirestoreConstants.student_ielts_s].toString()),
+                      getTableRow(this.context.resources.strings.OA,studentData[FirestoreConstants.student_ielts_OA].toString()),
+                      getTableRow(this.context.resources.strings.IDPBC,studentData[FirestoreConstants.student_ielts_IDBBC].toString()),
+                      getTableRow(this.context.resources.strings.anyProvincePreferenceInCanadaIfNoThenMentionNONE,studentData[FirestoreConstants.student_ielts_any_province].toString()),
+                      getTableRow(this.context.resources.strings.nameOfAdvisor,studentData[FirestoreConstants.student_ielts_advisor].toString()),
+                      getTableRow(this.context.resources.strings.remark,studentData[FirestoreConstants.student_ielts_remark].toString()),
+                      getTableRow(this.context.resources.strings.customerComment,studentData[FirestoreConstants.form_6_customer_comment].toString()),
+                      if(withEmployeComment)
+                        getTableRow(this.context.resources.strings.employeeComment,checkAndGetValue(studentData, FirestoreConstants.form_6_employee_comment,defaultValue: "")),
+                    ]
+                )
+              ],
+            );
+          }
+      ),
+    );
+
+    savepdf(pdf);
+
+  }
+
+  getTableRow(String title,String value){
+    return pw.TableRow(
+
+        children: [
+
+          pw.Expanded(
+              flex: 1,
+              child: getPaddedtext(title)
+          ),
+          pw.Expanded(
+              flex: 2,
+              child: getPaddedtext(value)
+          ),
+        ]
+    );
+  }
+
+  getSingleTableRow(String title){
+    return pw.TableRow(
+
+        children: [
+
+          pw.Expanded(
+              child: getPaddedtext(title)
+          ),
+        ]
+    );
+  }
+
+  getPaddedtext(final String text, {final pw.TextAlign align = pw.TextAlign.left,}) {
+    return
+        pw.Padding(
+          padding: pw.EdgeInsets.all(10),
+          child: pw.Text(
+            text,
+            style: pw.TextStyle(font: pdfFont),
+            textAlign: align,
+          ),
+        );
+  }
+
+  pw.Row getPdfHeader(pw.MemoryImage imageLogo1){
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      children: [
+        pw.Text("Student form",style: pw.TextStyle(font: pdfFont,fontSize: 24,color: PdfColor.fromHex("#7f3841"))),
+        pw.SizedBox(
+          height: 150,
+          width: 150,
+          child: pw.Image(imageLogo1),
+        )
+      ],
+    );
   }
 }
