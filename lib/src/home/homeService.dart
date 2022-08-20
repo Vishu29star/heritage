@@ -17,7 +17,7 @@ class HomeService extends MainService{
     final instance = FirebaseFirestore.instance;
     final batch = instance.batch();
     try{
-      QuerySnapshot snapshot = await instance.collection(studentFormCollection).get();
+      QuerySnapshot snapshot = await instance.collection(studentFormCollection).where(FirestoreConstants.user_type,isEqualTo: "customer").get();
       for (DocumentSnapshot ds in snapshot.docs){
         Map<String , dynamic> map = {
           FirestoreConstants.form_1_employee_comment:"",
@@ -31,6 +31,15 @@ class HomeService extends MainService{
       }
      var result = await batch.commit();
       print("tfvygbuhnijmko,l.;");
+    }catch(e){
+      print(e);
+    }
+  }
+
+  Future<void> updateUserWithToken(String token,String user_id) async {
+    CollectionReference userCollection1= FirebaseFirestore.instance.collection(userCollection);
+    try{
+      userCollection1.doc(user_id).update({FirestoreConstants.firebaseToken:token});
     }catch(e){
       print(e);
     }

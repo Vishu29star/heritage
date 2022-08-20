@@ -3,7 +3,7 @@ import 'package:Heritage/utils/encryptry.dart';
 import 'package:Heritage/utils/extension.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,14 +15,15 @@ import '../../utils/responsive/responsive.dart';
 import '../mainViewModel.dart';
 import '../studenntForm/student_form_widget.dart';
 
-class HomeVM extends ChangeNotifier{
+class HomeVM extends ChangeNotifier {
   final GlobalKey<ScaffoldState> key = GlobalKey(); // Create a key
-  HomeVM(this.homeService,this.mainModel);
+  HomeVM(this.homeService, this.mainModel);
+
   final MainViewMoel? mainModel;
   final HomeService? homeService;
   String selectedUserId = "";
   String currentUserId = "";
-  List<Map<String,dynamic>> searchResult = [];
+  List<Map<String, dynamic>> searchResult = [];
 
   BuildContext? context;
   var width;
@@ -31,60 +32,88 @@ class HomeVM extends ChangeNotifier{
   int pagePosition = 0;
   bool isCollapsed = true;
   bool isDataLoad = false;
-  late String name, email,userType;
+  late String name, email, userType;
 
   List<String> homeItems = [];
-  List<Widget> generateItems =  [];
+  List<Widget> generateItems = [];
   List<dynamic> searchTypes = [];
-  dynamic? selectedSearchType  ;
+  dynamic? selectedSearchType;
+
   bool isSearching = false;
 
   firstInt(BuildContext context) async {
     isDataLoad = false;
     //notifyListeners();
-    this.context  = context;
+    this.context = context;
     await addNavItems();
-
-    homeItems.addAll(["Express Entry","Spousal sponsership","Student visa","Care Giver Visa","Care Giver PR","Work Permits","visitor Visa"]);
-
+    checkForToken();
+    homeItems.addAll([
+      "Express Entry",
+      "Spousal sponsership",
+      "Student visa",
+      "Care Giver Visa",
+      "Care Giver PR",
+      "Work Permits",
+      "visitor Visa"
+    ]);
 
     isDataLoad = true;
     notifyListeners();
   }
 
-  openDrawer(){
+  checkForToken() {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    messaging.getToken().then((token) async {
+      final prefs = await SharedPreferences.getInstance();
+      final String firebaseTokenPrefKey = FirestoreConstants.firebaseToken;
+      final String currentToken = prefs.getString(firebaseTokenPrefKey) ?? "ttt";
+      if (currentToken != token) {
+        print('token refresh: ' + token!);
+        // add code here to do something with the updated token
+        await prefs.setString(firebaseTokenPrefKey, token);
+        updateUserToken(token);
+      }
+    });
+  }
+
+  updateUserToken(String token) {
+    homeService?.updateUserWithToken(token, currentUserId);
+  }
+
+  openDrawer() {
     key.currentState!.openDrawer();
   }
+
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
     myNavigator.popAllAndPushNamedReplacement(context!, Routes.login);
   }
 
-  getLocalData(){
+  getLocalData() {}
 
-
-  }
   addNavItems() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    var first_name = await preferences.getString(FirestoreConstants.name) ?? "name";
+    var first_name =
+        await preferences.getString(FirestoreConstants.name) ?? "name";
     name = first_name;
     email = await preferences.getString(FirestoreConstants.email) ?? "email";
     currentUserId = await preferences.getString(FirestoreConstants.uid) ?? "currentUserId";
-    print("vgbhnjkm");
+
     print(currentUserId);
     String userType = "customer";
-    if(email.toLowerCase().trim()=="admin@heritage.com"){
+    if (email.toLowerCase().trim() == "admin@heritage.com") {
       print("rdftghbjnkm");
       userType = "admin";
     }
-    if(email.toLowerCase().trim()=="super@heritage.com"){
+    if (email.toLowerCase().trim() == "super@heritage.com") {
       print("lhfghkjlk;l");
       userType = "superadmin";
     }
     this.userType = userType;
     print(userType);
     generateItems.addAll([
-      UserAccountsDrawerHeader( // <-- SEE HERE
+      UserAccountsDrawerHeader(
+        // <-- SEE HERE
         decoration: BoxDecoration(color: Theme.of(context!).primaryColor),
         accountName: Text(
           name,
@@ -100,7 +129,6 @@ class HomeVM extends ChangeNotifier{
         ),
         currentAccountPicture: FlutterLogo(),
       ),
-
       ListTile(
         leading: Icon(
           Icons.home,
@@ -117,7 +145,7 @@ class HomeVM extends ChangeNotifier{
         title: const Text('Profile'),
         onTap: () {
           changeHomeItem(1);
-         // Navigator.pop(context);
+          // Navigator.pop(context);
         },
       ),
       ListTile(
@@ -129,18 +157,26 @@ class HomeVM extends ChangeNotifier{
           changeHomeItem(2);
         },
       ),
-      if(userType == "superadmin")...[
-    ListTile(
-    leading: Icon(
-    Icons.delete,
-    ),
-    title: const Text('Delete Employee Comment'),
-    onTap: () {
-      deleteEmployyeComment();
-    }, ),
+      if (userType == "superadmin") ...[
+        ListTile(
+          leading: Icon(
+            Icons.delete,
+          ),
+          title: const Text('Delete Employee Comment'),
+          onTap: () {
+            deleteEmployyeComment();
+          },
+        ),
+        ListTile(
+          leading: Icon(
+            Icons.report,
+          ),
+          title: const Text('Report'),
+          onTap: () {
+            changeHomeItem(11);
+          },
+        ),
       ],
-
-
       ListTile(
         leading: Icon(
           Icons.logout_sharp,
@@ -153,7 +189,7 @@ class HomeVM extends ChangeNotifier{
     ]);
   }
 
-  openClosedDrawer(bool collapsed){
+  openClosedDrawer(bool collapsed) {
     isCollapsed = collapsed;
     print("isCollapsed");
     print(isCollapsed);
@@ -161,14 +197,14 @@ class HomeVM extends ChangeNotifier{
   }
 
   Future<void> deleteEmployyeComment() async {
-
-  homeService!.deleteEmployyeComment();
+    homeService!.deleteEmployyeComment();
   }
-  changeHomeItem(int pagePosition){
+
+  changeHomeItem(int pagePosition) {
     print("pagePosition");
     print(pagePosition);
-    for(int i = 0;i<generateItems.length;i++){
-     /* if(i==pagePosition){
+    for (int i = 0; i < generateItems.length; i++) {
+      /* if(i==pagePosition){
         generateItems[i].isSelected = true;
       }else{
         generateItems[i].isSelected = false;
@@ -178,44 +214,47 @@ class HomeVM extends ChangeNotifier{
     notifyListeners();
   }
 
-
-  handleServiceClick(String title,String userId){
-    switch(title){
+  handleServiceClick(String title, String userId) {
+    switch (title) {
       case "Student visa":
-        if(Responsive.isMobile(context!)){
-          myNavigator.pushNamed(context!, Routes.studentForm,arguments: userId);
-        }else{
+        if (Responsive.isMobile(context!)) {
+          myNavigator.pushNamed(context!, Routes.studentForm,
+              arguments: userId);
+        } else {
           showDialog(
               context: context!,
-              builder: (BuildContext context){
+              builder: (BuildContext context) {
                 return Dialog(
                     shape: RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.circular(20.0)),
-                    child: Container(constraints: BoxConstraints(minWidth: 300, maxWidth: 450),child:StudenFormWidegt(userId: userId,)));
-              }
-          );
+                        borderRadius: BorderRadius.circular(20.0)),
+                    child: Container(
+                        constraints:
+                            BoxConstraints(minWidth: 300, maxWidth: 450),
+                        child: StudenFormWidegt(
+                          userId: userId,
+                        )));
+              });
         }
         break;
       case "Express Entry":
-        if(Responsive.isMobile(context!)){
+        if (Responsive.isMobile(context!)) {
           myNavigator.pushNamed(context!, Routes.cisForm);
-        }else{
+        } else {
           showDialog(
               context: context!,
-              builder: (BuildContext context){
+              builder: (BuildContext context) {
                 return Dialog(
                     shape: RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.circular(20.0)),
-                    child: Container(constraints: BoxConstraints(minWidth: 300, maxWidth: 450),child:CISFormWidget()));
-              }
-          );
+                        borderRadius: BorderRadius.circular(20.0)),
+                    child: Container(
+                        constraints:
+                            BoxConstraints(minWidth: 300, maxWidth: 450),
+                        child: CISFormWidget()));
+              });
         }
         break;
     }
   }
-
 
   //Admin users data
 
@@ -223,10 +262,10 @@ class HomeVM extends ChangeNotifier{
   String _searchText = '';
   bool showClearText = false;
 
-  initSearch(){
+  initSearch() {
     initSearchTypes();
     searchController.addListener(() {
-      if(searchController.text.trim().length == 0){
+      if (searchController.text.trim().length == 0) {
         searchResult.clear();
         notifyListeners();
       }
@@ -234,55 +273,82 @@ class HomeVM extends ChangeNotifier{
     print("ftgvybuhnijmokl,.;,l");
   }
 
-  initSearchTypes(){
+  initSearchTypes() {
     print("vgbhjnkmlkjbhjnkm");
-    searchTypes.add({"key":context!.resources.strings.firstName,"value":FirestoreConstants.first_name,"isSelected":false});
-    searchTypes.add({"key":context!.resources.strings.lastName,"value":FirestoreConstants.last_name,"isSelected":false});
-    searchTypes.add({"key":context!.resources.strings.phonenumber,"value":FirestoreConstants.phone_number,"isSelected":false});
-    searchTypes.add({"key":context!.resources.strings.email,"value":FirestoreConstants.email,"isSelected":false});
-    searchTypes.add({"key":context!.resources.strings.createdAt,"value":FirestoreConstants.createdAt,"isSelected":false});
-    searchTypes.add({"key":context!.resources.strings.updatedAt,"value":FirestoreConstants.updatedAt,"isSelected":false});
-    selectedSearchType  = searchTypes[0];
+    searchTypes.add({
+      "key": context!.resources.strings.firstName,
+      "value": FirestoreConstants.first_name,
+      "isSelected": false
+    });
+    searchTypes.add({
+      "key": context!.resources.strings.lastName,
+      "value": FirestoreConstants.last_name,
+      "isSelected": false
+    });
+    searchTypes.add({
+      "key": context!.resources.strings.phonenumber,
+      "value": FirestoreConstants.phone_number,
+      "isSelected": false
+    });
+    searchTypes.add({
+      "key": context!.resources.strings.email,
+      "value": FirestoreConstants.email,
+      "isSelected": false
+    });
+    searchTypes.add({
+      "key": context!.resources.strings.createdAt,
+      "value": FirestoreConstants.createdAt,
+      "isSelected": false
+    });
+    searchTypes.add({
+      "key": context!.resources.strings.updatedAt,
+      "value": FirestoreConstants.updatedAt,
+      "isSelected": false
+    });
+    selectedSearchType = searchTypes[0];
   }
-  
+
   searchUser() async {
     isSearching = true;
     notifyListeners();
-    QuerySnapshot? querySnapshot = await homeService?.searchUser(encrydecry().encryptMsg(searchController.text.trim()),selectedSearchType["value"]);
-    if(querySnapshot!=null){
+    QuerySnapshot? querySnapshot = await homeService?.searchUser(
+        encrydecry().encryptMsg(searchController.text.trim()),
+        selectedSearchType["value"]);
+    if (querySnapshot != null) {
       print("querySnapshot.size");
       print(querySnapshot.size);
       searchResult.clear();
-      var data = querySnapshot.docs.map((e) => e.data() as Map<String ,dynamic>).toList();
+      var data = querySnapshot.docs
+          .map((e) => e.data() as Map<String, dynamic>)
+          .toList();
       searchResult.addAll(data);
     }
     isSearching = false;
     notifyListeners();
   }
 
-
-  changeSearchType(int index){
-    for(int i = 0 ;i<searchTypes.length;i++){
-      if(index == i){
+  changeSearchType(int index) {
+    for (int i = 0; i < searchTypes.length; i++) {
+      if (index == i) {
         searchTypes[i]["isSelected"] = true;
         selectedSearchType = searchTypes[index]!;
-      }else{
+      } else {
         searchTypes[i]["isSelected"] = false;
       }
     }
     notifyListeners();
   }
-  selectuser(String selectedUserId,{bool isFirst = false}){
+
+  selectuser(String selectedUserId, {bool isFirst = false}) {
     this.selectedUserId = selectedUserId;
     print("selectedUserId");
     print(selectedUserId);
-    if(!isFirst){
+    if (!isFirst) {
       notifyListeners();
-    }else{
-      Future.delayed(Duration(seconds: 1),(){
+    } else {
+      Future.delayed(Duration(seconds: 1), () {
         notifyListeners();
       });
     }
-
   }
 }

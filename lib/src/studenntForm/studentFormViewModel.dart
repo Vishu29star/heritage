@@ -157,6 +157,8 @@ class StudentFormVM extends ChangeNotifier {
     });
     try{
       ApiResponse? result = await studentFormService?.checkForStudentForm(formUserId);
+      var firstName = result?.data[FirestoreConstants.first_name];
+      var lastName = result?.data[FirestoreConstants.last_name];
       if(result != null && result.status=="success"){
         studentCaseId = result.data[FirestoreConstants.studentFormCaseID].toString();
         studentPercent = checkAndGetValue(result.data,FirestoreConstants.studentFormPercent,defaultValue: 0);
@@ -171,8 +173,9 @@ class StudentFormVM extends ChangeNotifier {
         await studentFormService?.updateStudentForm(data,studentCaseId);
       }
       else{
-        var uuid = Uuid();
-        var case_id = uuid.v1();
+
+       // var uuid = Uuid();
+        var case_id = firstName[0]+firstName[firstName.length-1]+ DateTime.now().millisecondsSinceEpoch.toString()+lastName[0]+lastName[lastName.length-1] ;
         Map<String,dynamic> data = {
           FirestoreConstants.case_id:case_id,
           FirestoreConstants.createdAt:FieldValue.serverTimestamp(),

@@ -190,6 +190,48 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.7.6"
+  device_info_plus:
+    dependency: "direct main"
+    description:
+      name: device_info_plus
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.1.2"
+  device_info_plus_linux:
+    dependency: transitive
+    description:
+      name: device_info_plus_linux
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
+  device_info_plus_macos:
+    dependency: transitive
+    description:
+      name: device_info_plus_macos
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
+  device_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: device_info_plus_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
+  device_info_plus_web:
+    dependency: transitive
+    description:
+      name: device_info_plus_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
+  device_info_plus_windows:
+    dependency: transitive
+    description:
+      name: device_info_plus_windows
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.0"
   encrypt:
     dependency: "direct main"
     description:
@@ -218,6 +260,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.1.2"
+  file_saver:
+    dependency: "direct main"
+    description:
+      name: file_saver
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.1"
   firebase_auth:
     dependency: "direct main"
     description:
@@ -252,14 +301,35 @@ packages:
       name: firebase_core_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.4.3"
+    version: "4.5.0"
   firebase_core_web:
     dependency: transitive
     description:
       name: firebase_core_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.6.6"
+    version: "1.7.1"
+  firebase_messaging:
+    dependency: "direct main"
+    description:
+      name: firebase_messaging
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "12.0.2"
+  firebase_messaging_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_messaging_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.1.1"
+  firebase_messaging_web:
+    dependency: transitive
+    description:
+      name: firebase_messaging_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.1"
   firebase_storage:
     dependency: "direct main"
     description:
@@ -307,6 +377,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  flutter_local_notifications:
+    dependency: "direct main"
+    description:
+      name: flutter_local_notifications
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "9.7.1"
+  flutter_local_notifications_linux:
+    dependency: transitive
+    description:
+      name: flutter_local_notifications_linux
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.1"
+  flutter_local_notifications_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_local_notifications_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.0"
   flutter_neumorphic:
     dependency: "direct main"
     description:
@@ -742,6 +833,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.12"
+  timezone:
+    dependency: transitive
+    description:
+      name: timezone
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.0"
   top_snackbar_flutter:
     dependency: "direct main"
     description:

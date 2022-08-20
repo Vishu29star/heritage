@@ -1,8 +1,10 @@
 import 'package:Heritage/constants/HeritageErrorWidget(.dart';
 import 'package:Heritage/src/home/userWidget/UserDetail.dart';
 import 'package:Heritage/src/home/userWidget/userList.dart';
+import 'package:Heritage/src/superAdminReport/superAdminreport.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -29,6 +31,12 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,6 +133,9 @@ class HomeItem extends StatelessWidget {
         return AdminDashboardBody(model);
       case 2:
         return AdminDashboardBody(model);
+        //Super Admin views
+      case 11:
+        return SuperAdminReportScreen(homeModel: model,);
     }
   }
 

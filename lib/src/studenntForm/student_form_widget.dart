@@ -27,7 +27,7 @@ class StudenFormWidegt extends StatefulWidget {
 class _StudenFormWidegtState extends State<StudenFormWidegt> {
   @override
   Widget build(BuildContext context) {
-  print("cvbhuinonmninin");
+
     return Scaffold(
       key: widget.formKey,
       backgroundColor: Colors.white,

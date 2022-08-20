@@ -364,12 +364,11 @@ class LoginSignUpViewModel extends ChangeNotifier{
         mainModel?.showTopSuccessMessage(context!, context?.resources.strings.loginSuccessfully);
         if(user.displayName!=null){
           context!.loaderOverlay.hide();
-          Navigator.push(context!, MaterialPageRoute(builder: (context) => const Home()),);
+          myNavigator.pushNamed(context!, Routes.home, /*arguments: {"mobile": mobile.text.toString()}*/);
         }else{
           context!.loaderOverlay.hide();
           pagePosition = 4;
           pageController.jumpToPage(4);
-
         }
       }
     }on FirebaseAuthException catch (e) {
@@ -470,6 +469,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
         Map<String,dynamic> data = {
           FirestoreConstants.first_name: encrydecry().encryptMsg(firstNameController.text.trim()),
           FirestoreConstants.last_name: encrydecry().encryptMsg(lastNameController.text.trim()) ,
+          FirestoreConstants.name: encrydecry().encryptMsg("${firstNameController.text.trim()} ${lastNameController.text.trim()}") ,
           FirestoreConstants.phone_number:encrydecry().encryptMsg(phoneNumberController.text.trim()) ,
           FirestoreConstants.dob:encrydecry().encryptMsg(dateOfBirthController.text.trim()) ,
           FirestoreConstants.pincode:encrydecry().encryptMsg(pinCodeController.text.trim()) ,
@@ -483,7 +483,6 @@ class LoginSignUpViewModel extends ChangeNotifier{
         mainModel?.showhideprogress(false, context!);
 
         myNavigator.pushNamed(context!, Routes.home, /*arguments: {"mobile": mobile.text.toString()}*/);
-        Navigator.pushNamed(context!, Routes.home);
       }else{
         mainModel?.showTopErrorMessage(context!, context!.resources.strings.pleaseEnterAllDetail);
       }

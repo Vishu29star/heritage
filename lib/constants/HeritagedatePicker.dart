@@ -110,7 +110,6 @@ class _HeritagedatePickerState extends State<HeritagedatePicker> {
         ),
       );
     }
-
   }
 
   Future<void> openDatePicker() async {

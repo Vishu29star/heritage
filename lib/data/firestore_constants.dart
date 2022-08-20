@@ -19,6 +19,7 @@
   static String email = "email";
   static String dob = "dob";
   static String pincode = "pincode";
+  static String firebaseToken = "firebaseToken";
   static String uid = "uid";
   static String studentFormCaseID = "studentFormCaseID";
   static String studentFormPercent = "studentFormPercent";

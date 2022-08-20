@@ -1,4 +1,6 @@
+import 'package:Heritage/utils/pushNotification/push_notifcation.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -15,14 +17,18 @@ import 'src/splash/splashScreen.dart';
 import 'utils/extension.dart';
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     name: "Heritageimm",
     options: DefaultFirebaseOptions.currentPlatform,
-  );
+    );
   PreferenceUtils.init();
+  //await PushNotificationService().setupInteractedMessage();
   runApp(const MyApp());
+ /* RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+  if (initialMessage != null) {
+    // App received a notification when it was killed
+  }*/
 }
 
 class MyApp extends StatelessWidget {
