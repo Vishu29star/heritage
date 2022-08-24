@@ -1,3 +1,4 @@
+/*
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -6,6 +7,7 @@ import '../../firebase_options.dart';
 // ignore: slash_for_doc_comments
 //Article link
 // https://medium.com/@alaa07996/firebase-push-notifications-with-flutter-6848892a1c15
+*/
 /**
  * Documents added by Alaa, enjoy ^-^:
  * There are 3 major things to consider when dealing with push notification :
@@ -28,7 +30,8 @@ import '../../firebase_options.dart';
  * - When the app is in the foreground, there is a function flutterLocalNotificationsPlugin, is passes a future function called onSelectNotification which
  *   is called when user clicks on the notification.
  *
- * */
+ * *//*
+
 class PushNotificationService {
   // It is assumed that all messages contain a data field with the key 'type'
   Future<void> setupInteractedMessage() async {
@@ -122,4 +125,4 @@ class PushNotificationService {
     description: 'This channel is used for important notifications.', // description
     importance: Importance.max,
   );
-}
+}*/

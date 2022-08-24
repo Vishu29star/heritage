@@ -3,7 +3,7 @@ import 'package:Heritage/utils/encryptry.dart';
 import 'package:Heritage/utils/extension.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+//import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -62,7 +62,7 @@ class HomeVM extends ChangeNotifier {
   }
 
   checkForToken() {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
+  /*  FirebaseMessaging messaging = FirebaseMessaging.instance;
     messaging.getToken().then((token) async {
       final prefs = await SharedPreferences.getInstance();
       final String firebaseTokenPrefKey = FirestoreConstants.firebaseToken;
@@ -73,7 +73,7 @@ class HomeVM extends ChangeNotifier {
         await prefs.setString(firebaseTokenPrefKey, token);
         updateUserToken(token);
       }
-    });
+    });*/
   }
 
   updateUserToken(String token) {
