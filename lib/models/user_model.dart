@@ -102,7 +102,7 @@ class UserModel{
       _pincode = encrydecry().decryptMsg(json["pincode"]);
     }
     if(json.containsKey("firebaseToken")){
-      _firebaseToken = encrydecry().decryptMsg(json["firebaseToken"]);
+      _firebaseToken = json["firebaseToken"];
     }
   }
 

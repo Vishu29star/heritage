@@ -1,7 +1,6 @@
 import 'package:Heritage/constants/HeritageErrorWidget(.dart';
 import 'package:Heritage/src/home/userWidget/UserDetail.dart';
 import 'package:Heritage/src/home/userWidget/userList.dart';
-import 'package:Heritage/src/superAdminReport/superAdminreport.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 //import 'package:firebase_messaging/firebase_messaging.dart';
@@ -21,6 +20,8 @@ import '../../src/home/homeVM.dart';
 import '../../src/mainViewModel.dart';
 import '../../utils/extension.dart';
 import '../../utils/responsive/responsive.dart';
+import '../superAdmin/admins/adminList/admin_list.dart';
+import '../superAdmin/superAdminReport/superAdminreport.dart';
 
 
 class Home extends StatefulWidget {
@@ -44,6 +45,7 @@ class _HomeState extends State<Home> {
         create: (_) => HomeVM(HomeService(), MainViewMoel()),
         child: Consumer<HomeVM>(
           builder: (context, model, child) {
+
             if(model.firstInit==0){
               model.firstInit++;
               model.firstInt(context);
@@ -136,6 +138,8 @@ class HomeItem extends StatelessWidget {
         //Super Admin views
       case 11:
         return SuperAdminReportScreen(homeModel: model,);
+      case 12:
+        return AdminList(homeModel: model,);
     }
   }
 

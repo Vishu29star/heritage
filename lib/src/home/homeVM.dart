@@ -6,11 +6,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 //import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
+import '../../constants/FormWidgetTextField.dart';
 import '../../data/firestore_constants.dart';
 import '../../route/myNavigator.dart';
 import '../../route/routes.dart';
 import '../../src/home/homeService.dart';
+import '../../utils/monthYearPicker/dialogs.dart';
 import '../../utils/responsive/responsive.dart';
 import '../mainViewModel.dart';
 import '../studenntForm/student_form_widget.dart';
@@ -84,6 +87,9 @@ class HomeVM extends ChangeNotifier {
     key.currentState!.openDrawer();
   }
 
+  closeDrawer(){
+    key.currentState!.closeDrawer();
+  }
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
     myNavigator.popAllAndPushNamedReplacement(context!, Routes.login);
@@ -164,7 +170,8 @@ class HomeVM extends ChangeNotifier {
           ),
           title: const Text('Delete Employee Comment'),
           onTap: () {
-            deleteEmployyeComment();
+            closeDrawer();
+            showOptionsDialog();
           },
         ),
         ListTile(
@@ -173,7 +180,18 @@ class HomeVM extends ChangeNotifier {
           ),
           title: const Text('Report'),
           onTap: () {
+            closeDrawer();
             changeHomeItem(11);
+          },
+        ),
+        ListTile(
+          leading: Icon(
+            Icons.report,
+          ),
+          title: const Text('Admins'),
+          onTap: () {
+            closeDrawer();
+            changeHomeItem(12);
           },
         ),
       ],
@@ -189,15 +207,131 @@ class HomeVM extends ChangeNotifier {
     ]);
   }
 
+  DateTime? employeeDeleteStartDate;
+  DateTime? employeeDeleteEndDate;
+
+
+
   openClosedDrawer(bool collapsed) {
     isCollapsed = collapsed;
     print("isCollapsed");
     print(isCollapsed);
     notifyListeners();
   }
+  Future<void> showOptionsDialog() {
+    return showDialog(
+        context: context!,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Options"),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: [
+                  GestureDetector(
+                    child: Text("Delete All Employee Comments"),
+                    onTap: () {
+                      deleteEmployyeComment();
+                      Navigator.pop(context);
+                    },
+                  ),
+                  Padding(padding: EdgeInsets.all(10)),
+                  GestureDetector(
+                    child: Text("Select Date Range"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Future.delayed(Duration(milliseconds: 100),(){
+                        showDateRangeDialog();
+                      });
 
-  Future<void> deleteEmployyeComment() async {
-    homeService!.deleteEmployyeComment();
+                    },
+                  ),
+
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  Future<void> showDateRangeDialog(){
+    return showDialog(
+        context: context!,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Select Range"),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: [
+                  GestureDetector(
+                    child: Text(employeeDeleteStartDate!=null ? DateFormat(context.resources.strings.DDMMYYYY).format(employeeDeleteStartDate ?? DateTime.now()) : "Select Start Date"),
+                    onTap: () async {
+                      employeeDeleteStartDate =  await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2022,7,1),
+                        lastDate: DateTime.now(),
+                      );
+                      if(employeeDeleteStartDate!=null){
+                        notifyListeners();
+                      }
+                    },
+                  ),
+                  Padding(padding: EdgeInsets.all(10)),
+                  GestureDetector(
+                    child: Text(employeeDeleteEndDate!=null ? DateFormat(context.resources.strings.DDMMYYYY).format(employeeDeleteEndDate ?? DateTime.now()) : "Select End Date"),
+                    onTap: () async {
+                      if(employeeDeleteStartDate==null){
+                        mainModel?.showTopErrorMessage(context, "Please First Select Start Date");
+                        return;
+                      }
+                      employeeDeleteEndDate =  await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: employeeDeleteStartDate!,
+                        lastDate: DateTime.now(),
+                      );
+                      if(employeeDeleteEndDate!=null){
+                        notifyListeners();
+                      }
+                    },
+                  ),
+
+                  Padding(padding: EdgeInsets.all(30)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                          height: 50,
+                          width: 200,
+                          child: Button(
+                            isEnabled: true,
+                            onPressed: () async {
+                              if(employeeDeleteStartDate != null && employeeDeleteEndDate != null && employeeDeleteStartDate!.isBefore(employeeDeleteEndDate!)){
+                                deleteEmployyeComment(isFilterApplied:true);
+                                Navigator.pop(context);
+                              }
+                            },
+                            labelText:context.resources.strings.submit,
+                          ))
+                    ],
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  Future<void> deleteEmployyeComment({bool isFilterApplied = false}) async {
+
+    var result =  await homeService!.deleteEmployyeComment(isFilterApplied: isFilterApplied,starDate: employeeDeleteStartDate,endDate: employeeDeleteEndDate);
+    if(result != null){
+      if(result["status"] == "failed"){
+        mainModel?.showTopErrorMessage(context!, result["message"]);
+      }else{
+        mainModel?.showTopSuccessMessage(context!, result["message"]);
+      }
+    }
   }
 
   changeHomeItem(int pagePosition) {

@@ -103,6 +103,7 @@ class EngLishStrings extends Strings {
   String get IDPBC=> "IDP / BC";
   String get eight=> "8";
   String get next=> "Next";
+  String get add=> "Add";
   String get userDetail=> "User Detail";
   String get canadianUniversity=> "Canadian University";
   String get remark=> "Remarks";

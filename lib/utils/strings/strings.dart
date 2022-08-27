@@ -101,6 +101,7 @@ abstract class Strings {
   String get eight ;
   String get IDPBC ;
   String get next ;
+  String get add ;
   String get anyProvincePreferenceInCanadaIfNoThenMentionNONE ;
   String get canadianUniversity ;
   String get anyCollegeProgramPreferenceIFNoThenMentionNONE ;

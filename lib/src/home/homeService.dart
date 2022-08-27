@@ -13,26 +13,47 @@ class HomeService extends MainService{
    return snapshot;
   }
 
-  Future<void> deleteEmployyeComment() async {
+  Future<Map<String,String>> deleteEmployyeComment({bool isFilterApplied = false,DateTime? starDate,DateTime? endDate}) async {
     final instance = FirebaseFirestore.instance;
     final batch = instance.batch();
     try{
-      QuerySnapshot snapshot = await instance.collection(studentFormCollection).where(FirestoreConstants.user_type,isEqualTo: "customer").get();
+      QuerySnapshot snapshot;
+      if(isFilterApplied){
+        snapshot = await instance.collection(studentFormCollection)
+            .where(FirestoreConstants.user_type,isEqualTo: "customer")
+            .where(FirestoreConstants.createdAt, isLessThanOrEqualTo: starDate!)
+            .where(FirestoreConstants.createdAt, isGreaterThanOrEqualTo: endDate!).get();
+      }else{
+        snapshot = await instance.collection(studentFormCollection).where(FirestoreConstants.user_type,isEqualTo: "customer").get();
+      }
       for (DocumentSnapshot ds in snapshot.docs){
-        Map<String , dynamic> map = {
-          FirestoreConstants.form_1_employee_comment:"",
-          FirestoreConstants.form_2_employee_comment:"",
-          FirestoreConstants.form_3_employee_comment:"",
-          FirestoreConstants.form_4_employee_comment:"",
-          FirestoreConstants.form_5_employee_comment:"",
-          FirestoreConstants.form_6_employee_comment:"",
-        };
+        Map<String ,dynamic> dd = ds.data()! as Map<String, dynamic>;
+        Map<String , dynamic> map = {};
+        if(dd.containsKey(FirestoreConstants.form_1_employee_comment)){
+          map.addAll({FirestoreConstants.form_1_employee_comment:"",});
+        }
+        if(dd.containsKey(FirestoreConstants.form_2_employee_comment)){
+          map.addAll({FirestoreConstants.form_2_employee_comment:"",});
+        }
+        if(dd.containsKey(FirestoreConstants.form_3_employee_comment)){
+          map.addAll({FirestoreConstants.form_3_employee_comment:"",});
+        }
+        if(dd.containsKey(FirestoreConstants.form_4_employee_comment)){
+          map.addAll({FirestoreConstants.form_4_employee_comment:"",});
+        }
+        if(dd.containsKey(FirestoreConstants.form_5_employee_comment)){
+          map.addAll({FirestoreConstants.form_5_employee_comment:"",});
+        }
+        if(dd.containsKey(FirestoreConstants.form_6_employee_comment)){
+          map.addAll({FirestoreConstants.form_6_employee_comment:"",});
+        }
         batch.update(instance.collection(studentFormCollection).doc(ds.id), map);
       }
      var result = await batch.commit();
-      print("tfvygbuhnijmko,l.;");
+      return {"status":"success","message":"Data deleted successfully."};
     }catch(e){
       print(e);
+      return {"status":"failed","message":e.toString()};
     }
   }
 
