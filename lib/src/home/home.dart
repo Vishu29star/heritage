@@ -12,9 +12,10 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
-
+import 'package:Heritage/route/myNavigator.dart';
 import '../../constants/HeritageCircularProgressBar.dart';
 import '../../data/firestore_constants.dart';
+import '../../route/routes.dart';
 import '../../src/home/homeService.dart';
 import '../../src/home/homeVM.dart';
 import '../../src/mainViewModel.dart';
@@ -164,23 +165,32 @@ class AdminDashboardBody extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final Stream<QuerySnapshot> userStream  =  model.homeService!.usersStream;
-    return StreamBuilder<QuerySnapshot>(
-      stream: userStream,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return HeritageErrorWidget();
-        }
+    return Scaffold(
+      floatingActionButton: model.userType == "superAdmin" ? null : FloatingActionButton.extended(onPressed: (){
+        Map<String,dynamic> map = {
+          "currentUserId":model.currentUserId,
+          "userType":model.userType,
+        };
+        myNavigator.pushNamed(context, Routes.chatScreen, arguments: map);
+      }, label: Text("Chat"),icon: Icon(Icons.chat),),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: userStream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return HeritageErrorWidget();
+          }
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return HeritageProgressBar();
-        }
-        return Responsive.isMobile(context) ? UserList(snapshot,model):Row(
-          children: [
-            Expanded(flex:3,child: UserList(snapshot,model)),
-            Expanded(flex:7,child: UserDetail(model)),
-          ],
-        );
-      },
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return HeritageProgressBar();
+          }
+          return Responsive.isMobile(context) ? UserList(snapshot,model):Row(
+            children: [
+              Expanded(flex:3,child: UserList(snapshot,model)),
+              Expanded(flex:7,child: UserDetail(model)),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -225,6 +235,13 @@ class DashBoardBody extends StatelessWidget {
               child: _buildServiceCardNew(model.homeItems[i], ratio,snapshot)));
         }
         return Scaffold(
+          floatingActionButton: FloatingActionButton.extended(onPressed: (){
+            Map<String,dynamic> map = {
+              "currentUserId":model.currentUserId,
+              "userType":model.userType,
+            };
+            myNavigator.pushNamed(context, Routes.chatScreen, arguments: map);
+          }, label: Text("Chat"),icon: Icon(Icons.chat),),
             body: Center(
               child: Padding(
                   padding: EdgeInsets.all(16.sp),

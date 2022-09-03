@@ -26,6 +26,8 @@ Map<ServerType, String> on8Srvers = {
 ServerType appServerType = ServerType.dev;
 String userCollection = appServerType.name+ FirestoreConstants.users;
 String studentFormCollection = appServerType.name + FirestoreConstants.studentForms;
+String groupChatChannel = appServerType.name + FirestoreConstants.groupChatChannel;
+String messages = appServerType.name + FirestoreConstants.messages;
 
 class MainService {
   static final FirebaseAuth auth = FirebaseAuth.instance;
@@ -87,6 +89,7 @@ class MainService {
     print(data[FirestoreConstants.uid]);
     userRefrence.doc(data[FirestoreConstants.uid]).update(data);
   }
+
 
   Future<void> setUserDataMain(String collectioName ,Map<String, dynamic> data) async {
     data.addAll({FirestoreConstants.updatedAt:FieldValue.serverTimestamp()});

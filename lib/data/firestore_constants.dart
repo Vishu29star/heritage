@@ -2,6 +2,8 @@
   //collection names
   static String users = "users";
   static String studentForms = "studentForms";
+  static String groupChatChannel = "groupChatChannel";
+  static String messages = "messages";
 
 
   //comman feilds
@@ -23,6 +25,17 @@
   static String uid = "uid";
   static String studentFormCaseID = "studentFormCaseID";
   static String studentFormPercent = "studentFormPercent";
+
+
+  static String groupChatId = "groupChatId";
+  static String groupChatName = "groupChatName";
+  static String groupChatUserIds = "groupChatUserIds";
+  static String groupChatUseremails = "groupChatUseremails";
+  static String groupChatlastMessageObject = "groupChatlastMessageObject";
+  static String groupChatlastMessage = "groupChatlastMessage";
+  static String groupChatCreatorId = "groupChatCreatorId";
+  static String groupChatlastMessageUpdateTime = "groupChatlastMessageUpdateTime";
+  static String groupChatlastMessageUserId = "groupChatlastMessageUserId";
 
   //studentForm feilds
   static String case_id = "case_id";

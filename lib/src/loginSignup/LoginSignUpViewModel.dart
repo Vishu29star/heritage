@@ -41,7 +41,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
 
   FocusNode pageOneEmailFocusNode = FocusNode();
   bool pageOneEmailHasFocus = false;
-
+/*110055435372*/
   //textfeildController
   final pageOneEmailController = TextEditingController();
   final pageTwopasswordController = TextEditingController();
@@ -435,10 +435,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
           FirestoreConstants.uid:uid ,
           FirestoreConstants.user_type:userType ,
         };
-        /*
-       glEhAO2Avtw7opR3BjGwIg==
-       glEhAO2Avtw7opR3BjGwIg==
-* */
+
         await loginSignUpService?.setUserData(data);
         mainModel?.showTopSuccessMessage(context!, context!.resources.strings.registerSuccessfully+"\n"+context!.resources.strings.verificationEmailSent);
         context!.loaderOverlay.hide();

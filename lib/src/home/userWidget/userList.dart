@@ -93,8 +93,7 @@ class _UserListState extends State<UserList> {
 
   Widget listWidget(List<Map<String, dynamic>> searchResult){
     return ListView.separated(
-        separatorBuilder: (context, index) =>
-            Divider(color: Colors.black),
+        separatorBuilder: (context, index) => Divider(color: Colors.black),
         itemCount: searchResult.length,
         itemBuilder: (BuildContext ctx, int index) {
           Map<String, dynamic> data = searchResult[index];
