@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../../constants/FormWidgetTextField.dart';
 import '../../../../constants/HeritageCircularProgressBar.dart';
 import '../../../../constants/HeritageErrorWidget(.dart';
+import '../../../../constants/selectAdminType.dart';
 import '../../../../data/firestore_constants.dart';
 import '../../../../models/user_model.dart';
 import '../../../home/homeVM.dart';
@@ -42,7 +43,7 @@ class _AddAdminState extends State<AddAdmin> {
             UserModel model = UserModel.fromJson(data);
             listData.add(model);
           });
-          return listData.length>0?
+          return listData.length > 0?
           ListView.builder(
               itemCount:listData.length,itemBuilder: (context,index){
             return ListTile(
@@ -62,7 +63,8 @@ class _AddAdminState extends State<AddAdmin> {
                       child: Button(
                         isEnabled: true,
                         onPressed: () async {
-                          widget.homeModel.homeService!.updateUserDataMain(FirestoreConstants.users, {FirestoreConstants.uid:listData[index].uid,FirestoreConstants.user_type:"admin"});
+                          var resultLabel = await showAdminTypeSelectionDialog(context);
+                          widget.homeModel.homeService!.updateUserDataMain(FirestoreConstants.users, {FirestoreConstants.uid:listData[index].uid,FirestoreConstants.user_type:resultLabel});
                         },
                         labelText:context.resources.strings.add,
                       )),

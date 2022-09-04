@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
 
-class CommanWidgets{
+import 'package:fluttertoast/fluttertoast.dart';
+
+import '../colors/appColors.dart';
+
+  class CommanWidgets{
 
  Widget get loadingWidget => Container(
    color: Colors.black.withOpacity(0.5),
@@ -11,7 +15,18 @@ class CommanWidgets{
      child:  const CircularProgressIndicator(),
    ),
  );
-
+ static void showToast(String? text) {
+   if (text != null && text.isNotEmpty) {
+     Fluttertoast.cancel();
+     Fluttertoast.showToast(
+         msg: text,
+         backgroundColor: AppColor().colorPrimary,
+         textColor: Colors.white,
+         toastLength: Toast.LENGTH_SHORT,
+         gravity: ToastGravity.BOTTOM,
+         fontSize: 13.0);
+   }
+ }
 }
 
 class Comman extends StatelessWidget {

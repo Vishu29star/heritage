@@ -113,4 +113,5 @@ abstract class Strings {
   String get updatedAt ;
   String get customerComment ;
   String get employeeComment ;
+  String get addUser ;
 }

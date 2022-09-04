@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../data/remote/mainService.dart';
 import '../global/global.dart';
+import '../utils/colors/appColors.dart';
 
 
 class MainViewMoel extends ChangeNotifier {
@@ -120,6 +122,19 @@ class MainViewMoel extends ChangeNotifier {
     }else{
       if(context.loaderOverlay.visible)
       context.loaderOverlay.hide();
+    }
+  }
+
+  static void showToast(String? text) {
+    if (text != null && text.isNotEmpty) {
+      Fluttertoast.cancel();
+      Fluttertoast.showToast(
+          msg: text,
+          backgroundColor: AppColor().colorPrimary,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          fontSize: 13.0);
     }
   }
 

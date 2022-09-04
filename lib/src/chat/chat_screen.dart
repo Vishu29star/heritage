@@ -1,3 +1,4 @@
+import 'package:Heritage/constants/FormWidgetTextField.dart';
 import 'package:Heritage/src/chat/chatService.dart';
 import 'package:Heritage/src/chat/chat_groups_scereen.dart';
 import 'package:Heritage/utils/extension.dart';
@@ -72,7 +73,13 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return HeritageProgressBar();
                       }
+
+                      if(snapshot.hasData && snapshot.data!.docs.isEmpty){
+                        return noDataBody(model);
+                      }
                       return body(snapshot,model);
+
+
                     /*if(userType == "customer"){
                       return customerBody(snapshot);
                     }else {
@@ -91,6 +98,38 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container();
   }
 
+  Widget noDataBody(ChatVM model){
+    return Container(
+      child: Center(child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.dataset_linked,color: Colors.red,),
+          SizedBox(height: 20,),
+          Text('No Chat Data'),
+
+          SizedBox(height: 20,),
+          SizedBox(
+            width: 150,
+            height: 40,
+            child: Button(labelText: "New Chat", onPressed: (){
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0)),
+                        child: Container(
+                            constraints: BoxConstraints(
+                                minWidth: 300, maxWidth: 450),
+                            child: AddChatUser(model,)));
+                  });
+            },),
+          )
+        ],
+      ),),
+    );;
+  }
+
   Widget AdminBody(AsyncSnapshot<QuerySnapshot<Object>> snapshot){
     return Container();
   }
@@ -98,6 +137,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return  Responsive.isMobile(context) ? ChatGroupsScreen(snapshot,model):Row(
       children: [
         Expanded(flex:3,child: ChatGroupsScreen(snapshot,model)),
+        Divider(height: double.infinity,thickness: 2,),
         Expanded(flex:7,child: SingleChatPage(model: model,)),
       ],
     );

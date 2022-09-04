@@ -1,3 +1,4 @@
+import 'package:Heritage/utils/dateUtilsFormat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -199,9 +200,9 @@ class LoginSignUpViewModel extends ChangeNotifier{
     String year = str2.length > 2 ? str2[2] : '0';
     if (value.isEmpty) {
       dateBirthErrorText =  context?.resources.strings.birthDateisEmpty;
-    } else if (int.parse(month) > 13) {
+    } else if (int.parse(month) > 12) {
       dateBirthErrorText =  context?.resources.strings.monthIsinvalid;
-    } else if (int.parse(day) > 32) {
+    } else if (int.parse(day) > 31) {
       dateBirthErrorText =  context?.resources.strings.dayIsinvalid;
     } else if ((int.parse(year) > int.parse(formatted))) {
       dateBirthErrorText =  context?.resources.strings.yearIsinvalid;
@@ -353,17 +354,16 @@ class LoginSignUpViewModel extends ChangeNotifier{
         user  = userCredential.user!;
         await user.updateEmail(pageOneEmailController.text.trim());
 
-        await updateLocalLoginData(user.displayName!,user.email!,uid);
-        if(!user.emailVerified){
-          user.sendEmailVerification();
-          Future.delayed(Duration(seconds: 4),(){
-            mainModel?.showTopInfoMessage(context!, context?.resources.strings.verificationEmailSent);
-          });
-        }
-
         mainModel?.showTopSuccessMessage(context!, context?.resources.strings.loginSuccessfully);
         if(user.displayName!=null){
           context!.loaderOverlay.hide();
+          await updateLocalLoginData(user.displayName!,user.email!,uid);
+          if(!user.emailVerified){
+            user.sendEmailVerification();
+            Future.delayed(Duration(seconds: 4),(){
+              mainModel?.showTopInfoMessage(context!, context?.resources.strings.verificationEmailSent);
+            });
+          }
           myNavigator.pushNamed(context!, Routes.home, /*arguments: {"mobile": mobile.text.toString()}*/);
         }else{
           context!.loaderOverlay.hide();
@@ -408,6 +408,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
     notifyListeners();
 */
   }
+
   Future registerUser() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if(!isRegisterPasswordOk()){
@@ -458,11 +459,17 @@ class LoginSignUpViewModel extends ChangeNotifier{
       return false;
     }
   }
+
   Future updateData() async {
     FocusManager.instance.primaryFocus?.unfocus();
     try{
       if(isProfileValidate()){
         mainModel?.showhideprogress(true, context!);
+        print("dateOfBirthController.text.trim()");
+        print(dateOfBirthController.text.trim());
+        print(phoneNumberController.text.trim());
+        DateTime birthDate = DateTimeUtils.formatToDate(dateOfBirthController.text.trim());
+        Timestamp dateOfBirthTimeStamp = Timestamp.fromDate(birthDate);
         Map<String,dynamic> data = {
           FirestoreConstants.first_name: encrydecry().encryptMsg(firstNameController.text.trim()),
           FirestoreConstants.last_name: encrydecry().encryptMsg(lastNameController.text.trim()) ,
@@ -484,6 +491,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
         mainModel?.showTopErrorMessage(context!, context!.resources.strings.pleaseEnterAllDetail);
       }
     }catch(e){
+      print(e);
       mainModel?.showTopErrorMessage(context!, e.toString());
     }
   }
@@ -493,13 +501,14 @@ class LoginSignUpViewModel extends ChangeNotifier{
     await preferences.setString(FirestoreConstants.name, encrydecry().decryptMsg(data[FirestoreConstants.first_name]) + " " + encrydecry().decryptMsg(data[FirestoreConstants.last_name]));
    // await preferences.setString(FirestoreConstnats.phone_number, encrydecry().decryptMsg(data[FirestoreConstnats.phone_number]));
     await preferences.setString(FirestoreConstants.email, pageOneEmailController.text);
-    await preferences.setString(FirestoreConstants.uid, encrydecry().decryptMsg(FirestoreConstants.uid));
+    await preferences.setString(FirestoreConstants.uid, data[FirestoreConstants.uid]);
   }
   Future<void> updateLocalLoginData(String name  ,String email, String uid) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.setString(FirestoreConstants.name, name);
     await preferences.setString(FirestoreConstants.email, email);
     await preferences.setString(FirestoreConstants.uid, uid);
+    //await preferences.setString(FirestoreConstants.user_type, uid);
   }
 
 

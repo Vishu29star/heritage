@@ -14,6 +14,7 @@ import 'package:firebase_auth_web/firebase_auth_web.dart';
 import 'package:firebase_core_web/firebase_core_web.dart';
 import 'package:firebase_messaging_web/firebase_messaging_web.dart';
 import 'package:firebase_storage_web/firebase_storage_web.dart';
+import 'package:fluttertoast/fluttertoast_web.dart';
 import 'package:printing/printing_web.dart';
 import 'package:shared_preferences_web/shared_preferences_web.dart';
 import 'package:smart_auth/smart_auth_web.dart';
@@ -30,6 +31,7 @@ void registerPlugins(Registrar registrar) {
   FirebaseCoreWeb.registerWith(registrar);
   FirebaseMessagingWeb.registerWith(registrar);
   FirebaseStorageWeb.registerWith(registrar);
+  FluttertoastWebPlugin.registerWith(registrar);
   PrintingPlugin.registerWith(registrar);
   SharedPreferencesPlugin.registerWith(registrar);
   SmartAuthWeb.registerWith(registrar);

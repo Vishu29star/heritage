@@ -11,51 +11,42 @@ class SingleItemGroupWidget extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.only(top: 10,right: 10,left: 10),
-        child: Column(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 55,
-                      height: 55,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(50))),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(50)),
-                        child: Icon(Icons.person,size: 25,),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "${group["groupChatName"]}",
-                            style:
-                            TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                          ),
-                          SizedBox(height: 5,),
-                          Text(
-                            group["groupChatlastMessageObject"]["groupChatlastMessage"],
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ],
+            Container(
+              width: 55,
+              height: 55,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(50))),
+              child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(50)),
+                child: Icon(Icons.person,size: 25,),
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 60,right: 10),
-              child: Divider(thickness: 1.50,),
+            SizedBox(
+              width: 10,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${group["groupChatName"]}",
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                    TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(height: 5,),
+                  Text(
+                    group["groupChatlastMessageObject"]["groupChatlastMessage"],
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
             ),
           ],
         ),

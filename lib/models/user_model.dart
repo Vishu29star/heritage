@@ -96,7 +96,11 @@ class UserModel{
       _email = encrydecry().decryptMsg(json["email"]);
     }
     if(json.containsKey("dob")){
-      _dob = encrydecry().decryptMsg(json["dob"]);
+      if(json.containsKey("dob") is String){
+        _dob = encrydecry().decryptMsg(json["dob"]);
+      }else{
+        _dob = "empty";
+      }
     }
     if(json.containsKey("pincode")){
       _pincode = encrydecry().decryptMsg(json["pincode"]);
