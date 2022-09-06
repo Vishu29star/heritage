@@ -173,15 +173,18 @@ class StudentFormVM extends ChangeNotifier {
         await studentFormService?.updateStudentForm(data,studentCaseId);
       }
       else{
-
+        int? count = await studentFormService?.getFormCount("studentformcount");
        // var uuid = Uuid();
-        var case_id = firstName[0]+firstName[firstName.length-1]+ DateTime.now().millisecondsSinceEpoch.toString()+lastName[0]+lastName[lastName.length-1] ;
+        //var case_id = firstName[0]+firstName[firstName.length-1]+ DateTime.now().millisecondsSinceEpoch.toString()+lastName[0]+lastName[lastName.length-1] ;
+
+        var case_id = "cl"+"-"+DateFormat('yy').format(DateTime.now())+"-"+mainModel!.formatter.format(count);
         Map<String,dynamic> data = {
           FirestoreConstants.case_id:case_id,
           FirestoreConstants.createdAt:FieldValue.serverTimestamp(),
           FirestoreConstants.updatedAt:FieldValue.serverTimestamp(),
           FirestoreConstants.logs:FieldValue.arrayUnion([{FirestoreConstants.time:DateTime.now().millisecondsSinceEpoch,FirestoreConstants.uid:currentUID}])
         };
+        await studentFormService?.createUserStudentForm(data);
         await studentFormService?.createUserStudentForm(data);
         studentCaseId = case_id;
         studentFormService?.updateUserWithStudentFormId(case_id,formUserId);

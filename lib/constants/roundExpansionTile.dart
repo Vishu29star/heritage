@@ -117,7 +117,7 @@ class _RoundedExpansionTileState extends State<RoundedExpansionTile>
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4.0),
+        borderRadius: BorderRadius.circular(40),
       ),
       elevation: 1,
       child: ClipRRect(

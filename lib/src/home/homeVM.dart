@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:Heritage/src/cisForm/cis_form_widget.dart';
 import 'package:Heritage/utils/encryptry.dart';
 import 'package:Heritage/utils/extension.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 //import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -104,19 +108,16 @@ class HomeVM extends ChangeNotifier {
     name = first_name;
     email = await preferences.getString(FirestoreConstants.email) ?? "email";
     currentUserId = await preferences.getString(FirestoreConstants.uid) ?? "currentUserId";
-
+    userType = await preferences.getString(FirestoreConstants.user_type) ?? "user_type";
+listenForFirebaseTokenUpdate(currentUserId);
     print(currentUserId);
-    String userType = "customer";
-    if (email.toLowerCase().trim() == "admin@heritage.com") {
-      print("rdftghbjnkm");
-      userType = "admin";
-    }
     if (email.toLowerCase().trim() == "super@heritage.com") {
       print("lhfghkjlk;l");
       userType = "superadmin";
     }
-    this.userType = userType;
-    print(userType);
+
+
+
     generateItems.addAll([
       UserAccountsDrawerHeader(
         // <-- SEE HERE
@@ -212,6 +213,33 @@ class HomeVM extends ChangeNotifier {
 
 
 
+
+  listenForFirebaseTokenUpdate(String currentUserId){
+    FirebaseMessaging.instance.onTokenRefresh
+        .listen((fcmToken) async {
+      // TODO: If necessary send token to application server.
+      Map<String,dynamic> fireTokenData ={};
+      if(Platform.isIOS){
+        fireTokenData.addAll({FirestoreConstants.iOS_firebase_token:fcmToken});
+      }else if(Platform.isAndroid){
+        fireTokenData.addAll({FirestoreConstants.android_firebase_token:fcmToken});
+      }else if(kIsWeb){
+        fireTokenData.addAll({FirestoreConstants.web_firebase_token:fcmToken});
+      }
+      Map<String,dynamic> data = {
+        FirestoreConstants.firebaseToken:fireTokenData,
+        FirestoreConstants.uid:currentUserId,
+      };
+
+
+      await homeService?.updateUserData(fireTokenData);
+      // Note: This callback is fired at each app startup and whenever a new
+      // token is generated.
+    })
+        .onError((err) {
+      // Error getting token.
+    });
+  }
   openClosedDrawer(bool collapsed) {
     isCollapsed = collapsed;
     print("isCollapsed");

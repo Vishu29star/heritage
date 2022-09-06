@@ -2,6 +2,7 @@
   //collection names
   static String users = "users";
   static String studentForms = "studentForms";
+  static String firestoreConstants = "constants";
   static String groupChatChannel = "groupChatChannel";
   static String messages = "messages";
 
@@ -23,6 +24,13 @@
   static String pincode = "pincode";
   static String firebaseToken = "firebaseToken";
   static String uid = "uid";
+  static String device_id = "device_id";
+  static String device_type = "device_type";
+  static String app_version = "app_version";
+  static String firebase_token = "firebase_token";
+  static String android_firebase_token = "android_firebase_token";
+  static String iOS_firebase_token = "iOS_firebase_token";
+  static String web_firebase_token = "web_firebase_token";
   static String studentFormCaseID = "studentFormCaseID";
   static String studentFormPercent = "studentFormPercent";
 

@@ -14,6 +14,11 @@ class HomeService extends MainService{
    return snapshot;
   }
 
+  Future<void> updateUserData(Map<String, dynamic> data) async {
+    data.addAll({FirestoreConstants.updatedAt:FieldValue.serverTimestamp()});
+    print(data[FirestoreConstants.uid]);
+    userRefrence.doc(data[FirestoreConstants.uid]).update(data);
+  }
   Future<Map<String,String>> deleteEmployyeComment({bool isFilterApplied = false,DateTime? starDate,DateTime? endDate}) async {
     final instance = FirebaseFirestore.instance;
     final batch = instance.batch();

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/comman/commanWidget.dart';
 
-Future<int?> showAdminTypeSelectionDialog(BuildContext context) async {
+Future<String?> showAdminTypeSelectionDialog(BuildContext context) async {
   return showDialog(
       context: context,
       builder: (context) {
@@ -39,7 +39,7 @@ class _ShowAdminTypeState extends State<ShowAdminType> {
           RadioListTile(
             value: 1,
             groupValue: selectedUser,
-            title: Text("Legal"),
+            title: Text("Front Office"),
             onChanged: (currentUser) {
               setSelectedUser(1);
             },
@@ -49,7 +49,7 @@ class _ShowAdminTypeState extends State<ShowAdminType> {
           RadioListTile(
             value: 2,
             groupValue: selectedUser,
-            title: Text("Front Office"),
+            title: Text("Finance"),
             onChanged: (currentUser) {
               setSelectedUser(2);
             },
@@ -59,7 +59,7 @@ class _ShowAdminTypeState extends State<ShowAdminType> {
           RadioListTile(
             value: 3,
             groupValue: selectedUser,
-            title: Text("Admin1"),
+            title: Text("Legal"),
             onChanged: (currentUser) {
               setSelectedUser(3);
             },
@@ -69,11 +69,21 @@ class _ShowAdminTypeState extends State<ShowAdminType> {
           RadioListTile(
             value: 4,
             groupValue: selectedUser,
-            title: Text("Legal"),
+            title: Text("Admin1"),
             onChanged: (currentUser) {
               setSelectedUser(4);
             },
             selected: selectedUser == 4,
+            activeColor: AppColor().colorPrimary,
+          ),
+          RadioListTile(
+            value: 5,
+            groupValue: selectedUser,
+            title: Text("Admin2"),
+            onChanged: (currentUser) {
+              setSelectedUser(5);
+            },
+            selected: selectedUser == 5,
             activeColor: AppColor().colorPrimary,
           ),
 
@@ -94,7 +104,7 @@ class _ShowAdminTypeState extends State<ShowAdminType> {
                   if(selectedUser==0){
                     CommanWidgets.showToast("Please select Admin type.");
                   }else{
-                    Navigator.pop(context, selectedUser);
+                    Navigator.pop(context, selectedUser.toString());
                   }
 
                 },

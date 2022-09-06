@@ -92,13 +92,20 @@ class _UserListState extends State<UserList> {
   }
 
   Widget listWidget(List<Map<String, dynamic>> searchResult){
+    List<Map<String, dynamic>> finalList = [];
+    searchResult.forEach((element) {
+      if(element[FirestoreConstants.user_type]=="customer"){
+        finalList.add(element);
+      }
+    });
+
     return ListView.separated(
         separatorBuilder: (context, index) => Divider(color: Colors.black),
-        itemCount: searchResult.length,
+        itemCount: finalList.length,
         itemBuilder: (BuildContext ctx, int index) {
-          Map<String, dynamic> data = searchResult[index];
+          Map<String, dynamic> data = finalList[index];
           if (widget.model.selectedUserId == "") {
-            widget.model.selectuser(searchResult[0][FirestoreConstants.uid], isFirst: true);
+            widget.model.selectuser(finalList[0][FirestoreConstants.uid], isFirst: true);
           }
           String name = "";
           if (data.containsKey(FirestoreConstants.first_name)) {

@@ -29,7 +29,7 @@ class _AdminListState extends State<AdminList> {
   Widget build(BuildContext context) {
     final Stream<QuerySnapshot> adminStream = widget
         .homeModel.homeService!.userdoc
-        .where(FirestoreConstants.user_type, isEqualTo: "admin")
+        .where(FirestoreConstants.user_type, whereIn: ["admin","1","2","3","4","5"])
         .snapshots();
     return Container(
         child: Center(

@@ -1,6 +1,5 @@
 import 'package:Heritage/data/firestore_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../../data/remote/apiModels/apiResponse.dart';
 import '../../data/remote/mainService.dart';
 
@@ -16,7 +15,7 @@ class StudentFormService extends MainService{
       {
         return ApiResponse(status: "success",data:data);
       }else{
-        return ApiResponse(status: "fail",erroMessage: "No student form");
+        return ApiResponse(status: "fail",data: "No student form");
       }
     }catch(e){
       print(e);
@@ -32,6 +31,29 @@ class StudentFormService extends MainService{
       return ApiResponse(status: "success",data:data);
     }catch(e){
       return ApiResponse(status: "fail",erroMessage: e.toString());
+    }
+
+  }
+  Future<int> getFormCount(String feildName) async {
+    CollectionReference constantCollection= FirebaseFirestore.instance.collection(FirestoreConstants.firestoreConstants);
+    try{
+      var documentsnapshot = await constantCollection.get();
+
+      Map<String,dynamic> data = documentsnapshot.docs.first.data()! as Map<String,dynamic>;
+      int studentformcount = data[feildName]+1;
+      updateFormCount(studentformcount,feildName,documentsnapshot.docs.first.id);
+      return studentformcount;
+    }catch(e){
+      return -1;
+    }
+
+  }
+  Future<void> updateFormCount(int count, String feildName, String id) async {
+    CollectionReference constantCollection= FirebaseFirestore.instance.collection(FirestoreConstants.firestoreConstants);
+    try{
+      var documentsnapshot = await constantCollection.doc(id).update({feildName:count});
+    }catch(e){
+      print(e);
     }
 
   }
