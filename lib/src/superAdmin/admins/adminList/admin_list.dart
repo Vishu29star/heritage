@@ -70,8 +70,7 @@ class _AdminListState extends State<AdminList> {
                       }
                       List<UserModel> listData = [];
                       snapshot.data!.docs.forEach((doc) {
-                        Map<String, dynamic> data =
-                            doc.data() as Map<String, dynamic>;
+                        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
                         UserModel model = UserModel.fromJson(data);
                         listData.add(model);
                       });
@@ -82,7 +81,16 @@ class _AdminListState extends State<AdminList> {
                                 return ListTile(
                                   //selected: widget.model.selectedUserId == data[FirestoreConstants.uid],
                                   onTap: () {},
-                                  title: Text(listData[index].name ?? "name"),
+                                  title: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.center,
+                                    children: [
+                                      Text(listData[index].name ?? "name"),
+                                      Text(getAdminName(listData[index].user_type!)),
+                                    ],
+                                  ),
                                   subtitle: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -116,5 +124,24 @@ class _AdminListState extends State<AdminList> {
                     },
                   ),
                 ))));
+  }
+
+ String getAdminName(String user_type){
+    switch(user_type){
+      case "admin":
+        return "Admin";
+      case "1":
+        return "Front Desk";
+      case "2":
+        return "Financial Adviser";
+      case "3":
+        return "Legal";
+      case "4":
+        return "Admin 4";
+      case "5":
+        return "Admin 5" ;
+      default :
+        return "Admin";
+    }
   }
 }

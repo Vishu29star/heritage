@@ -5,6 +5,7 @@
   static String firestoreConstants = "constants";
   static String groupChatChannel = "groupChatChannel";
   static String messages = "messages";
+  static String notifications = "notifications";
 
 
   //comman feilds
@@ -13,7 +14,14 @@
   static String logs = "logs";
   static String time = "time";
 
+  //notificatin Feild
+  static String notification_data = "notification_data";
+  static String notification_object = "notification_object";
+  static String notification_data_object = "notification_data_object";
+  static String is_read = "is_read";
+
   //users feilds
+  static String userProfile = 'userProfile';
   static String user_type = "user_type";
   static String first_name = "first_name";
   static String last_name = "last_name";
@@ -27,7 +35,6 @@
   static String device_id = "device_id";
   static String device_type = "device_type";
   static String app_version = "app_version";
-  static String firebase_token = "firebase_token";
   static String android_firebase_token = "android_firebase_token";
   static String iOS_firebase_token = "iOS_firebase_token";
   static String web_firebase_token = "web_firebase_token";

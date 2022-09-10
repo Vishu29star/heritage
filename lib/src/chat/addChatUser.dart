@@ -106,7 +106,8 @@ class _AddUserBodyState extends State<AddUserBody> {
                   List<String> userEmail = [];
                   userIds.add(widget.chatVM.currentUserId);
                   for(int i = 0;i<widget.selectedListIndex.length;i++){
-                    userIds.add(widget.listData[i].uid!);
+
+                    userIds.add(widget.listData[widget.selectedListIndex[i]].uid!);
                   }
                   Map<String,dynamic> lastUpdateMessage = {
                     FirestoreConstants.groupChatlastMessage:"",

@@ -63,12 +63,10 @@ class HomeService extends MainService{
     }
   }
 
-  Future<void> updateUserWithToken(String token,String user_id) async {
-    CollectionReference userCollection1= FirebaseFirestore.instance.collection(userCollection);
-    try{
-      userCollection1.doc(user_id).update({FirestoreConstants.firebaseToken:token});
-    }catch(e){
-      print(e);
-    }
+  Future<Map<String, dynamic>> getCurrentUserData(String currentUserId) async {
+    var snapshot = await userdoc.doc(currentUserId).get();
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    return data;
+
   }
 }

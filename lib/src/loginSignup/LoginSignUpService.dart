@@ -15,12 +15,10 @@ class LoginSignUpService extends MainService{
     print("querySnapshot.size");
     print(querySnapshot.size);
     if(querySnapshot.size>0){
-      /* querySnapshot.docs[0][FirestoreConstnats.email]*/
       return true;
     }else{
       return false;
     }
-
   }
   
  Future<void> updateUserData(Map<String, dynamic> data) async {

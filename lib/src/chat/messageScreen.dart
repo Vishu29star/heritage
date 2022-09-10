@@ -1,26 +1,24 @@
-
 import 'dart:async';
+import 'dart:io';
 
+import 'package:Heritage/constants/image_picker_utils.dart';
 import 'package:Heritage/src/chat/chatVM.dart';
 import 'package:Heritage/src/chat/entities/text_message_entity.dart';
-import 'package:Heritage/src/chat/entities/singleChatEntity.dart';
-import 'package:Heritage/src/home/homeVM.dart';
 import 'package:bubble/bubble.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import 'package:intl/intl.dart';
 
-import '../../constants/HeritageCircularProgressBar.dart';
 import '../../constants/HeritageErrorWidget(.dart';
 import '../../data/firestore_constants.dart';
+import '../../utils/fullImage_view/full_image_view.dart';
 import '../../utils/responsive/responsive.dart';
-
 
 class SingleChatPage extends StatefulWidget {
   final ChatVM model;
-  const SingleChatPage({Key? key,required this.model})
-      : super(key: key);
+
+  const SingleChatPage({Key? key, required this.model}) : super(key: key);
 
   @override
   _SingleChatPageState createState() => _SingleChatPageState();
@@ -32,7 +30,6 @@ class _SingleChatPageState extends State<SingleChatPage> {
   bool _changeKeyboardType = false;
   int _menuIndex = 0;
 
-
   @override
   void initState() {
     widget.model.messageController.addListener(() {
@@ -40,43 +37,46 @@ class _SingleChatPageState extends State<SingleChatPage> {
     });
     print("widget.model.selectedgroupChatId");
     print(widget.model.selectedgroupChatId);
-    if(widget.model.selectedgroupChatId != ""){
-      widget.model.chatStream  =  widget.model.chatService!.groupChatCollection.doc(widget.model.selectedgroupChatId).collection(widget.model.chatService!.messageCollection).orderBy('time').snapshots();
 
-    }
 
     //  BlocProvider.of<ChatCubit>(context).getMessages(channelId: widget.singleChatEntity.groupId)
     //FIXME: call get all messages
     super.initState();
   }
+
   @override
   void dispose() {
     widget.model.messageController.dispose();
     widget.model.scrollController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
-    if(widget.model.selectedgroupChatId==""){
+    if (widget.model.selectedgroupChatId == "") {
+      return Container();
+    }
+    if(widget.model.chatStream==null){
       return Container();
     }
     return Scaffold(
-      appBar: Responsive.isMobile(context) ? AppBar(
-        iconTheme: IconThemeData(color: Colors.black),
-        backgroundColor: Colors.white,
-        title: Text(
-          "${widget.model.selectedgroup[FirestoreConstants.groupChatName]}",
-          style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 24,
-              color: Theme.of(context).primaryColor),
-        ),
-      ) : PreferredSize(
-          preferredSize: Size.fromHeight(0.0), // here the desired height
-          child: AppBar(
-            // ...
-          )
-      ),
+      appBar: Responsive.isMobile(context)
+          ? AppBar(
+              iconTheme: IconThemeData(color: Colors.black),
+              backgroundColor: Colors.white,
+              title: Text(
+                "${widget.model.selectedgroup[FirestoreConstants.groupChatName]}",
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 24,
+                    color: Theme.of(context).primaryColor),
+              ),
+            )
+          : PreferredSize(
+              preferredSize: Size.fromHeight(0.0), // here the desired height
+              child: AppBar(
+                  // ...
+                  )),
       body: StreamBuilder<QuerySnapshot>(
         stream: widget.model.chatStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -85,19 +85,26 @@ class _SingleChatPageState extends State<SingleChatPage> {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Container(child: Center(child: Column(
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 20,),
-                Text("Loading.....")
-              ],
-            ),),);
+            return Container(
+              child: Center(
+                child: Column(
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Text("Loading.....")
+                  ],
+                ),
+              ),
+            );
           }
           List<TextMessageEntity> messageList = [];
-         // List<TextMessageEntity> messageList = [];
-          for(int i = 0;i < snapshot.data!.docs.length;i++){
+          // List<TextMessageEntity> messageList = [];
+          for (int i = 0; i < snapshot.data!.docs.length; i++) {
             var data = snapshot.data!.docs[i].data()! as Map<String, dynamic>;
-            TextMessageEntity textMessageEntity = TextMessageEntity.fromJson(data);
+            TextMessageEntity textMessageEntity =
+                TextMessageEntity.fromJson(data);
             messageList.add(textMessageEntity);
           }
           return Column(
@@ -160,18 +167,47 @@ class _SingleChatPageState extends State<SingleChatPage> {
                   ),
                   Row(
                     children: [
-                      Icon(
-                        Icons.link,
-                        color: Colors.grey[500],
+                      IconButton(
+                        icon: Icon(Icons.add, color: Colors.grey[500]),
+                        onPressed: () {
+                          ImagePickerUtils.show(
+                            context: context,
+                            onGalleryClicked: () async {
+                              List<File>? files = await widget.model.imgFromGallery();
+                              Navigator.of(context).pop();
+                              if(files!=null){
+                                widget.model.sendMedia(files);
+                              }
+                            },
+                            onDocumentClicked: () async {
+                              List<File>? files = await widget.model.documnetFormFile();
+                              Navigator.of(context).pop();
+                              if(files!=null){
+                                widget.model.sendMedia(files);
+                              }
+                            },
+                          );
+                        },
                       ),
                       SizedBox(
                         width: 10,
                       ),
                       widget.model.messageController.text.isEmpty
-                          ? Icon(
-                        Icons.camera_alt,
-                        color: Colors.grey[500],
-                      )
+                          ? IconButton(
+                              onPressed: () async {
+                               File? file = await widget.model.imageFromCamera();
+                                Navigator.of(context).pop();
+
+                                if(file!=null){
+                                  List<File> files = [];
+                                  files.add(file);
+                                  widget.model.sendMedia(files);
+                                }
+                              },
+                              icon: Icon(
+                                Icons.camera_alt,
+                                color: Colors.grey[500],
+                              ))
                           : Text(""),
                     ],
                   ),
@@ -205,8 +241,9 @@ class _SingleChatPageState extends State<SingleChatPage> {
                   color: Colors.green,
                   borderRadius: BorderRadius.all(Radius.circular(50))),
               child: Icon(
-                widget.model.messageController.text.isEmpty ? Icons.mic : Icons
-                    .send,
+                widget.model.messageController.text.isEmpty
+                    ? Icons.mic
+                    : Icons.send,
                 color: Colors.white,
               ),
             ),
@@ -244,6 +281,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
               crossAlign: CrossAxisAlignment.end,
               nip: BubbleNip.rightTop,
               text: message.content,
+              type: message.type,
             );
           else
             return _messageLayout(
@@ -256,6 +294,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
               crossAlign: CrossAxisAlignment.start,
               nip: BubbleNip.leftTop,
               text: message.content,
+              type: message.type,
             );
         },
       ),
@@ -272,6 +311,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
     crossAlign,
     String? name,
     alignName,
+    type
   }) {
     return Column(
       crossAxisAlignment: crossAlign,
@@ -293,13 +333,9 @@ class _SingleChatPageState extends State<SingleChatPage> {
                   Text(
                     "$name",
                     textAlign: alignName,
-                    style: TextStyle(fontSize: 17,fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                    text,
-                    textAlign: align,
-                    style: TextStyle(fontSize: 16),
-                  ),
+                  getDataType(type,text,align),
                   Text(
                     time,
                     textAlign: align,
@@ -319,5 +355,59 @@ class _SingleChatPageState extends State<SingleChatPage> {
     );
   }
 
+  Widget getDataType(String type,String content, align){
+    if(type == "TEXT"){
+      return  Text(
+        content,
+        textAlign: align,
+        style: TextStyle(fontSize: 16),
+      );
+    }else if(type == "UPLOADING"){
+      return  Container(
+        height: 200,
+        width: 200,
+        child: Center(child: CircularProgressIndicator(),),
+      );
+    }else if(type == "IMAGE"){
+      return InkWell(
+        onTap:(){
+          List<String> imageList = [];
+          imageList.add(content);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => FullscreenImageScreen(
+                    attachment: imageList,
+                  )));
+        },
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.50,
+            maxHeight: MediaQuery.of(context).size.height * 0.50,
+          ),
+          child: CachedNetworkImage(
+            imageUrl: content,
+            placeholder: (context, url) => CircularProgressIndicator(),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
+        ),
+      );
+    }else if(type == "DOCUMENT"){
+      return  InkWell(
+        onTap:(){
+          /*if (content.endsWith(".pdf")) {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => PdfViewScreen(content)));
+          }*/
+        },
+        child: Container(
+          height: 200,
+          width: 200,
+          child: Center(child: Icon(Icons.picture_as_pdf,size: 40,),),
+        ),
+      );
+    }
 
+    return Container();
+  }
 }

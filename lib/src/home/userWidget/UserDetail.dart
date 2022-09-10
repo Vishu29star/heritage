@@ -109,7 +109,7 @@ class UserDetail extends StatelessWidget {
             if(data.containsKey(FirestoreConstants.pincode)){
               children.add(headingWithValue(context.resources.strings.pincode,data[FirestoreConstants.pincode]));
             }
-            if(data.containsKey(FirestoreConstants.dob)){
+            if(data.containsKey(FirestoreConstants.dob) is String){
               children.add(headingWithValue(context.resources.strings.dateOfBirth,data[FirestoreConstants.dob]));
             }
 

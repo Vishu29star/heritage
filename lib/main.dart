@@ -1,7 +1,9 @@
 
+import 'package:Heritage/utils/pushNotification/push_notifcation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -15,9 +17,20 @@ import 'route/myNavigator.dart';
 import 'route/routes.dart';
 import 'src/splash/splashScreen.dart';
 import 'utils/extension.dart';
+/*
+TO load images in web command https://console.firebase.google.com/project/heritageimm-ad896/storage/heritageimm-ad896.appspot.com/files
+run for debugging
 
+flutter run -d chrome --web-renderer html
+production release
+
+flutter build web --web-renderer html --release*/
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.portraitUp,
+  ]);
  if(kIsWeb){
    await Firebase.initializeApp(
      options: DefaultFirebaseOptions.currentPlatform,
@@ -29,7 +42,7 @@ Future<void> main() async {
    );
  }
   PreferenceUtils.init();
-  //await PushNotificationService().setupInteractedMessage();
+  await PushNotificationService().setupInteractedMessage();
   runApp(const MyApp());
  /* RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
   if (initialMessage != null) {

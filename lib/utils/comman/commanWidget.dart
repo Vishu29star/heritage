@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'dart:math' as math;
 
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mime/mime.dart';
 
 import '../colors/appColors.dart';
 
@@ -15,6 +16,18 @@ import '../colors/appColors.dart';
      child:  const CircularProgressIndicator(),
    ),
  );
+
+ bool? isImage(String path) {
+   final mimeType = lookupMimeType(path);
+
+   return mimeType?.startsWith('image/');
+ }
+
+ bool? isDocument(String path) {
+   final mimeType = lookupMimeType(path);
+
+   return mimeType == 'application/msword';
+ }
  static void showToast(String? text) {
    if (text != null && text.isNotEmpty) {
      Fluttertoast.cancel();

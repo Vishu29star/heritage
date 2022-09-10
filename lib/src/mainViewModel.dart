@@ -1,35 +1,37 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:Heritage/models/user_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:platform_device_id/platform_device_id.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-import 'package:intl/intl.dart';
 
 import '../data/remote/mainService.dart';
 import '../global/global.dart';
 import '../utils/colors/appColors.dart';
-
 
 class MainViewMoel extends ChangeNotifier {
   //Singleton
   static final MainViewMoel _mainVM = MainViewMoel._internal();
   NumberFormat formatter = new NumberFormat("0000");
 
-  final String firebase_message_server_key = "AAAAJXOJzWs:APA91bGWR34oWC3eoHhi04gFw41Xr_6Jo6ztQYAEA73JTATaFs3zycYImuQChm71kBcvfJlWRGZX_kuABlF1ZjYBvn3gqU1rCpgELXK3GnV6nRMXunf06Dw9o1X45Dt1cZmswhx0ITc0";
-  final String web_vapid_key = "BBIMiM6qxQPsLVjMHIj79ncIyTOFlOQu8L-HXL7n2HYumPFGpsH2Plt-qg5-HWnXjOoOTdZcxyoLdcyVNURyQaU";
-
   late StreamSubscription<ConnectivityResult> connectivitySubscription;
   late MainService mainService;
   bool isNetworkPresent = true;
+
   //var servertype = appServerType;
   factory MainViewMoel() {
     return _mainVM;
@@ -40,7 +42,8 @@ class MainViewMoel extends ChangeNotifier {
       print("setting NotificationHandler...");
       mainService = MainService();
 
-      connectivitySubscription =  Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
+      connectivitySubscription =
+          Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
       //notificationHandler = NotificationHandler(MainVM: this);
       // setUserTokenFromMemoryIfLggedIn();
     } catch (e) {
@@ -48,16 +51,16 @@ class MainViewMoel extends ChangeNotifier {
       print(e);
     }
   }
+
   Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    Future.delayed(Duration(seconds: 2),(){
-      switch(result){
+    Future.delayed(Duration(seconds: 2), () {
+      switch (result) {
         case ConnectivityResult.bluetooth:
           showInterNetMessage("Bluetooth Connection");
           isNetworkPresent = false;
           // TODO: Handle this case.
           break;
         case ConnectivityResult.wifi:
-
           showInterNetMessage("Wifi Connection");
           // TODO: Handle this case.
           break;
@@ -69,7 +72,7 @@ class MainViewMoel extends ChangeNotifier {
           showInterNetMessage("Mobile Connection");
           // TODO: Handle this case.
           break;
-      /*5tJAMJW3yhFlcaDXF6z93w==
+        /*5tJAMJW3yhFlcaDXF6z93w==
         * */
         case ConnectivityResult.none:
           showInterNetMessage("No Connection");
@@ -79,15 +82,14 @@ class MainViewMoel extends ChangeNotifier {
       }
       notifyListeners();
     });
-
   }
 
-  showInterNetMessage(String message){
+  showInterNetMessage(String message) {
     final SnackBar snackBar = SnackBar(content: Text(message));
     snackbarKey.currentState?.showSnackBar(snackBar);
   }
 
-  showTopSuccessMessage(BuildContext context,String? message){
+  showTopSuccessMessage(BuildContext context, String? message) {
     showTopSnackBar(
       context,
       CustomSnackBar.success(
@@ -96,7 +98,7 @@ class MainViewMoel extends ChangeNotifier {
     );
   }
 
-  showTopInfoMessage(BuildContext context,String? message){
+  showTopInfoMessage(BuildContext context, String? message) {
     showTopSnackBar(
       context,
       CustomSnackBar.info(
@@ -104,16 +106,17 @@ class MainViewMoel extends ChangeNotifier {
       ),
     );
   }
-  showTopErrorMessage(BuildContext context,String? message){
+
+  showTopErrorMessage(BuildContext context, String? message) {
     showTopSnackBar(
       context,
       CustomSnackBar.error(
-        message: message! ,
+        message: message!,
       ),
     );
   }
 
-  showTopPersistentMessage(BuildContext context,String? message){
+  showTopPersistentMessage(BuildContext context, String? message) {
     AnimationController? localAnimationController;
     showTopSnackBar(
       context,
@@ -121,17 +124,17 @@ class MainViewMoel extends ChangeNotifier {
         message: message!,
       ),
       persistent: true,
-      onAnimationControllerInit: (controller) => localAnimationController = controller,
+      onAnimationControllerInit: (controller) =>
+          localAnimationController = controller,
       onTap: () => localAnimationController?.reverse(),
     );
   }
 
-  showhideprogress(bool isShow,BuildContext context){
-    if(isShow){
+  showhideprogress(bool isShow, BuildContext context) {
+    if (isShow) {
       context.loaderOverlay.show();
-    }else{
-      if(context.loaderOverlay.visible)
-      context.loaderOverlay.hide();
+    } else {
+      if (context.loaderOverlay.visible) context.loaderOverlay.hide();
     }
   }
 
@@ -149,16 +152,19 @@ class MainViewMoel extends ChangeNotifier {
   }
 
   Future<String?> getDeviceId() async {
-    var deviceInfo = DeviceInfoPlugin();
-    if (Platform.isIOS) { // import 'dart:io'
-      IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
-      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
-    } else if(Platform.isAndroid) {
-      AndroidDeviceInfo androidDeviceInfo = await deviceInfo.androidInfo;
-      return androidDeviceInfo.id; // unique ID on Android
-    }else if (kIsWeb){
-      WebBrowserInfo webBrowserInfo = await deviceInfo.webBrowserInfo;
-      return webBrowserInfo.vendor! +webBrowserInfo.userAgent!+webBrowserInfo.hardwareConcurrency.toString();
+    if(!kIsWeb){
+      var deviceInfo = DeviceInfoPlugin();
+      if (Platform.isIOS) {
+        // import 'dart:io'
+        IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
+        return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+      } else if (Platform.isAndroid) {
+        AndroidDeviceInfo androidDeviceInfo = await deviceInfo.androidInfo;
+        return androidDeviceInfo.id; // unique ID on Android
+      }
+    }
+    else {
+      return await PlatformDeviceId.getDeviceId?? DateTime.now().toIso8601String();
     }
   }
 
@@ -169,17 +175,94 @@ class MainViewMoel extends ChangeNotifier {
     String packageName = packageInfo.packageName;
     String version = packageInfo.version;
     String buildNumber = packageInfo.buildNumber;
-   return version;
+    return version;
   }
 
   Future<String?> getFirebaseToken() async {
-    if (kIsWeb){
-      return await FirebaseMessaging.instance.getToken(vapidKey:web_vapid_key);
-    }else{
+    if (!kIsWeb) {
       return await FirebaseMessaging.instance.getToken();
+    } else {
+      return await FirebaseMessaging.instance.getToken(vapidKey: web_vapid_key);
     }
   }
 
+  Future<void> sendNotification(
+    List<String> tokenList,
+    Map<String, dynamic> notificationObject,
+    Map<String, dynamic> dataObject,
+  ) async {
+    mainService.sendNotification(tokenList, notificationObject, dataObject);
+  }
 
+  Future<void> createNotification(
+    List<String> finance_uids,
+    Map<String, dynamic> notificationObject,
+    Map<String, dynamic> dataObject,
+  ) async {
+    mainService.createNotification(
+        finance_uids, notificationObject, dataObject);
+  }
+
+  Future<List<UserModel>?> getFilteruser(
+      {String filterName = "customer"}) async {
+    return mainService.getFilteruser(filterName: filterName);
+  }
+
+  Future<List<File>?> imgFromGallery() async {
+    ImagePicker _imagePicker = ImagePicker();
+    List<XFile>? images = await _imagePicker.pickMultiImage();
+    if (images != null) {
+      List<File> compressFiles = [];
+      images.forEach((element) async {
+        File file = await compressFile(File(element.path));
+        compressFiles.add(file);
+      });
+
+      return compressFiles;
+    }
+  }
+
+  Future<List<File>?> documnetFormFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc'],
+    );
+    if (result != null) {
+      List<File> files = result.paths.map((path) => File(path!)).toList();
+      List<File> compressFiles = [];
+      files.forEach((element) async {
+        File file = await compressFile(element);
+        compressFiles.add(file);
+      });
+      return compressFiles;
+    }
+  }
+
+  Future<File?> imageFromCamera(int type) async {
+    ImagePicker _imagePicker = ImagePicker();
+    XFile? image = await _imagePicker.pickImage(source: ImageSource.camera, imageQuality: 100);
+    if (image != null) {
+      File file = File(image.path);
+      return await compressFile(file);
+    }
+
+  }
+
+  Future<File> compressFile(File file) async {
+    final filePath = file.absolute.path;
+    // Create output file path
+    // eg:- "Volume/VM/abcd_out.jpeg"
+    final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
+    final splitted = filePath.substring(0, (lastIndex));
+    final outPath = "${splitted}_out${filePath.substring(lastIndex)}";
+    var result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path, outPath,
+      quality: 5,
+    );
+    print(file.lengthSync());
+    print(result!.lengthSync());
+    return result;
+  }
 
 }

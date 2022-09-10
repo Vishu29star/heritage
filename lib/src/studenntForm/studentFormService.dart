@@ -15,11 +15,11 @@ class StudentFormService extends MainService{
       {
         return ApiResponse(status: "success",data:data);
       }else{
-        return ApiResponse(status: "fail",data: "No student form");
+        return ApiResponse(status: "fail",data: data);
       }
     }catch(e){
       print(e);
-      return ApiResponse(status: "fail",erroMessage: e.toString());
+      return ApiResponse(status: "error",erroMessage: e.toString());
     }
   }
 
@@ -68,7 +68,7 @@ class StudentFormService extends MainService{
   }
 
   Future<void> updateStudentForm(Map<String, dynamic> postData,String id) async {
-    CollectionReference formCollection= FirebaseFirestore.instance.collection(studentFormCollection);
+    CollectionReference formCollection = FirebaseFirestore.instance.collection(studentFormCollection);
     try{
       await formCollection.doc(id).update(postData);
     }catch(e){

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:Heritage/src/cisForm/cis_form_widget.dart';
@@ -14,6 +15,7 @@ import 'package:intl/intl.dart';
 
 import '../../constants/FormWidgetTextField.dart';
 import '../../data/firestore_constants.dart';
+import '../../models/user_model.dart';
 import '../../route/myNavigator.dart';
 import '../../route/routes.dart';
 import '../../src/home/homeService.dart';
@@ -53,7 +55,7 @@ class HomeVM extends ChangeNotifier {
     //notifyListeners();
     this.context = context;
     await addNavItems();
-    checkForToken();
+    listenForFirebaseTokenUpdate(currentUserId);
     homeItems.addAll([
       "Express Entry",
       "Spousal sponsership",
@@ -66,25 +68,6 @@ class HomeVM extends ChangeNotifier {
 
     isDataLoad = true;
     notifyListeners();
-  }
-
-  checkForToken() {
-  /*  FirebaseMessaging messaging = FirebaseMessaging.instance;
-    messaging.getToken().then((token) async {
-      final prefs = await SharedPreferences.getInstance();
-      final String firebaseTokenPrefKey = FirestoreConstants.firebaseToken;
-      final String currentToken = prefs.getString(firebaseTokenPrefKey) ?? "ttt";
-      if (currentToken != token) {
-        print('token refresh: ' + token!);
-        // add code here to do something with the updated token
-        await prefs.setString(firebaseTokenPrefKey, token);
-        updateUserToken(token);
-      }
-    });*/
-  }
-
-  updateUserToken(String token) {
-    homeService?.updateUserWithToken(token, currentUserId);
   }
 
   openDrawer() {
@@ -101,23 +84,28 @@ class HomeVM extends ChangeNotifier {
 
   getLocalData() {}
 
+  setUserData(String currentUserId, SharedPreferences preferences) async {
+    var mapData =  await homeService!.getCurrentUserData(currentUserId);
+    if(!mapData.containsKey(FirestoreConstants.user_type)){
+      await homeService!.updateUserData({FirestoreConstants.uid:currentUserId,FirestoreConstants.user_type:"customer"});
+      mapData =  await homeService!.getCurrentUserData(currentUserId);
+    }
+    UserModel model  = UserModel.fromJson(mapData);
+    if (model == null) {
+      preferences.remove(FirestoreConstants.userProfile);
+    } else {
+      final userJson = jsonEncode(model.toJson());
+      preferences.setString(FirestoreConstants.userProfile, userJson);
+    }
+    email = model.email!;
+    name = model.first_name!;
+    userType = model.user_type!;
+  }
   addNavItems() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    var first_name =
-        await preferences.getString(FirestoreConstants.name) ?? "name";
-    name = first_name;
-    email = await preferences.getString(FirestoreConstants.email) ?? "email";
     currentUserId = await preferences.getString(FirestoreConstants.uid) ?? "currentUserId";
-    userType = await preferences.getString(FirestoreConstants.user_type) ?? "user_type";
-listenForFirebaseTokenUpdate(currentUserId);
-    print(currentUserId);
-    if (email.toLowerCase().trim() == "super@heritage.com") {
-      print("lhfghkjlk;l");
-      userType = "superadmin";
-    }
 
-
-
+    await setUserData(currentUserId,preferences);
     generateItems.addAll([
       UserAccountsDrawerHeader(
         // <-- SEE HERE
@@ -232,7 +220,7 @@ listenForFirebaseTokenUpdate(currentUserId);
       };
 
 
-      await homeService?.updateUserData(fireTokenData);
+      await homeService?.updateUserData(data);
       // Note: This callback is fired at each app startup and whenever a new
       // token is generated.
     })

@@ -356,33 +356,44 @@ class LoginSignUpViewModel extends ChangeNotifier{
       if(userCredential!=null){
         uid  = userCredential.user?.uid;
         user  = userCredential.user!;
+        print("rO0v4Zkqj3PmrkPmUX9uusk77Kq2");
+        print(uid);
         await user.updateEmail(pageOneEmailController.text.trim());
 
         mainModel?.showTopSuccessMessage(context!, context?.resources.strings.loginSuccessfully);
         if(user.displayName!=null){
-
+          print("11111");
           String? device_id = await mainModel?.getDeviceId();
+          print("222222");
           String? appVersion = await mainModel?.getAppVersionId();
+          print("3333333");
           String? firebaseToken = await mainModel?.getFirebaseToken();
-          Map<String,dynamic> fireTokenData ={};
-
+          print(device_id);
+          print(appVersion);
+          print(firebaseToken);
+          print("44444");
 
           Map<String,dynamic> uploadData ={
             FirestoreConstants.device_id:device_id,
             FirestoreConstants.app_version:appVersion,
-
           };
-          if(Platform.isIOS){
-            uploadData.addAll({FirestoreConstants.iOS_firebase_token:firebaseToken,FirestoreConstants.device_type:"ios"});
-          }else if(Platform.isAndroid){
-            uploadData.addAll({FirestoreConstants.android_firebase_token:firebaseToken,FirestoreConstants.device_type:"android"});
-          }else if(kIsWeb){
+          if(kIsWeb){
             uploadData.addAll({FirestoreConstants.web_firebase_token:firebaseToken,FirestoreConstants.device_type:"web"});
+          }else{
+            if(Platform.isIOS){
+              uploadData.addAll({FirestoreConstants.iOS_firebase_token:firebaseToken,FirestoreConstants.device_type:"ios"});
+            }else if(Platform.isAndroid){
+              uploadData.addAll({FirestoreConstants.android_firebase_token:firebaseToken,FirestoreConstants.device_type:"android"});
+            }
           }
+          print("555555555");
           await loginSignUpService!.userRefrence.doc(uid).update(uploadData);
+
           var response = await loginSignUpService!.userRefrence.doc(uid).get();
+          print("6666666666");
           Map<String, dynamic> data = response.data() as Map<String, dynamic>;
           UserModel userModel = UserModel.fromJson(data);
+          print("77777777777");
 
           await updateLocalLoginData(user.displayName!,user.email!,uid,userModel.user_type??"customer");
           if(!user.emailVerified){

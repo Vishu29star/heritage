@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:Heritage/data/remote/apiModels/apiResponse.dart';
+import 'package:Heritage/main.dart';
 import 'package:Heritage/route/routes.dart';
 import 'package:Heritage/src/studenntForm/studentFormService.dart';
 import 'package:Heritage/utils/extension.dart';
@@ -17,6 +20,7 @@ import '../../constants/HeritageYesNoWidget.dart';
 import '../../constants/HeritagedatePicker.dart';
 import '../../constants/pdfPreview.dart';
 import '../../data/firestore_constants.dart';
+import '../../models/user_model.dart';
 import '../../utils/Utils.dart';
 
 import '../../utils/comman/commanWidget.dart';
@@ -37,6 +41,8 @@ class StudentFormVM extends ChangeNotifier {
   late BuildContext context;
   late String formUserId;
   late String currentUID;
+  late UserModel currentUserModel;
+  late UserModel formUserModel;
   late String currentUserEmail;
   late String currentUserType = "customer";
   late SharedPreferences preferences;
@@ -127,6 +133,7 @@ class StudentFormVM extends ChangeNotifier {
 
   var studentCaseId = null;
   int studentPercent = 0;
+  bool isNotificationAlreadySend = false;
   var studentData;
 
 
@@ -137,17 +144,17 @@ class StudentFormVM extends ChangeNotifier {
     formUserId= uid;
     print(formUserId);
     preferences = await SharedPreferences.getInstance();
-    currentUID = await preferences.getString(FirestoreConstants.uid) ?? "currentUserId";
-    currentUserEmail = await preferences.getString(FirestoreConstants.email) ?? "email";
+    var model = await preferences.getString(FirestoreConstants.userProfile) ?? "currentUserId";
+    currentUserModel = UserModel.fromJson(jsonDecode(model));
+    currentUID = currentUserModel.uid!;
+    currentUserEmail = currentUserModel.email!;
 
-    if(currentUserEmail.toLowerCase().trim()=="admin@heritage.com"){
-      print("rdftghbjnkm");
-      currentUserType = "admin";
-    }
+
     if(currentUserEmail.toLowerCase().trim()=="super@heritage.com"){
       print("lhfghkjlk;l");
       currentUserType = "superadmin";
     }
+    currentUserType = currentUserModel.user_type!;
     print("vgbhnjkm");
     print(currentUID);
     isLoading = true;
@@ -157,11 +164,19 @@ class StudentFormVM extends ChangeNotifier {
     });
     try{
       ApiResponse? result = await studentFormService?.checkForStudentForm(formUserId);
-      var firstName = result?.data[FirestoreConstants.first_name];
-      var lastName = result?.data[FirestoreConstants.last_name];
+      print("1111111");
+
       if(result != null && result.status=="success"){
+        print("2222222");
         studentCaseId = result.data[FirestoreConstants.studentFormCaseID].toString();
+        print("studentCaseId");
+        print(studentCaseId);
+        formUserModel = UserModel.fromJson(result.data);
+        studentCaseId = formUserModel.studentFormCaseID;
         studentPercent = checkAndGetValue(result.data,FirestoreConstants.studentFormPercent,defaultValue: 0);
+        if(studentPercent>75){
+          isNotificationAlreadySend = true;
+        }
         ApiResponse? studentDataResponse = await studentFormService?.getUserStudentForm(studentCaseId);
         Map<String,dynamic> studentData = studentDataResponse!.data;
         List<dynamic> list = studentData[FirestoreConstants.logs];
@@ -172,7 +187,9 @@ class StudentFormVM extends ChangeNotifier {
         };
         await studentFormService?.updateStudentForm(data,studentCaseId);
       }
-      else{
+      else if(result != null && result.status=="fail"){
+        print("33333333333");
+        formUserModel = UserModel.fromJson(result.data);
         int? count = await studentFormService?.getFormCount("studentformcount");
        // var uuid = Uuid();
         //var case_id = firstName[0]+firstName[firstName.length-1]+ DateTime.now().millisecondsSinceEpoch.toString()+lastName[0]+lastName[lastName.length-1] ;
@@ -185,12 +202,14 @@ class StudentFormVM extends ChangeNotifier {
           FirestoreConstants.logs:FieldValue.arrayUnion([{FirestoreConstants.time:DateTime.now().millisecondsSinceEpoch,FirestoreConstants.uid:currentUID}])
         };
         await studentFormService?.createUserStudentForm(data);
-        await studentFormService?.createUserStudentForm(data);
         studentCaseId = case_id;
+        print("studentCaseId");
+        print(studentCaseId);
         studentFormService?.updateUserWithStudentFormId(case_id,formUserId);
         isnewData = true;
       }
     }catch(e){
+      print("vbhnjmk,");
       print(e);
       errorText = e.toString();
     }
@@ -1031,6 +1050,38 @@ class StudentFormVM extends ChangeNotifier {
     try{
       var result = await studentFormService!.updateStudentForm(getMapData(), studentCaseId);
       studentFormService?.updateUserPercentStudentFormId(formUserId,profilePerCent);
+      if(pagePostion==4 /*&& !isNotificationAlreadySend*/){
+        List<UserModel>? financeuser = await mainModel!.mainService.getFilteruser(filterName: "2");
+        List<String> tokenList = [];
+        List<String> finance_uids = [];
+        if(financeuser?.length != null){
+          financeuser!.forEach((element) {
+            finance_uids.add(element.uid!);
+            if(element.web_firebase_token != null && element.web_firebase_token != ""){
+              tokenList.add(element.web_firebase_token!);
+            }
+            if(element.iOS_firebase_token != null && element.iOS_firebase_token != ""){
+              tokenList.add(element.iOS_firebase_token!);
+            }
+            if(element.android_firebase_token != null && element.android_firebase_token != ""){
+              tokenList.add(element.android_firebase_token!);
+            }
+          });
+        }
+        Map<String,dynamic> notificationObject = {
+          "title": "Financial Profile for "+ formUserModel.name!,
+          "body":"New Profile for payment",
+          "mutable_content": true,
+          "sound": "Tri-tone"};
+        Map<String,dynamic> dataObject = {
+          FirestoreConstants.uid: formUserModel.uid,
+          "dl": ""
+        };
+
+        await mainModel!.sendNotification(tokenList, notificationObject, dataObject);
+        await mainModel!.createNotification(finance_uids, notificationObject, dataObject);
+        print("tgyhujikol");
+      }
       if(pagePostion==5){
         mainModel!.showTopSuccessMessage(context, "Student Form Submitted");
         Navigator.pop(context);
