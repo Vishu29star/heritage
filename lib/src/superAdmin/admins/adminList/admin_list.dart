@@ -36,6 +36,21 @@ class _AdminListState extends State<AdminList> {
             child: ConstrainedBox(
                 constraints: BoxConstraints(minWidth: 300, maxWidth: 450),
                 child: Scaffold(
+                  appBar: AppBar(
+                    leading: IconButton(
+                      icon: Icon(Icons.arrow_back, color: Colors.black),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    iconTheme: IconThemeData(color: Colors.black),
+                backgroundColor: Colors.white,
+                    title:  Text(
+                      context.resources.strings.admins,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 24,
+                          color: context.resources.color.colorPrimary),
+                    ),
+                  ),
                   floatingActionButton: FloatingActionButton.extended(
                     label: Text(
                       'Add Admin',

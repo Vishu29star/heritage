@@ -114,4 +114,7 @@ abstract class Strings {
   String get customerComment ;
   String get employeeComment ;
   String get addUser ;
+  String get notificatons ;
+  String get admins ;
+  String get addAdmins ;
 }

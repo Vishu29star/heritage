@@ -114,6 +114,9 @@ class EngLishStrings extends Strings {
   String get createdAt=> "Created at";
   String get updatedAt=> "Updated at";
   String get addUser=> "Add User";
+  String get notificatons=> "Notificatons";
+  String get admins=> "Admins";
+  String get addAdmins=> "Add Admins";
   String get anyProvincePreferenceInCanadaIfNoThenMentionNONE=> "Any Province preference (In Canada), if no then mention NONE";
   String get anyCollegeProgramPreferenceIFNoThenMentionNONE=> "Any College/Program Preference, if no then mention NONE";
 }

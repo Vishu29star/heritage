@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:Heritage/src/chat/chatService.dart';
 import 'package:Heritage/src/chat/entities/text_message_entity.dart';
@@ -13,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/firestore_constants.dart';
 import '../../data/remote/mainService.dart';
+import '../../models/user_model.dart';
 
 class ChatVM extends ChangeNotifier {
 
@@ -38,7 +41,9 @@ class ChatVM extends ChangeNotifier {
 
   init() async {
     preferences = await SharedPreferences.getInstance();
-    name = await preferences.getString(FirestoreConstants.name) ?? "name";
+    var data = await preferences.getString(FirestoreConstants.userProfile) ?? "name";
+    UserModel currentUserModel =UserModel.fromJson(jsonDecode(data));
+    name = currentUserModel.name ?? (currentUserModel.first_name! + currentUserModel.last_name!);
   }
 
   selectGroupChatId(Map<String,dynamic> group, {bool isFirst = false}){
@@ -57,7 +62,36 @@ class ChatVM extends ChangeNotifier {
       });
     }
   }
+  createGroup() async {
+    List<String> userIds = await getFrontDeskUserIds() ?? [];
+    List<String> userEmail = [];
+    userIds.add(currentUserId);
+    Map<String,dynamic> lastUpdateMessage = {
+      FirestoreConstants.groupChatlastMessage:"",
+      FirestoreConstants.groupChatlastMessageUpdateTime:FieldValue.serverTimestamp(),
+      FirestoreConstants.groupChatlastMessageUserId:currentUserId,
+    };
+    Map<String,dynamic> data = {
+      FirestoreConstants.groupChatUserIds:userIds,
+      FirestoreConstants.groupChatName:name,
+      FirestoreConstants.groupChatCreatorId:currentUserId,
+      FirestoreConstants.groupChatlastMessageObject:lastUpdateMessage,
+    };
 
+   chatService!.createChatGroup(data);
+  }
+
+
+  Future<List<String>?> getFrontDeskUserIds() async {
+    List<UserModel>? frontDeskUser = await mainModel!.mainService.getFilteruser(filterName: "1");
+    if(frontDeskUser!=null){
+      List<String> ids =[];
+      frontDeskUser.forEach((element) {
+        ids.add(element.uid!);
+      });
+      return ids;
+    }
+  }
   sendMessage(String message){
     Map<String ,dynamic> msgObject = {
       "time":Timestamp.now(),
@@ -75,7 +109,35 @@ class ChatVM extends ChangeNotifier {
     chatService!.groupChatCollection.doc(selectedgroupChatId).update({FirestoreConstants.groupChatlastMessageObject:group});
   }
 
-  sendMedia(List<File> files) async {
+  sendMediabyte(FilePickerResult result) async {
+    List<String> docIds = [];
+    List<Uint8List?> filess = result.files.map((e) => e.bytes).toList();
+    List<String?> filesNames = result.files.map((e) => e.name).toList();
+    filess.forEach((file) {
+      final document = chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).doc();
+      String doc_id = document.id;
+      print("string");
+      print(doc_id);
+      docIds.add(doc_id);
+      Map<String ,dynamic> msgObject = {
+        "time":Timestamp.now(),
+        "senderId":currentUserId,
+        "content":doc_id,
+        "senderName":name,
+        "type": "UPLOADING"
+      };
+      document.set(msgObject);
+    });
+    print("11111111");
+    for(int i = 0;i<docIds.length;i++){
+      List<String> fileUrl = await chatService!.getMediaUrlFromBytes(filess[i]!,filesNames[i]!);
+      Map<String,dynamic> map = {"type":fileUrl[1],"content":fileUrl[0]};
+      print("url");
+      print(docIds[i]);
+      chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).doc(docIds[i]).update(map);
+    }
+  }
+  sendMedia(List<XFile> files) async {
     List<String> docIds = [];
     files.forEach((file) {
      final document = chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).doc();
@@ -92,9 +154,10 @@ class ChatVM extends ChangeNotifier {
       };
      document.set(msgObject);
     });
+    print("11111111");
     for(int i = 0;i<docIds.length;i++){
-      File compressfile =files[i] /*await compressFile(files[i])*/;
-      List<String> fileUrl = await chatService!.getMediaUrl(compressfile);
+
+      List<String> fileUrl = await chatService!.getMediaUrl(files[i]);
       Map<String,dynamic> map = {"type":fileUrl[1],"content":fileUrl[0]};
       print("url");
       print(docIds[i]);
@@ -102,7 +165,7 @@ class ChatVM extends ChangeNotifier {
     }
   }
 
-  Future<List<File>?> imgFromGallery() async {
+  Future<List<XFile>?> imgFromGallery() async {
     ImagePicker _imagePicker = ImagePicker();
     List<XFile>? images = await _imagePicker.pickMultiImage();
     if (images != null) {
@@ -112,32 +175,32 @@ class ChatVM extends ChangeNotifier {
         compressFiles.add(file);
       });
 
-      return compressFiles;
+      return images;
     }
   }
 
-  Future<List<File>?> documnetFormFile() async {
+
+  Future<FilePickerResult?> documnetFormFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: ['pdf', 'doc'],
     );
     if (result != null) {
-      List<File> files = result.paths.map((path) => File(path!)).toList();
+      /*List<File> files = result.paths.map((path) => File(path!)).toList();
       List<File> compressFiles = [];
       files.forEach((element) {
         compressFiles.add(element);
-      });
-      return compressFiles;
+      });*/
+      return result;
     }
   }
 
-  Future<File?> imageFromCamera( ) async {
+  Future<XFile?> imageFromCamera( ) async {
     ImagePicker _imagePicker = ImagePicker();
     XFile? image = await _imagePicker.pickImage(source: ImageSource.camera, imageQuality: 100);
     if (image != null) {
-      File file = File(image.path);
-      return file;
+      return image;
     }
 
   }

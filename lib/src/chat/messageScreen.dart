@@ -2,18 +2,24 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:Heritage/constants/image_picker_utils.dart';
+import 'package:Heritage/route/routes.dart';
 import 'package:Heritage/src/chat/chatVM.dart';
 import 'package:Heritage/src/chat/entities/text_message_entity.dart';
 import 'package:bubble/bubble.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../constants/HeritageErrorWidget(.dart';
+import '../../constants/pdfPreview.dart';
 import '../../data/firestore_constants.dart';
 import '../../utils/fullImage_view/full_image_view.dart';
 import '../../utils/responsive/responsive.dart';
+import 'package:Heritage/route/myNavigator.dart';
+import 'addChatUser.dart';
 
 class SingleChatPage extends StatefulWidget {
   final ChatVM model;
@@ -65,17 +71,51 @@ class _SingleChatPageState extends State<SingleChatPage> {
               iconTheme: IconThemeData(color: Colors.black),
               backgroundColor: Colors.white,
               title: Text(
-                "${widget.model.selectedgroup[FirestoreConstants.groupChatName]}",
+                widget.model.userType != "customer" ? "${widget.model.selectedgroup[FirestoreConstants.groupChatName]}":"Admin",
                 style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 24,
                     color: Theme.of(context).primaryColor),
               ),
+        actions: [
+          widget.model.userType != "customer"
+              ? TextButton(
+              onPressed: (){
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0)),
+                          child: Container(
+                              constraints: BoxConstraints(
+                                  minWidth: 300, maxWidth: 450),
+                              child: AddChatUser(widget.model,createGroup: false,)));
+                    });
+              }, child: Text("Add Chat User",style: TextStyle(color: Colors.white),))
+              : Container()],
             )
           : PreferredSize(
               preferredSize: Size.fromHeight(0.0), // here the desired height
               child: AppBar(
-                  // ...
+                actions: [
+                  widget.model.userType != "customer"
+                      ? TextButton(
+                    onPressed: (){
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0)),
+                                child: Container(
+                                    constraints: BoxConstraints(
+                                        minWidth: 300, maxWidth: 450),
+                                    child: AddChatUser(widget.model,createGroup: false,)));
+                          });
+                    }, child: Text("Add Chat User",style: TextStyle(color: Colors.white),))
+                      : Container()],
+
                   )),
       body: StreamBuilder<QuerySnapshot>(
         stream: widget.model.chatStream,
@@ -173,17 +213,17 @@ class _SingleChatPageState extends State<SingleChatPage> {
                           ImagePickerUtils.show(
                             context: context,
                             onGalleryClicked: () async {
-                              List<File>? files = await widget.model.imgFromGallery();
+                              List<XFile>? files = await widget.model.imgFromGallery();
                               Navigator.of(context).pop();
                               if(files!=null){
                                 widget.model.sendMedia(files);
                               }
                             },
                             onDocumentClicked: () async {
-                              List<File>? files = await widget.model.documnetFormFile();
+                              FilePickerResult? result  = await widget.model.documnetFormFile();
                               Navigator.of(context).pop();
-                              if(files!=null){
-                                widget.model.sendMedia(files);
+                              if(result!=null){
+                                widget.model.sendMediabyte(result);
                               }
                             },
                           );
@@ -195,11 +235,11 @@ class _SingleChatPageState extends State<SingleChatPage> {
                       widget.model.messageController.text.isEmpty
                           ? IconButton(
                               onPressed: () async {
-                               File? file = await widget.model.imageFromCamera();
+                                XFile? file = await widget.model.imageFromCamera();
                                 Navigator.of(context).pop();
 
                                 if(file!=null){
-                                  List<File> files = [];
+                                  List<XFile> files = [];
                                   files.add(file);
                                   widget.model.sendMedia(files);
                                 }
@@ -227,11 +267,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
                 //TODO:send voice message
               } else {
                 widget.model.sendMessage(widget.model.messageController.text);
-                print(widget.model.messageController.text);
-
-                setState(() {
-                  widget.model.messageController.clear();
-                });
+                widget.model.messageController.clear();
               }
             },
             child: Container(
@@ -394,7 +430,23 @@ class _SingleChatPageState extends State<SingleChatPage> {
       );
     }else if(type == "DOCUMENT"){
       return  InkWell(
-        onTap:(){
+        onTap:() async {
+          var ppp = await widget.model.chatService!.getByteData(content);
+          if(Responsive.isMobile(context)){
+            myNavigator.pushNamed(context, Routes.pdfPreview, arguments: ppp);
+          }
+          else{
+            showDialog(
+                context: context,
+                builder: (BuildContext context){
+                  return Dialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius:
+                          BorderRadius.circular(20.0)),
+                      child: Container(constraints: BoxConstraints(minWidth: 300, maxWidth: 450),child:PdfPreviewPage(ppp)));
+                }
+            );
+          }
           /*if (content.endsWith(".pdf")) {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => PdfViewScreen(content)));

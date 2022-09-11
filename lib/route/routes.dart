@@ -1,10 +1,12 @@
 import 'dart:typed_data';
 
+import 'package:Heritage/models/user_model.dart';
 import 'package:Heritage/src/chat/chatVM.dart';
 import 'package:Heritage/src/chat/messageScreen.dart';
 import 'package:Heritage/src/cisForm/cis_form_widget.dart';
 import 'package:Heritage/src/home/homeVM.dart';
 import 'package:Heritage/src/home/userWidget/UserDetail.dart';
+import 'package:Heritage/src/notifications/notifications_screen.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +32,7 @@ class Routes {
   static const String userDetail = "userDetail";
   static const String pdfPreview = "pdfPreview";
   static const String chatScreen = "chatScreen";
+  static const String notifications = "notifications";
   static const String messageScreen = "messageScreen";
 
   static Route<T> fadeThrough<T>(RouteSettings settings, WidgetBuilder page,
@@ -109,6 +112,22 @@ class Routes {
         return CupertinoPageRoute(
           builder: (_) => ChatScreen(map),
         );
+      case notifications:
+        UserModel map;
+        if(args!=null){
+          map = args as  UserModel;
+          return CupertinoPageRoute(
+            builder: (_) => NotiFicationScreen(map),
+          );
+        }
+        return MaterialPageRoute(builder: (_) {
+          return Scaffold(
+            body: Center(
+              child: Text("Error!! Route"),
+            ),
+          );
+        });
+
       case messageScreen:
         if (args is Map<String, dynamic>){
           ChatVM model = args["model"] as ChatVM;

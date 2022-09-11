@@ -12,7 +12,8 @@ import '../../models/user_model.dart';
 
 class AddChatUser extends StatelessWidget {
   final ChatVM chatVM;
-  AddChatUser(this.chatVM,{Key? key}) : super(key: key);
+  final bool createGroup;
+  AddChatUser(this.chatVM,{this.createGroup = true,Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +49,7 @@ class AddChatUser extends StatelessWidget {
               UserModel userModel = UserModel.fromJson(data);
               listData.add(userModel);
             });
-            return AddUserBody(listData, chatVM);
+            return AddUserBody(listData, chatVM,createGroup);
           }),
     );
   }
@@ -57,8 +58,9 @@ class AddChatUser extends StatelessWidget {
 class AddUserBody extends StatefulWidget {
   List<UserModel> listData;
   final ChatVM chatVM;
+  final bool createGroup;
   List<int> selectedListIndex = [];
-  AddUserBody(this.listData,this.chatVM,{Key? key}) : super(key: key);
+  AddUserBody(this.listData,this.chatVM,this.createGroup, {Key? key}) : super(key: key);
 
   @override
   State<AddUserBody> createState() => _AddUserBodyState();
@@ -100,30 +102,40 @@ class _AddUserBodyState extends State<AddUserBody> {
             child: Button(
               isEnabled: widget.selectedListIndex.length>0 ? true : false,
               onPressed: () async {
-                var resultLabel = await showTextInputDialog(context);
-                if(resultLabel!=null){
-                  List<String> userIds = [];
-                  List<String> userEmail = [];
-                  userIds.add(widget.chatVM.currentUserId);
-                  for(int i = 0;i<widget.selectedListIndex.length;i++){
+                List<String> userIds = [];
+                for(int i = 0;i<widget.selectedListIndex.length;i++){
 
-                    userIds.add(widget.listData[widget.selectedListIndex[i]].uid!);
-                  }
-                  Map<String,dynamic> lastUpdateMessage = {
-                    FirestoreConstants.groupChatlastMessage:"",
-                    FirestoreConstants.groupChatlastMessageUpdateTime:FieldValue.serverTimestamp(),
-                    FirestoreConstants.groupChatlastMessageUserId:widget.chatVM.currentUserId,
-                  };
-                  Map<String,dynamic> data = {
-                    FirestoreConstants.groupChatUserIds:userIds,
-                    FirestoreConstants.groupChatName:resultLabel,
-                    FirestoreConstants.groupChatCreatorId:widget.chatVM.currentUserId,
-                    FirestoreConstants.groupChatlastMessageObject:lastUpdateMessage,
-                  };
-
-                  widget.chatVM.chatService!.createChatGroup(data);
-                  Navigator.pop(context);
+                  userIds.add(widget.listData[widget.selectedListIndex[i]].uid!);
                 }
+                if(!widget.createGroup){
+                  widget.chatVM.chatService!.addUserToChatGroup(widget.chatVM.selectedgroupChatId,userIds);
+                }else{
+                  var resultLabel = await showTextInputDialog(context);
+                  if(resultLabel!=null){
+                    List<String> userIds = [];
+                    List<String> userEmail = [];
+                    userIds.add(widget.chatVM.currentUserId);
+                    for(int i = 0;i<widget.selectedListIndex.length;i++){
+
+                      userIds.add(widget.listData[widget.selectedListIndex[i]].uid!);
+                    }
+                    Map<String,dynamic> lastUpdateMessage = {
+                      FirestoreConstants.groupChatlastMessage:"",
+                      FirestoreConstants.groupChatlastMessageUpdateTime:FieldValue.serverTimestamp(),
+                      FirestoreConstants.groupChatlastMessageUserId:widget.chatVM.currentUserId,
+                    };
+                    Map<String,dynamic> data = {
+                      FirestoreConstants.groupChatUserIds:userIds,
+                      FirestoreConstants.groupChatName:resultLabel,
+                      FirestoreConstants.groupChatCreatorId:widget.chatVM.currentUserId,
+                      FirestoreConstants.groupChatlastMessageObject:lastUpdateMessage,
+                    };
+
+                    widget.chatVM.chatService!.createChatGroup(data);
+                    Navigator.pop(context);
+                  }
+                }
+
               },
               labelText:context.resources.strings.add,
             )),

@@ -46,7 +46,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 overlayColor: Colors.black,
                 overlayOpacity: 0.8,
                 child: Scaffold(
-                  appBar: AppBar(
+                  appBar: userType != "customer" ? AppBar(
                     actions: [TextButton(
                         onPressed: (){
                       showDialog(
@@ -62,6 +62,12 @@ class _ChatScreenState extends State<ChatScreen> {
                           });
                     }, child: Text("New Chat",style: TextStyle(color: Colors.white),))],
 
+                  )
+                      :PreferredSize(
+                      preferredSize: Size.fromHeight(0.0), // here the desired height
+                      child: AppBar(
+                        // ...
+                      )
                   ),
                   body: StreamBuilder<QuerySnapshot>(
                     stream: model.groupStream,
@@ -75,16 +81,24 @@ class _ChatScreenState extends State<ChatScreen> {
                       }
 
                       if(snapshot.hasData && snapshot.data!.docs.isEmpty){
+                        if(userType=="customer"){
+                          model.createGroup();
+                          return HeritageProgressBar();
+                        }
                         return noDataBody(model);
                       }
-                      return body(snapshot,model);
 
 
-                    /*if(userType == "customer"){
-                      return customerBody(snapshot);
+
+                    if(userType == "customer"){
+                      var data = snapshot.data!.docs.first.data()! as Map<String, dynamic>;
+                      if (model.selectedgroupChatId == "") {
+                        model.selectGroupChatId(data, isFirst: true);
+                      }
+                      return customerBody(snapshot,model);
                     }else {
-                      return AdminBody(snapshot);
-                    }*/
+                      return AdminBody(snapshot,model);
+                    }
                     },
                   ),
                 ),
@@ -94,11 +108,12 @@ class _ChatScreenState extends State<ChatScreen> {
         );
 
   }
-  Widget customerBody(AsyncSnapshot<QuerySnapshot<Object>> snapshot){
-    return Container();
+  Widget customerBody(AsyncSnapshot<QuerySnapshot<Object?>> snapshot,ChatVM model){
+    return SingleChatPage(model: model,);
   }
 
   Widget noDataBody(ChatVM model){
+
     return Container(
       child: Center(child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -130,8 +145,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );;
   }
 
-  Widget AdminBody(AsyncSnapshot<QuerySnapshot<Object>> snapshot){
-    return Container();
+  Widget AdminBody(AsyncSnapshot<QuerySnapshot<Object?>> snapshot, ChatVM model){
+    return body(snapshot,model);
   }
   Widget body(AsyncSnapshot<QuerySnapshot<Object?>> snapshot, ChatVM model){
     return  Responsive.isMobile(context) ? ChatGroupsScreen(snapshot,model):Row(

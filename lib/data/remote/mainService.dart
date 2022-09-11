@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:Heritage/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -31,7 +32,7 @@ String userCollection = appServerType.name+ FirestoreConstants.users;
 String studentFormCollection = appServerType.name + FirestoreConstants.studentForms;
 String groupChatChannel = appServerType.name + FirestoreConstants.groupChatChannel;
 String messages = appServerType.name + FirestoreConstants.messages;
-String notificationsCollection = appServerType.name + FirestoreConstants.messages;
+String notificationsCollection = appServerType.name + FirestoreConstants.notifications;
 
 final String firebase_message_server_key = "AAAAJXOJzWs:APA91bGWR34oWC3eoHhi04gFw41Xr_6Jo6ztQYAEA73JTATaFs3zycYImuQChm71kBcvfJlWRGZX_kuABlF1ZjYBvn3gqU1rCpgELXK3GnV6nRMXunf06Dw9o1X45Dt1cZmswhx0ITc0";
 final String web_vapid_key = "BBIMiM6qxQPsLVjMHIj79ncIyTOFlOQu8L-HXL7n2HYumPFGpsH2Plt-qg5-HWnXjOoOTdZcxyoLdcyVNURyQaU";
@@ -169,5 +170,12 @@ class MainService {
       print(e);
       return null;
     }
+  }
+
+  Future<Uint8List> getByteData(String url) async {
+    http.Response response = await http.get(
+      Uri.parse(url),
+    );
+    return response.bodyBytes;
   }
 }

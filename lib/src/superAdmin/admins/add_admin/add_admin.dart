@@ -26,7 +26,21 @@ class _AddAdminState extends State<AddAdmin> {
 
     final Stream<QuerySnapshot> adminStream  =  widget.homeModel.homeService!.userdoc.where(FirestoreConstants.user_type,isEqualTo: "customer").snapshots();
     return Scaffold(
-  
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        iconTheme: IconThemeData(color: Colors.black),
+                backgroundColor: Colors.white,
+        title:  Text(
+          context.resources.strings.addAdmins,
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 24,
+              color: context.resources.color.colorPrimary),
+        ),
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: adminStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {

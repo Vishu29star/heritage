@@ -32,6 +32,7 @@ class HomeVM extends ChangeNotifier {
   final HomeService? homeService;
   String selectedUserId = "";
   String currentUserId = "";
+  late UserModel currentUserModel ;
   List<Map<String, dynamic>> searchResult = [];
 
   BuildContext? context;
@@ -91,6 +92,7 @@ class HomeVM extends ChangeNotifier {
       mapData =  await homeService!.getCurrentUserData(currentUserId);
     }
     UserModel model  = UserModel.fromJson(mapData);
+    currentUserModel = model;
     if (model == null) {
       preferences.remove(FirestoreConstants.userProfile);
     } else {
@@ -130,6 +132,7 @@ class HomeVM extends ChangeNotifier {
         ),
         title: const Text('Home'),
         onTap: () {
+          closeDrawer();
           changeHomeItem(0);
         },
       ),
@@ -139,6 +142,7 @@ class HomeVM extends ChangeNotifier {
         ),
         title: const Text('Profile'),
         onTap: () {
+          closeDrawer();
           changeHomeItem(1);
           // Navigator.pop(context);
         },
@@ -149,7 +153,18 @@ class HomeVM extends ChangeNotifier {
         ),
         title: const Text('Metting'),
         onTap: () {
+          closeDrawer();
           changeHomeItem(2);
+        },
+      ),
+      ListTile(
+        leading: Icon(
+          Icons.meeting_room,
+        ),
+        title: Text(context!.resources.strings.notificatons),
+        onTap: () {
+          closeDrawer();
+          myNavigator.pushNamed(context!, Routes.notifications, arguments: currentUserModel);
         },
       ),
       if (userType == "superadmin") ...[
