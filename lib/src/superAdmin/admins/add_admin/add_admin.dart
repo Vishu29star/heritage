@@ -78,7 +78,7 @@ class _AddAdminState extends State<AddAdmin> {
                         isEnabled: true,
                         onPressed: () async {
                           var resultLabel = await showAdminTypeSelectionDialog(context);
-                          widget.homeModel.homeService!.updateUserDataMain(FirestoreConstants.users, {FirestoreConstants.uid:listData[index].uid,FirestoreConstants.user_type:resultLabel});
+                          widget.homeModel.homeService!.updateUserDataMain( {FirestoreConstants.uid:listData[index].uid,FirestoreConstants.user_type:resultLabel});
                         },
                         labelText:context.resources.strings.add,
                       )),

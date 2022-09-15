@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../../constants/HeritageCircularProgressBar.dart';
 import '../../../constants/HeritageErrorWidget(.dart';
+import '../../../constants/noDataHeritageWidget.dart';
 import '../../../utils/responsive/responsive.dart';
 import '../homeVM.dart';
 
@@ -16,9 +17,12 @@ class UserDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if(model.selectedUserId == ""){
+      if(model.NoUserData){
+        return HeritageNoDataWidget();
+      }
       return Center(child: HeritageProgressBar());
     }
-    final Stream<DocumentSnapshot> userStream  =  model.homeService!.userdoc.doc(model.selectedUserId).snapshots();
+    final Stream<DocumentSnapshot> userDetailStream  =  model.homeService!.userdoc.doc(model.selectedUserId).snapshots();
     return SafeArea(
       child: Scaffold(
         appBar: Responsive.isMobile(context) ? AppBar(
@@ -38,7 +42,7 @@ class UserDetail extends StatelessWidget {
             )
         ),
         body: StreamBuilder<DocumentSnapshot>(
-          stream: userStream,
+          stream: userDetailStream,
           builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) {
               return HeritageErrorWidget();

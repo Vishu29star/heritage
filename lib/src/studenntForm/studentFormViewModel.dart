@@ -190,7 +190,7 @@ class StudentFormVM extends ChangeNotifier {
       else if(result != null && result.status=="fail"){
         print("33333333333");
         formUserModel = UserModel.fromJson(result.data);
-        int? count = await studentFormService?.getFormCount("studentformcount");
+        int? count = await studentFormService?.getFormCount(FirestoreConstants.studentformcount);
        // var uuid = Uuid();
         //var case_id = firstName[0]+firstName[firstName.length-1]+ DateTime.now().millisecondsSinceEpoch.toString()+lastName[0]+lastName[lastName.length-1] ;
 
@@ -1080,7 +1080,8 @@ class StudentFormVM extends ChangeNotifier {
 
         await mainModel!.sendNotification(tokenList, notificationObject, dataObject);
         await mainModel!.createNotification(finance_uids, notificationObject, dataObject);
-        print("tgyhujikol");
+        Map<String,dynamic> updateData = {FirestoreConstants.assign_admins : ["2"],FirestoreConstants.uid:formUserModel.uid,FirestoreConstants.is_payment_done:false};
+        await mainModel!.mainService.updateUserDataMain(updateData);
       }
       if(pagePostion==5){
         mainModel!.showTopSuccessMessage(context, "Student Form Submitted");

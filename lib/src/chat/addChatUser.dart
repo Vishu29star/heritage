@@ -110,7 +110,7 @@ class _AddUserBodyState extends State<AddUserBody> {
                 if(!widget.createGroup){
                   widget.chatVM.chatService!.addUserToChatGroup(widget.chatVM.selectedgroupChatId,userIds);
                 }else{
-                  var resultLabel = await showTextInputDialog(context);
+                  var resultLabel = await showTextInputDialog(context,);
                   if(resultLabel!=null){
                     List<String> userIds = [];
                     List<String> userEmail = [];

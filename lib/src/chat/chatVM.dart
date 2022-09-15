@@ -3,9 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:Heritage/src/chat/chatService.dart';
-import 'package:Heritage/src/chat/entities/text_message_entity.dart';
 import 'package:Heritage/src/mainViewModel.dart';
-import 'package:Heritage/utils/comman/commanWidget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,7 +12,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/firestore_constants.dart';
-import '../../data/remote/mainService.dart';
 import '../../models/user_model.dart';
 
 class ChatVM extends ChangeNotifier {
@@ -94,7 +91,7 @@ class ChatVM extends ChangeNotifier {
   }
   sendMessage(String message){
     Map<String ,dynamic> msgObject = {
-      "time":Timestamp.now(),
+      "time":FieldValue.serverTimestamp(),
       "senderId":currentUserId,
       "content":message,
       "senderName":name,
@@ -106,7 +103,9 @@ class ChatVM extends ChangeNotifier {
       FirestoreConstants.groupChatlastMessage:message,
     };
     chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).add(msgObject);
-    chatService!.groupChatCollection.doc(selectedgroupChatId).update({FirestoreConstants.groupChatlastMessageObject:group});
+    chatService!.groupChatCollection.doc(selectedgroupChatId).update({
+      FirestoreConstants.updatedAt:FieldValue.serverTimestamp(),
+      FirestoreConstants.groupChatlastMessageObject:group});
   }
 
   sendMediabyte(FilePickerResult result) async {

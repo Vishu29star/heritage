@@ -117,7 +117,7 @@ class _AdminListState extends State<AdminList> {
                                           onPressed: () {
                                             widget.homeModel.homeService!
                                                 .updateUserDataMain(
-                                                    FirestoreConstants.users, {
+                                                {
                                               FirestoreConstants.uid:
                                                   listData[index].uid,
                                               FirestoreConstants.user_type:

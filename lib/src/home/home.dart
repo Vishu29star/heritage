@@ -1,9 +1,9 @@
 import 'package:Heritage/constants/HeritageErrorWidget(.dart';
+import 'package:Heritage/route/myNavigator.dart';
 import 'package:Heritage/src/home/userWidget/UserDetail.dart';
 import 'package:Heritage/src/home/userWidget/userList.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 //import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
-import 'package:Heritage/route/myNavigator.dart';
+
 import '../../constants/HeritageCircularProgressBar.dart';
 import '../../data/firestore_constants.dart';
 import '../../route/routes.dart';
@@ -165,8 +165,16 @@ class AdminDashboardBody extends StatelessWidget {
   const AdminDashboardBody(this.model, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-
-    final Stream<QuerySnapshot> userStream  =  model.homeService!.usersStream;
+print("model.userType");
+print(model.userType);
+    final Stream<QuerySnapshot> userStream;
+    if(model.userType =="2"){
+      userStream = model.homeService!.userdoc.where(FirestoreConstants.assign_admins,arrayContainsAny: ["2"]).snapshots();
+    }else
+    {
+      userStream  =  model.homeService!.usersStream;
+    }
+    
     return Scaffold(
       floatingActionButton: model.userType == "superAdmin" ? null : FloatingActionButton.extended(onPressed: (){
         Map<String,dynamic> map = {

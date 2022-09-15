@@ -5,13 +5,21 @@ import 'package:Heritage/constants/image_picker_utils.dart';
 import 'package:Heritage/route/routes.dart';
 import 'package:Heritage/src/chat/chatVM.dart';
 import 'package:Heritage/src/chat/entities/text_message_entity.dart';
+import 'package:Heritage/utils/comman/commanWidget.dart';
+import 'package:audio_session/audio_session.dart' as AS;
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:bubble/bubble.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_sound/public/flutter_sound_player.dart';
+import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../constants/HeritageErrorWidget(.dart';
 import '../../constants/pdfPreview.dart';
@@ -23,8 +31,16 @@ import 'addChatUser.dart';
 
 class SingleChatPage extends StatefulWidget {
   final ChatVM model;
-
-  const SingleChatPage({Key? key, required this.model}) : super(key: key);
+  bool isRecorderOpen = false;
+  bool isRecorderReady = false;
+  bool isPlayerReady = false;
+  var audioFile;
+  var soundPlayer = AudioPlayer();
+  bool isPlaying = false;
+  Duration playerDuration = Duration.zero;
+  Duration playerPostion = Duration.zero;
+  FlutterSoundRecorder recorder = FlutterSoundRecorder();
+  SingleChatPage({Key? key, required this.model}) : super(key: key);
 
   @override
   _SingleChatPageState createState() => _SingleChatPageState();
@@ -32,6 +48,7 @@ class SingleChatPage extends StatefulWidget {
 
 class _SingleChatPageState extends State<SingleChatPage> {
   String messageContent = "";
+
 
   bool _changeKeyboardType = false;
   int _menuIndex = 0;
@@ -41,11 +58,8 @@ class _SingleChatPageState extends State<SingleChatPage> {
     widget.model.messageController.addListener(() {
       setState(() {});
     });
-    print("widget.model.selectedgroupChatId");
-    print(widget.model.selectedgroupChatId);
-
-
-    //  BlocProvider.of<ChatCubit>(context).getMessages(channelId: widget.singleChatEntity.groupId)
+    initRecorder();
+    initPlayer();
     //FIXME: call get all messages
     super.initState();
   }
@@ -68,15 +82,15 @@ class _SingleChatPageState extends State<SingleChatPage> {
     return Scaffold(
       appBar: Responsive.isMobile(context)
           ? AppBar(
-              iconTheme: IconThemeData(color: Colors.black),
-              backgroundColor: Colors.white,
-              title: Text(
-                widget.model.userType != "customer" ? "${widget.model.selectedgroup[FirestoreConstants.groupChatName]}":"Admin",
-                style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 24,
-                    color: Theme.of(context).primaryColor),
-              ),
+        iconTheme: IconThemeData(color: Colors.black),
+        backgroundColor: Colors.white,
+        title: Text(
+          widget.model.userType != "customer" ? "${widget.model.selectedgroup[FirestoreConstants.groupChatName]}":"Admin",
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 24,
+              color: Theme.of(context).primaryColor),
+        ),
         actions: [
           widget.model.userType != "customer"
               ? TextButton(
@@ -94,29 +108,29 @@ class _SingleChatPageState extends State<SingleChatPage> {
                     });
               }, child: Text("Add Chat User",style: TextStyle(color: Colors.white),))
               : Container()],
-            )
+      )
           : PreferredSize(
-              preferredSize: Size.fromHeight(0.0), // here the desired height
-              child: AppBar(
-                actions: [
-                  widget.model.userType != "customer"
-                      ? TextButton(
-                    onPressed: (){
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Dialog(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20.0)),
-                                child: Container(
-                                    constraints: BoxConstraints(
-                                        minWidth: 300, maxWidth: 450),
-                                    child: AddChatUser(widget.model,createGroup: false,)));
-                          });
-                    }, child: Text("Add Chat User",style: TextStyle(color: Colors.white),))
-                      : Container()],
+          preferredSize: Size.fromHeight(0.0), // here the desired height
+          child: AppBar(
+            actions: [
+              widget.model.userType != "customer"
+                  ? TextButton(
+                  onPressed: (){
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0)),
+                              child: Container(
+                                  constraints: BoxConstraints(
+                                      minWidth: 300, maxWidth: 450),
+                                  child: AddChatUser(widget.model,createGroup: false,)));
+                        });
+                  }, child: Text("Add Chat User",style: TextStyle(color: Colors.white),))
+                  : Container()],
 
-                  )),
+          )),
       body: StreamBuilder<QuerySnapshot>(
         stream: widget.model.chatStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -144,17 +158,163 @@ class _SingleChatPageState extends State<SingleChatPage> {
           for (int i = 0; i < snapshot.data!.docs.length; i++) {
             var data = snapshot.data!.docs[i].data()! as Map<String, dynamic>;
             TextMessageEntity textMessageEntity =
-                TextMessageEntity.fromJson(data);
+            TextMessageEntity.fromJson(data);
             messageList.add(textMessageEntity);
           }
           return Column(
             children: [
               _messagesListWidget(messageList),
-              _sendMessageTextField(),
+              widget.isRecorderOpen ?  recorderWidget() :_sendMessageTextField(),
             ],
           );
         },
       ),
+    );
+  }
+
+  Future initRecorder() async {
+    final status  = await Permission.microphone.request();
+    if(status != PermissionStatus.granted){
+      throw "MicroPhone permission not Granted.";
+    }
+    await widget.recorder.openRecorder();
+    final session = await AS.AudioSession.instance;
+    await session.configure(AS.AudioSessionConfiguration(
+      avAudioSessionCategory: AS.AVAudioSessionCategory.playAndRecord,
+      avAudioSessionCategoryOptions:
+      AS.AVAudioSessionCategoryOptions.allowBluetooth |
+      AS.AVAudioSessionCategoryOptions.defaultToSpeaker,
+      avAudioSessionMode: AS.AVAudioSessionMode.spokenAudio,
+      avAudioSessionRouteSharingPolicy:
+      AS.AVAudioSessionRouteSharingPolicy.defaultPolicy,
+      avAudioSessionSetActiveOptions: AS.AVAudioSessionSetActiveOptions.none,
+      androidAudioAttributes: const AS.AndroidAudioAttributes(
+        contentType: AS.AndroidAudioContentType.speech,
+        flags: AS.AndroidAudioFlags.none,
+        usage: AS.AndroidAudioUsage.voiceCommunication,
+      ),
+      androidAudioFocusGainType: AS.AndroidAudioFocusGainType.gain,
+      androidWillPauseWhenDucked: true,
+    ));
+    widget.isRecorderReady = true;
+    widget.recorder.setSubscriptionDuration(const Duration(milliseconds: 500));
+  }
+
+  initPlayer(){
+    /*https://www.youtube.com/watch?v=MB3YGQ-O`1lk*/
+    widget.soundPlayer.onPlayerStateChanged.listen((state) {
+      setState(() {
+        widget.isPlaying = CommanWidgets().isPLAYING(state);
+      });
+    });
+
+    widget.soundPlayer.onDurationChanged.listen((newDuration) {
+      setState(() {
+        widget.playerDuration = newDuration;
+      });
+    });
+    widget.soundPlayer.onPositionChanged.listen((newPosition) {
+      setState(() {
+        widget.playerPostion =newPosition;
+      });
+    });
+  }
+
+  Future stopRecording () async{
+    if(!widget.isRecorderReady) return;
+    final path = await widget.recorder.stopRecorder();
+    final audioFile = File(path!);
+    widget.audioFile =audioFile;
+    print("Recorded Audio File : $audioFile");
+    setState(() {
+
+    });
+  }
+  Future startRecording () async{
+    if(!widget.isRecorderReady) return;
+    await widget.recorder.startRecorder(toFile: 'audio');
+  }
+  Widget recorderWidget(){
+    return Container(
+      constraints: BoxConstraints(minWidth: 100, maxWidth: 400),
+      child:Row(
+        children: [
+          IconButton(onPressed: (){
+            widget.isRecorderOpen = false;
+            setState(() {
+              widget.audioFile = null;
+            });
+          },
+              icon: Icon(Icons.delete)),
+          SizedBox(width: 16,),
+          Expanded(child:  widget.recorder.isRecording ? recordigWidget() : audioPlayerWidget(),),
+          SizedBox(width: 16,),
+          IconButton(onPressed: (){
+            widget.isRecorderOpen = false;
+            setState(() {
+              widget.audioFile = null;
+            });
+          },
+              icon: Icon(Icons.delete)),
+        ],
+      ),
+    );
+  }
+
+  Widget recordigWidget(){
+
+    return Row(
+      children: [
+        IconButton(onPressed: () async {
+          if(widget.recorder.isRecording){
+            await stopRecording();
+          }else{
+            await startRecording();
+          }
+        }, icon: widget.recorder.isRecording ? Icon(Icons.stop) : Icon(Icons.mic)),
+        SizedBox(width: 16,),
+        Expanded(child: LinearProgressIndicator()),
+        SizedBox(width: 16,),
+        StreamBuilder<RecordingDisposition>(
+            stream: widget.recorder.onProgress,
+            builder: (context, snapshot) {
+              final duration = snapshot.hasData ? snapshot.data!.duration :Duration.zero;
+              String twoDigits(int n) => n.toString().padLeft(5);
+              final twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+              final twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+              return Text(
+                '$twoDigitMinutes:$twoDigitSeconds',
+                style: TextStyle(fontSize: 15),
+              );
+            }),
+      ],
+    );
+  }
+  Widget audioPlayerWidget(){
+
+    return Row(
+      children: [
+        IconButton(onPressed: () async {
+          if(widget.isPlaying){
+            await widget.soundPlayer.pause();
+          }else{
+            await widget.soundPlayer.play(DeviceFileSource(widget.audioFile));
+            await startRecording();
+          }
+        }, icon: widget.recorder.isRecording ? Icon(Icons.stop) : Icon(Icons.play_arrow)),
+        SizedBox(width: 16,),
+        Expanded(child: LinearProgressIndicator()),
+        SizedBox(width: 16,),
+        Slider(
+          min: 0,
+          max: widget.playerDuration.inSeconds.toDouble(),
+          value: widget.playerPostion.inSeconds.toDouble(),
+          onChanged: (value) async {
+            final position = Duration(seconds: value.toInt());
+            await widget.soundPlayer.seek(position);
+          },
+        )
+      ],
     );
   }
 
@@ -234,20 +394,20 @@ class _SingleChatPageState extends State<SingleChatPage> {
                       ),
                       widget.model.messageController.text.isEmpty
                           ? IconButton(
-                              onPressed: () async {
-                                XFile? file = await widget.model.imageFromCamera();
-                                Navigator.of(context).pop();
+                          onPressed: () async {
+                            XFile? file = await widget.model.imageFromCamera();
+                            Navigator.of(context).pop();
 
-                                if(file!=null){
-                                  List<XFile> files = [];
-                                  files.add(file);
-                                  widget.model.sendMedia(files);
-                                }
-                              },
-                              icon: Icon(
-                                Icons.camera_alt,
-                                color: Colors.grey[500],
-                              ))
+                            if(file!=null){
+                              List<XFile> files = [];
+                              files.add(file);
+                              widget.model.sendMedia(files);
+                            }
+                          },
+                          icon: Icon(
+                            Icons.camera_alt,
+                            color: Colors.grey[500],
+                          ))
                           : Text(""),
                     ],
                   ),
@@ -265,6 +425,8 @@ class _SingleChatPageState extends State<SingleChatPage> {
             onTap: () {
               if (widget.model.messageController.text.isEmpty) {
                 //TODO:send voice message
+                widget.isRecorderOpen = true;
+                startRecording();
               } else {
                 widget.model.sendMessage(widget.model.messageController.text);
                 widget.model.messageController.clear();
@@ -463,3 +625,283 @@ class _SingleChatPageState extends State<SingleChatPage> {
     return Container();
   }
 }
+
+/*
+import 'dart:async';
+
+import 'package:Heritage/route/myNavigator.dart';
+import 'package:Heritage/route/routes.dart';
+import 'package:Heritage/src/chat/chatVM.dart';
+import 'package:Heritage/src/chat/entities/text_message_entity.dart';
+import 'package:bubble/bubble.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../../constants/HeritageErrorWidget(.dart';
+import '../../constants/pdfPreview.dart';
+import '../../data/firestore_constants.dart';
+import '../../utils/fullImage_view/full_image_view.dart';
+import '../../utils/responsive/responsive.dart';
+import 'addChatUser.dart';
+
+class SingleChatPage extends StatefulWidget {
+  final ChatVM model;
+  SingleChatPage({Key? key, required this.model}) : super(key: key);
+
+  @override
+  _SingleChatPageState createState() => _SingleChatPageState();
+}
+
+class _SingleChatPageState extends State<SingleChatPage> {
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.model.selectedgroupChatId == "") {
+      return Container();
+    }
+    if(widget.model.chatStream==null){
+      return Container();
+    }
+    return Scaffold(
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.black),
+        backgroundColor: Colors.white,
+        title: Text(
+          widget.model.userType != "customer" ? "${widget.model.selectedgroup[FirestoreConstants.groupChatName]}":"Admin",
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 24,
+              color: Theme.of(context).primaryColor),
+        ),
+        actions: [
+          widget.model.userType != "customer"
+              ? TextButton(
+              onPressed: (){
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0)),
+                          child: Container(
+                              constraints: BoxConstraints(
+                                  minWidth: 300, maxWidth: 450),
+                              child: AddChatUser(widget.model,createGroup: false,)));
+                    });
+              }, child: Text("Add Chat User",style: TextStyle(color: Colors.white),))
+              : Container()],
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: widget.model.chatStream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return HeritageErrorWidget();
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(
+              child: Center(
+                child: Column(
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Text("Loading.....")
+                  ],
+                ),
+              ),
+            );
+          }
+          List<TextMessageEntity> messageList = [];
+          // List<TextMessageEntity> messageList = [];
+          for (int i = 0; i < snapshot.data!.docs.length; i++) {
+            var data = snapshot.data!.docs[i].data()! as Map<String, dynamic>;
+            TextMessageEntity textMessageEntity =
+                TextMessageEntity.fromJson(data);
+            messageList.add(textMessageEntity);
+          }
+          return _messagesListWidget(messageList);
+        },
+      ),
+    );
+  }
+
+  Widget _messagesListWidget(List<TextMessageEntity> messageList) {
+    Timer(Duration(milliseconds: 100), () {
+      widget.model.scrollController.animateTo(
+        widget.model.scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInQuad,
+      );
+    });
+    print("messageList.length");
+    print(messageList.length);
+    return Expanded(
+      child: ListView.builder(
+        controller: widget.model.scrollController,
+        itemCount: messageList.length,
+        itemBuilder: (_, index) {
+          final message = messageList[index];
+
+          if (message.senderId == widget.model.currentUserId)
+            return _messageLayout(
+              name: "Me",
+              alignName: TextAlign.end,
+              color: Colors.lightGreen[400],
+              time: DateFormat('hh:mm a').format(message.time!.toDate()),
+              align: TextAlign.left,
+              boxAlign: CrossAxisAlignment.start,
+              crossAlign: CrossAxisAlignment.end,
+              nip: BubbleNip.rightTop,
+              text: message.content,
+              type: message.type,
+            );
+          else
+            return _messageLayout(
+              color: Colors.white,
+              name: "${message.senderName}",
+              alignName: TextAlign.end,
+              time: DateFormat('hh:mm a').format(message.time!.toDate()),
+              align: TextAlign.left,
+              boxAlign: CrossAxisAlignment.start,
+              crossAlign: CrossAxisAlignment.start,
+              nip: BubbleNip.leftTop,
+              text: message.content,
+              type: message.type,
+            );
+        },
+      ),
+    );
+  }
+
+  Widget _messageLayout({
+    text,
+    time,
+    color,
+    align,
+    boxAlign,
+    nip,
+    crossAlign,
+    String? name,
+    alignName,
+    type
+  }) {
+    return Column(
+      crossAxisAlignment: crossAlign,
+      children: [
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.90,
+          ),
+          child: Container(
+            padding: EdgeInsets.all(8),
+            margin: EdgeInsets.all(3),
+            child: Bubble(
+              color: color,
+              nip: nip,
+              child: Column(
+                crossAxisAlignment: crossAlign,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "$name",
+                    textAlign: alignName,
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
+                  getDataType(type,text,align),
+                  Text(
+                    time,
+                    textAlign: align,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.black.withOpacity(
+                        .4,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget getDataType(String type,String content, align){
+    if(type == "TEXT"){
+      return  Text(
+        content,
+        textAlign: align,
+        style: TextStyle(fontSize: 16),
+      );
+    }else if(type == "UPLOADING"){
+      return  Container(
+        height: 200,
+        width: 200,
+        child: Center(child: CircularProgressIndicator(),),
+      );
+    }else if(type == "IMAGE"){
+      return InkWell(
+        onTap:(){
+          List<String> imageList = [];
+          imageList.add(content);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => FullscreenImageScreen(
+                    attachment: imageList,
+                  )));
+        },
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.50,
+            maxHeight: MediaQuery.of(context).size.height * 0.50,
+          ),
+          child: CachedNetworkImage(
+            imageUrl: content,
+            placeholder: (context, url) => CircularProgressIndicator(),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
+        ),
+      );
+    }else if(type == "DOCUMENT"){
+      return  InkWell(
+        onTap:() async {
+          var ppp = await widget.model.chatService!.getByteData(content);
+          if(Responsive.isMobile(context)){
+            myNavigator.pushNamed(context, Routes.pdfPreview, arguments: ppp);
+          }
+          else{
+            showDialog(
+                context: context,
+                builder: (BuildContext context){
+                  return Dialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius:
+                          BorderRadius.circular(20.0)),
+                      child: Container(constraints: BoxConstraints(minWidth: 300, maxWidth: 450),child:PdfPreviewPage(ppp)));
+                }
+            );
+          }
+          */
+/*if (content.endsWith(".pdf")) {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => PdfViewScreen(content)));
+          }*//*
+
+        },
+        child: Container(
+          height: 200,
+          width: 200,
+          child: Center(child: Icon(Icons.picture_as_pdf,size: 40,),),
+        ),
+      );
+    }
+
+    return Container();
+  }
+}
+*/

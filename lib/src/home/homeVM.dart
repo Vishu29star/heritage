@@ -10,8 +10,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 //import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/FormWidgetTextField.dart';
 import '../../data/firestore_constants.dart';
@@ -19,7 +19,6 @@ import '../../models/user_model.dart';
 import '../../route/myNavigator.dart';
 import '../../route/routes.dart';
 import '../../src/home/homeService.dart';
-import '../../utils/monthYearPicker/dialogs.dart';
 import '../../utils/responsive/responsive.dart';
 import '../mainViewModel.dart';
 import '../studenntForm/student_form_widget.dart';
@@ -42,6 +41,7 @@ class HomeVM extends ChangeNotifier {
   int pagePosition = 0;
   bool isCollapsed = true;
   bool isDataLoad = false;
+        bool NoUserData = false;
   late String name, email, userType;
 
   List<String> homeItems = [];
@@ -91,17 +91,17 @@ class HomeVM extends ChangeNotifier {
       await homeService!.updateUserData({FirestoreConstants.uid:currentUserId,FirestoreConstants.user_type:"customer"});
       mapData =  await homeService!.getCurrentUserData(currentUserId);
     }
-    UserModel model  = UserModel.fromJson(mapData);
-    currentUserModel = model;
-    if (model == null) {
+    UserModel userModel  = UserModel.fromJson(mapData);
+    currentUserModel = userModel;
+    if (userModel == null) {
       preferences.remove(FirestoreConstants.userProfile);
     } else {
-      final userJson = jsonEncode(model.toJson());
+      final userJson = jsonEncode(userModel.toJson());
       preferences.setString(FirestoreConstants.userProfile, userJson);
     }
-    email = model.email!;
-    name = model.first_name!;
-    userType = model.user_type!;
+    email = userModel.email!;
+    name = userModel.first_name!;
+    userType = userModel.user_type!;
   }
   addNavItems() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -196,6 +196,16 @@ class HomeVM extends ChangeNotifier {
           onTap: () {
             closeDrawer();
             changeHomeItem(12);
+          },
+        ),
+        ListTile(
+          leading: Icon(
+            Icons.report,
+          ),
+          title: const Text('Setting'),
+          onTap: () {
+            closeDrawer();
+            myNavigator.pushNamed(context!, Routes.setting, arguments: currentUserModel);
           },
         ),
       ],

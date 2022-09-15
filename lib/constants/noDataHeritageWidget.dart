@@ -1,7 +1,8 @@
+
 import 'package:flutter/material.dart';
 
-class HeritageErrorWidget extends StatelessWidget {
-  const HeritageErrorWidget({Key? key}) : super(key: key);
+class HeritageNoDataWidget extends StatelessWidget {
+  const HeritageNoDataWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -9,9 +10,9 @@ class HeritageErrorWidget extends StatelessWidget {
       child: Center(child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.error,color: Colors.red,),
+          Icon(Icons.hourglass_empty_outlined,color: Colors.grey,),
           SizedBox(height: 20,),
-          Text('Something went wrong'),
+          Text('No data'),
         ],
       ),),
     );

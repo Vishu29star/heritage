@@ -7,6 +7,7 @@ import 'package:Heritage/src/cisForm/cis_form_widget.dart';
 import 'package:Heritage/src/home/homeVM.dart';
 import 'package:Heritage/src/home/userWidget/UserDetail.dart';
 import 'package:Heritage/src/notifications/notifications_screen.dart';
+import 'package:Heritage/utils/audioPlayer/audio_example.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,8 @@ class Routes {
   static const String chatScreen = "chatScreen";
   static const String notifications = "notifications";
   static const String messageScreen = "messageScreen";
+  static const String setting = "setting";
+  static const String demo = "demo";
 
   static Route<T> fadeThrough<T>(RouteSettings settings, WidgetBuilder page,
       {int duration = 300}) {
@@ -54,6 +57,10 @@ class Routes {
       case splash :
         return CupertinoPageRoute(
           builder: (_) => SplashScreen(),
+        );
+      case demo :
+        return CupertinoPageRoute(
+          builder: (_) => Demo(),
         );
       case login:
         if (args is Map<String, dynamic>) {
@@ -113,6 +120,21 @@ class Routes {
           builder: (_) => ChatScreen(map),
         );
       case notifications:
+        UserModel map;
+        if(args!=null){
+          map = args as  UserModel;
+          return CupertinoPageRoute(
+            builder: (_) => NotiFicationScreen(map),
+          );
+        }
+        return MaterialPageRoute(builder: (_) {
+          return Scaffold(
+            body: Center(
+              child: Text("Error!! Route"),
+            ),
+          );
+        });
+      case setting:
         UserModel map;
         if(args!=null){
           map = args as  UserModel;

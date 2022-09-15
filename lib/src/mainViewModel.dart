@@ -264,5 +264,4 @@ class MainViewMoel extends ChangeNotifier {
     print(result!.lengthSync());
     return result;
   }
-
 }

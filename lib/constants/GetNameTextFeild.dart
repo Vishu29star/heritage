@@ -1,16 +1,16 @@
 import 'package:Heritage/utils/comman/commanWidget.dart';
 import 'package:flutter/material.dart';
 
-Future<String?> showTextInputDialog(BuildContext context) async {
-  final _textFieldController = TextEditingController();
+Future<String?> showTextInputDialog(BuildContext context,{String title = "Add Chat Name",String hint_Value = "Name",String initalValue = ""}) async {
+  final _textFieldController = initalValue == "" ? TextEditingController():TextEditingController(text: initalValue);
   return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Add Chat Name'),
+          title:  Text(title),
           content: TextField(
             controller: _textFieldController,
-            decoration: const InputDecoration(hintText: "Name"),
+            decoration:   InputDecoration(hintText: hint_Value),
           ),
           actions: <Widget>[
             ElevatedButton(
@@ -22,11 +22,20 @@ Future<String?> showTextInputDialog(BuildContext context) async {
             ElevatedButton(
               child: const Text('OK'),
               onPressed: () {
-                if(_textFieldController.text.trim().length<3){
-                  CommanWidgets.showToast("Please enter atleast charcter.");
+                if(initalValue==""){
+                  if(_textFieldController.text.trim().length<3){
+                    CommanWidgets.showToast("Please enter atleast charcter.");
+                  }else{
+                    Navigator.pop(context, _textFieldController.text);
+                  }
                 }else{
-                  Navigator.pop(context, _textFieldController.text);
+                  if(_textFieldController.text.trim().isEmpty){
+                    CommanWidgets.showToast("Please enter Chat delete Time.");
+                  }else{
+                    Navigator.pop(context, _textFieldController.text.trim());
+                  }
                 }
+
 
               },
             ),

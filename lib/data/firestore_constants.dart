@@ -13,6 +13,8 @@
   static String updatedAt = "updatedAt";
   static String logs = "logs";
   static String time = "time";
+  static String chatDeleteTimeInDays = "chatDeleteTimeInDays";
+  static String studentformcount = "studentformcount";
 
   //notificatin Feild
   static String notification_data = "notification_data";
@@ -35,6 +37,8 @@
   static String device_id = "device_id";
   static String device_type = "device_type";
   static String app_version = "app_version";
+  static String assign_admins = "assign_admins";
+  static String is_payment_done = "is_payment_done";
   static String android_firebase_token = "android_firebase_token";
   static String iOS_firebase_token = "iOS_firebase_token";
   static String web_firebase_token = "web_firebase_token";

@@ -115,6 +115,9 @@ abstract class Strings {
   String get employeeComment ;
   String get addUser ;
   String get notificatons ;
+  String get setting ;
+  String get chatDeleteTime ;
   String get admins ;
+  String get update ;
   String get addAdmins ;
 }

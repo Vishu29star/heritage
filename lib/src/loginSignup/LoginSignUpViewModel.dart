@@ -492,7 +492,8 @@ class LoginSignUpViewModel extends ChangeNotifier{
   }
 
   bool isProfileValidate(){
-    if(firstnameErrorText==null && lastnameErrorText == null && phoneNumberErrorText == null && dateBirthErrorText == null && isProfileDataisOK()){
+    if(firstnameErrorText==null && lastnameErrorText == null && phoneNumberErrorText == null && dateBirthErrorText == null &&
+        isProfileDataisOK()){
       return true;
     }else{
       return false;
@@ -504,7 +505,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
     try{
       if(isProfileValidate()){
         mainModel?.showhideprogress(true, context!);
-        print("dateOfBirthController.text.trim()");
+        print("wdateOfBirthController.text.trim()");
         print(dateOfBirthController.text.trim());
         print(phoneNumberController.text.trim());
         DateTime birthDate = DateTimeUtils.formatToDate(dateOfBirthController.text.trim());
@@ -524,12 +525,14 @@ class LoginSignUpViewModel extends ChangeNotifier{
           FirestoreConstants.device_id:device_id,
           FirestoreConstants.app_version:appVersion,
         };
-        if(Platform.isIOS){
-          data.addAll({FirestoreConstants.iOS_firebase_token:firebaseToken,FirestoreConstants.device_type:"ios"});
-        }else if(Platform.isAndroid){
-          data.addAll({FirestoreConstants.android_firebase_token:firebaseToken,FirestoreConstants.device_type:"android"});
-        }else if(kIsWeb){
+        if(kIsWeb){
           data.addAll({FirestoreConstants.web_firebase_token:firebaseToken,FirestoreConstants.device_type:"web"});
+        }else{
+          if(Platform.isIOS){
+            data.addAll({FirestoreConstants.iOS_firebase_token:firebaseToken,FirestoreConstants.device_type:"ios"});
+          }else if(Platform.isAndroid){
+            data.addAll({FirestoreConstants.android_firebase_token:firebaseToken,FirestoreConstants.device_type:"android"});
+          }
         }
 
         await user.updateDisplayName(firstNameController.text.trim()+ " " +lastNameController.text.trim());

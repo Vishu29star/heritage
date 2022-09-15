@@ -1,4 +1,5 @@
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
@@ -21,6 +22,10 @@ import '../colors/appColors.dart';
    final mimeType = lookupMimeType(path);
 
    return mimeType?.startsWith('image/');
+ }
+
+ bool isPLAYING(PlayerState  state) {
+  return state == PlayerState.playing;
  }
 
  bool? isDocument(String path) {

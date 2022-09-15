@@ -5,6 +5,7 @@ import 'package:Heritage/utils/extension.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../../../constants/noDataHeritageWidget.dart';
 import '../../../data/firestore_constants.dart';
 import '../../../utils/encryptry.dart';
 import '../../../utils/responsive/responsive.dart';
@@ -98,43 +99,50 @@ class _UserListState extends State<UserList> {
         finalList.add(element);
       }
     });
+    if(finalList.length>0){
+      return ListView.separated(
+          separatorBuilder: (context, index) => Divider(color: Colors.black),
+          itemCount: finalList.length,
+          itemBuilder: (BuildContext ctx, int index) {
+            Map<String, dynamic> data = finalList[index];
+            if (widget.model.selectedUserId == "") {
+              widget.model.selectuser(finalList[0][FirestoreConstants.uid], isFirst: true);
+            }
+            String name = "";
+            if (data.containsKey(FirestoreConstants.first_name)) {
+              name = encrydecry()
+                  .decryptMsg(data[FirestoreConstants.first_name])
+                  .toString()
+                  .capitalize() +
+                  " " +
+                  encrydecry()
+                      .decryptMsg(data[FirestoreConstants.last_name])
+                      .toString()
+                      .capitalize();
+            }
+            String email =
+            encrydecry().decryptMsg(data[FirestoreConstants.email]);
+            return ListTile(
+              selected:
+              widget.model.selectedUserId == data[FirestoreConstants.uid],
+              onTap: () {
+                widget.model.selectuser(data[FirestoreConstants.uid]);
+                if (Responsive.isMobile(context)) {
+                  var passValue = {"model": widget.model};
+                  myNavigator.pushNamed(context, Routes.userDetail,
+                      arguments: passValue);
+                }
+              },
+              title: Text(name),
+              subtitle: Text(email),
+            );
+          });
+    }
+    else{
+      print("gyfgvhbjhoihughvbjnhk");
+      widget.model.NoUserData = true;
+      return HeritageNoDataWidget();
+    };
 
-    return ListView.separated(
-        separatorBuilder: (context, index) => Divider(color: Colors.black),
-        itemCount: finalList.length,
-        itemBuilder: (BuildContext ctx, int index) {
-          Map<String, dynamic> data = finalList[index];
-          if (widget.model.selectedUserId == "") {
-            widget.model.selectuser(finalList[0][FirestoreConstants.uid], isFirst: true);
-          }
-          String name = "";
-          if (data.containsKey(FirestoreConstants.first_name)) {
-            name = encrydecry()
-                .decryptMsg(data[FirestoreConstants.first_name])
-                .toString()
-                .capitalize() +
-                " " +
-                encrydecry()
-                    .decryptMsg(data[FirestoreConstants.last_name])
-                    .toString()
-                    .capitalize();
-          }
-          String email =
-          encrydecry().decryptMsg(data[FirestoreConstants.email]);
-          return ListTile(
-            selected:
-            widget.model.selectedUserId == data[FirestoreConstants.uid],
-            onTap: () {
-              widget.model.selectuser(data[FirestoreConstants.uid]);
-              if (Responsive.isMobile(context)) {
-                var passValue = {"model": widget.model};
-                myNavigator.pushNamed(context, Routes.userDetail,
-                    arguments: passValue);
-              }
-            },
-            title: Text(name),
-            subtitle: Text(email),
-          );
-        });
   }
 }

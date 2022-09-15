@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../../route/routes.dart';
 import '../../utils/responsive/responsive.dart';
+import 'addChatUser.dart';
 
 class ChatGroupsScreen extends StatefulWidget {
   final AsyncSnapshot<QuerySnapshot<Object?>> snapshot;
@@ -25,11 +26,31 @@ class _ChatGroupsScreenState extends State<ChatGroupsScreen> {
       var data = widget.snapshot.data!.docs[i].data()! as Map<String, dynamic>;
       groupList.add(data);
     }
+    groupList.sort((a,b)=>a[FirestoreConstants.updatedAt].compareTo(b[FirestoreConstants.updatedAt]));
+
     if (widget.model.selectedgroupChatId == "") {
       widget.model.selectGroupChatId(groupList[0], isFirst: true);
     }
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          TextButton(
+            onPressed: (){
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0)),
+                        child: Container(
+                            constraints: BoxConstraints(
+                                minWidth: 300, maxWidth: 450),
+                            child: AddChatUser(widget.model,)));
+                  });
+            }, child: Text("New Chat",style: TextStyle(color: Colors.white),))
+        ],
 
+      ),
       body: ListView.separated(itemBuilder:  (BuildContext ctx, int index) =>SingleItemGroupWidget(group: groupList[index],
         onTap: () {
         widget.model.selectGroupChatId(groupList[index]);

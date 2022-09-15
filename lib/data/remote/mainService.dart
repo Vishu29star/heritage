@@ -96,7 +96,7 @@ class MainService {
 
   }
 
-  Future<void> updateUserDataMain(String collectioName ,Map<String, dynamic> data) async {
+  Future<void> updateUserDataMain(Map<String, dynamic> data) async {
     data.addAll({FirestoreConstants.updatedAt:FieldValue.serverTimestamp()});
     print(data[FirestoreConstants.uid]);
     userRefrence.doc(data[FirestoreConstants.uid]).update(data);
@@ -171,6 +171,7 @@ class MainService {
       return null;
     }
   }
+
 
   Future<Uint8List> getByteData(String url) async {
     http.Response response = await http.get(
