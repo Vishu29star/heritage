@@ -6,7 +6,7 @@ import 'package:Heritage/route/routes.dart';
 import 'package:Heritage/src/chat/chatVM.dart';
 import 'package:Heritage/src/chat/entities/text_message_entity.dart';
 import 'package:Heritage/utils/comman/commanWidget.dart';
-import 'package:audio_session/audio_session.dart' as AS;
+
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bubble/bubble.dart';
@@ -20,6 +20,7 @@ import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 import '../../constants/HeritageErrorWidget(.dart';
 import '../../constants/pdfPreview.dart';
@@ -31,15 +32,6 @@ import 'addChatUser.dart';
 
 class SingleChatPage extends StatefulWidget {
   final ChatVM model;
-  bool isRecorderOpen = false;
-  bool isRecorderReady = false;
-  bool isPlayerReady = false;
-  var audioFile;
-  var soundPlayer = AudioPlayer();
-  bool isPlaying = false;
-  Duration playerDuration = Duration.zero;
-  Duration playerPostion = Duration.zero;
-  FlutterSoundRecorder recorder = FlutterSoundRecorder();
   SingleChatPage({Key? key, required this.model}) : super(key: key);
 
   @override
@@ -58,8 +50,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
     widget.model.messageController.addListener(() {
       setState(() {});
     });
-    initRecorder();
-    initPlayer();
+
     //FIXME: call get all messages
     super.initState();
   }
@@ -164,7 +155,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
           return Column(
             children: [
               _messagesListWidget(messageList),
-              widget.isRecorderOpen ?  recorderWidget() :_sendMessageTextField(),
+              widget.model.isRecorderOpen ?  recorderWidget() :_sendMessageTextField(),
             ],
           );
         },
@@ -172,114 +163,61 @@ class _SingleChatPageState extends State<SingleChatPage> {
     );
   }
 
-  Future initRecorder() async {
-    final status  = await Permission.microphone.request();
-    if(status != PermissionStatus.granted){
-      throw "MicroPhone permission not Granted.";
-    }
-    await widget.recorder.openRecorder();
-    final session = await AS.AudioSession.instance;
-    await session.configure(AS.AudioSessionConfiguration(
-      avAudioSessionCategory: AS.AVAudioSessionCategory.playAndRecord,
-      avAudioSessionCategoryOptions:
-      AS.AVAudioSessionCategoryOptions.allowBluetooth |
-      AS.AVAudioSessionCategoryOptions.defaultToSpeaker,
-      avAudioSessionMode: AS.AVAudioSessionMode.spokenAudio,
-      avAudioSessionRouteSharingPolicy:
-      AS.AVAudioSessionRouteSharingPolicy.defaultPolicy,
-      avAudioSessionSetActiveOptions: AS.AVAudioSessionSetActiveOptions.none,
-      androidAudioAttributes: const AS.AndroidAudioAttributes(
-        contentType: AS.AndroidAudioContentType.speech,
-        flags: AS.AndroidAudioFlags.none,
-        usage: AS.AndroidAudioUsage.voiceCommunication,
-      ),
-      androidAudioFocusGainType: AS.AndroidAudioFocusGainType.gain,
-      androidWillPauseWhenDucked: true,
-    ));
-    widget.isRecorderReady = true;
-    widget.recorder.setSubscriptionDuration(const Duration(milliseconds: 500));
-  }
 
-  initPlayer(){
-    /*https://www.youtube.com/watch?v=MB3YGQ-O`1lk*/
-    widget.soundPlayer.onPlayerStateChanged.listen((state) {
-      setState(() {
-        widget.isPlaying = CommanWidgets().isPLAYING(state);
-      });
-    });
-
-    widget.soundPlayer.onDurationChanged.listen((newDuration) {
-      setState(() {
-        widget.playerDuration = newDuration;
-      });
-    });
-    widget.soundPlayer.onPositionChanged.listen((newPosition) {
-      setState(() {
-        widget.playerPostion =newPosition;
-      });
-    });
-  }
-
-  Future stopRecording () async{
-    if(!widget.isRecorderReady) return;
-    final path = await widget.recorder.stopRecorder();
-    final audioFile = File(path!);
-    widget.audioFile =audioFile;
-    print("Recorded Audio File : $audioFile");
-    setState(() {
-
-    });
-  }
-  Future startRecording () async{
-    if(!widget.isRecorderReady) return;
-    await widget.recorder.startRecorder(toFile: 'audio');
-  }
   Widget recorderWidget(){
     return Container(
       constraints: BoxConstraints(minWidth: 100, maxWidth: 400),
       child:Row(
         children: [
           IconButton(onPressed: (){
-            widget.isRecorderOpen = false;
+            widget.model.isRecorderOpen = false;
             setState(() {
-              widget.audioFile = null;
+              widget.model.audioFile = null;
             });
           },
               icon: Icon(Icons.delete)),
           SizedBox(width: 16,),
-          Expanded(child:  widget.recorder.isRecording ? recordigWidget() : audioPlayerWidget(),),
+          Expanded(child:  widget.model.recorder.isRecording ? recordigWidget() : audioPlayerWidget(),),
           SizedBox(width: 16,),
-          IconButton(onPressed: (){
-            widget.isRecorderOpen = false;
-            setState(() {
-              widget.audioFile = null;
-            });
-          },
-              icon: Icon(Icons.delete)),
+          InkWell(
+            onTap: (){
+              widget.model.isRecorderOpen = false;
+              widget.model.sendAudio(widget.model.audioFile);
+              widget.model.audioFile = null;
+              setState(() {
+
+              });
+            },
+            child: Container(
+              width: 45,
+              height: 45,
+              decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.all(Radius.circular(50))),
+              child:Icon(Icons.send,color: Colors.white,),
+            ),
+          )
+         ,
         ],
       ),
     );
   }
 
   Widget recordigWidget(){
-
     return Row(
       children: [
         IconButton(onPressed: () async {
-          if(widget.recorder.isRecording){
-            await stopRecording();
-          }else{
-            await startRecording();
-          }
-        }, icon: widget.recorder.isRecording ? Icon(Icons.stop) : Icon(Icons.mic)),
+          await widget.model.stopRecording();
+          setState(() {});
+        }, icon: widget.model.recorder.isRecording ? Icon(Icons.stop) : Icon(Icons.mic)),
         SizedBox(width: 16,),
         Expanded(child: LinearProgressIndicator()),
         SizedBox(width: 16,),
         StreamBuilder<RecordingDisposition>(
-            stream: widget.recorder.onProgress,
+            stream: widget.model.recorder.onProgress,
             builder: (context, snapshot) {
               final duration = snapshot.hasData ? snapshot.data!.duration :Duration.zero;
-              String twoDigits(int n) => n.toString().padLeft(5);
+              String twoDigits(int n) => n.toString().padLeft(1);
               final twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
               final twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
               return Text(
@@ -290,29 +228,47 @@ class _SingleChatPageState extends State<SingleChatPage> {
       ],
     );
   }
-  Widget audioPlayerWidget(){
-
+  Widget audioPlayerWidget({bool isUrl = false,String url = ""}){
+    String twoDigits(int n) => n.toString().padLeft(1);
+    final twoDigitMinutes = twoDigits(widget.model.playerPostion.inMinutes.remainder(60));
+    final twoDigitSeconds = twoDigits(widget.model.playerPostion.inSeconds.remainder(60));
     return Row(
       children: [
-        IconButton(onPressed: () async {
-          if(widget.isPlaying){
-            await widget.soundPlayer.pause();
+        InkWell(onTap : () async {
+          if(widget.model.isPlaying){
+            await widget.model.soundPlayer.pause();
+            widget.model.isPlaying = false;
+            setState(() {
+
+            });
           }else{
-            await widget.soundPlayer.play(DeviceFileSource(widget.audioFile));
-            await startRecording();
+            if(isUrl){
+              await widget.model.soundPlayer.play(UrlSource(url));
+            }else{
+              await widget.model.soundPlayer.play(DeviceFileSource(widget.model.audioFile.path));
+            }
+
+            widget.model.isPlaying  = true;
+            setState(() {
+            });
           }
-        }, icon: widget.recorder.isRecording ? Icon(Icons.stop) : Icon(Icons.play_arrow)),
+        }, child: widget.model.isPlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow)),
         SizedBox(width: 16,),
-        Expanded(child: LinearProgressIndicator()),
+        Expanded(
+          child: Slider(
+            min: 0,
+            max: widget.model.playerDuration.inSeconds.toDouble(),
+            value: widget.model.playerPostion.inSeconds.toDouble(),
+            onChanged: (value) async {
+              final position = Duration(seconds: value.toInt());
+              await widget.model.soundPlayer.seek(position);
+            },
+          ),
+        ),
         SizedBox(width: 16,),
-        Slider(
-          min: 0,
-          max: widget.playerDuration.inSeconds.toDouble(),
-          value: widget.playerPostion.inSeconds.toDouble(),
-          onChanged: (value) async {
-            final position = Duration(seconds: value.toInt());
-            await widget.soundPlayer.seek(position);
-          },
+        Text(
+          '$twoDigitMinutes:$twoDigitSeconds',
+          style: TextStyle(fontSize: 15),
         )
       ],
     );
@@ -422,11 +378,14 @@ class _SingleChatPageState extends State<SingleChatPage> {
             width: 5,
           ),
           InkWell(
-            onTap: () {
+            onTap: () async {
               if (widget.model.messageController.text.isEmpty) {
                 //TODO:send voice message
-                widget.isRecorderOpen = true;
-                startRecording();
+                await widget.model.startRecording();
+                widget.model.isRecorderOpen = true;
+                setState(() {
+
+                });
               } else {
                 widget.model.sendMessage(widget.model.messageController.text);
                 widget.model.messageController.clear();
@@ -459,11 +418,10 @@ class _SingleChatPageState extends State<SingleChatPage> {
         curve: Curves.easeInQuad,
       );
     });
-    print("messageList.length");
-    print(messageList.length);
     return Expanded(
       child: ListView.builder(
         controller: widget.model.scrollController,
+        cacheExtent: 9999,
         itemCount: messageList.length,
         itemBuilder: (_, index) {
           final message = messageList[index];
@@ -473,7 +431,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
               name: "Me",
               alignName: TextAlign.end,
               color: Colors.lightGreen[400],
-              time: DateFormat('hh:mm a').format(message.time!.toDate()),
+              time: DateFormat('hh:mm a').format(message.time == null ? DateTime.now(): message.time!.toDate()),
               align: TextAlign.left,
               boxAlign: CrossAxisAlignment.start,
               crossAlign: CrossAxisAlignment.end,
@@ -580,13 +538,13 @@ class _SingleChatPageState extends State<SingleChatPage> {
         },
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.50,
-            maxHeight: MediaQuery.of(context).size.height * 0.50,
+            maxWidth: MediaQuery.of(context).size.width * 0.70,
+            maxHeight: MediaQuery.of(context).size.height * 0.70,
           ),
-          child: CachedNetworkImage(
-            imageUrl: content,
-            placeholder: (context, url) => CircularProgressIndicator(),
-            errorWidget: (context, url, error) => Icon(Icons.error),
+          child: FadeInImage(
+            placeholder: MemoryImage(kTransparentImage),
+            image: CachedNetworkImageProvider(content),
+            fit: BoxFit.cover,
           ),
         ),
       );
@@ -621,7 +579,20 @@ class _SingleChatPageState extends State<SingleChatPage> {
         ),
       );
     }
-
+    else if(type == "UPLOADINGAUDIO"){
+      return  Container(
+        padding: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
+        child: Center(child: LinearProgressIndicator(
+          minHeight: 10,
+        ),),
+      );
+    }
+    else if(type == "AUDIO"){
+      return  Container(
+        padding: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
+        child: audioPlayerWidget(isUrl: true,url: content),
+      );
+    }
     return Container();
   }
 }

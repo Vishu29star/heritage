@@ -1,25 +1,37 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
+import 'package:audio_session/audio_session.dart' as AS;
 import 'package:Heritage/src/chat/chatService.dart';
 import 'package:Heritage/src/mainViewModel.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/firestore_constants.dart';
 import '../../models/user_model.dart';
-
+import '../../utils/comman/commanWidget.dart';
+/*
+chat tutoril link
+https://abhaymanu1205.medium.com/flutter-voice-messaging-app-4d980bb4108a
+whatapp audio animation
+https://flutterappworld.com/audio-chat-app-built-with-flutter
+/
+*/
 class ChatVM extends ChangeNotifier {
 
   final MainViewMoel? mainModel;
   final ChatService? chatService;
-  final String currentUserId;
-  final String userType;
+
+  late String currentUserId;
+  late String userType;
   String selectedgroupChatId = "";
   late Map<String,dynamic> selectedgroup;
   late String name ;
@@ -28,9 +40,20 @@ class ChatVM extends ChangeNotifier {
   ScrollController scrollController = ScrollController();
   late Stream<QuerySnapshot> chatStream;
   late SharedPreferences preferences;
+  bool isRecorderOpen = false;
+  bool isRecorderReady = false;
+  bool isPlayerReady = false;
+  var audioFile;
+  var soundPlayer = AudioPlayer();
+  bool isPlaying = false;
+  Duration playerDuration = Duration.zero;
+  Duration playerPostion = Duration.zero;
+  FlutterSoundRecorder recorder = FlutterSoundRecorder();
 
 
-  ChatVM(this.chatService, this.mainModel,this.currentUserId,this.userType) : super() {
+  ChatVM(this.chatService, this.mainModel,final Map<String, dynamic> mapData) : super() {
+    currentUserId = mapData["currentUserId"];
+    userType = mapData["userType"];
    // chatStream  =  chatService!.groupChatCollection.doc(widget.singleChatEntity.groupId).collection(FirestoreConstants.messages).orderBy('time').snapshots();
     groupStream  =  chatService!.groupChatCollection.where(FirestoreConstants.groupChatUserIds, arrayContainsAny: [currentUserId]).snapshots();
     init();
@@ -41,6 +64,8 @@ class ChatVM extends ChangeNotifier {
     var data = await preferences.getString(FirestoreConstants.userProfile) ?? "name";
     UserModel currentUserModel =UserModel.fromJson(jsonDecode(data));
     name = currentUserModel.name ?? (currentUserModel.first_name! + currentUserModel.last_name!);
+    initRecorder();
+    initPlayer();
   }
 
   selectGroupChatId(Map<String,dynamic> group, {bool isFirst = false}){
@@ -68,6 +93,7 @@ class ChatVM extends ChangeNotifier {
       FirestoreConstants.groupChatlastMessageUpdateTime:FieldValue.serverTimestamp(),
       FirestoreConstants.groupChatlastMessageUserId:currentUserId,
     };
+
     Map<String,dynamic> data = {
       FirestoreConstants.groupChatUserIds:userIds,
       FirestoreConstants.groupChatName:name,
@@ -91,11 +117,11 @@ class ChatVM extends ChangeNotifier {
   }
   sendMessage(String message){
     Map<String ,dynamic> msgObject = {
-      "time":FieldValue.serverTimestamp(),
-      "senderId":currentUserId,
-      "content":message,
-      "senderName":name,
-      "type": "TEXT"
+    FirestoreConstants.time:FieldValue.serverTimestamp(),
+    FirestoreConstants.senderId:currentUserId,
+    FirestoreConstants.content:message,
+    FirestoreConstants.senderName:name,
+    FirestoreConstants.type: "TEXT"
     };
     Map<String ,dynamic> group = {
       FirestoreConstants.groupChatlastMessageUpdateTime:FieldValue.serverTimestamp(),
@@ -119,37 +145,36 @@ class ChatVM extends ChangeNotifier {
       print(doc_id);
       docIds.add(doc_id);
       Map<String ,dynamic> msgObject = {
-        "time":Timestamp.now(),
-        "senderId":currentUserId,
-        "content":doc_id,
-        "senderName":name,
-        "type": "UPLOADING"
+        FirestoreConstants.time:FieldValue.serverTimestamp(),
+        FirestoreConstants.senderId:currentUserId,
+        FirestoreConstants.content:doc_id,
+        FirestoreConstants.senderName:name,
+        FirestoreConstants.type: "UPLOADING"
       };
       document.set(msgObject);
     });
     print("11111111");
     for(int i = 0;i<docIds.length;i++){
       List<String> fileUrl = await chatService!.getMediaUrlFromBytes(filess[i]!,filesNames[i]!);
-      Map<String,dynamic> map = {"type":fileUrl[1],"content":fileUrl[0]};
+      Map<String,dynamic> map = {FirestoreConstants.type:fileUrl[1],FirestoreConstants.content:fileUrl[0]};
       print("url");
       print(docIds[i]);
       chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).doc(docIds[i]).update(map);
     }
   }
+
   sendMedia(List<XFile> files) async {
     List<String> docIds = [];
     files.forEach((file) {
      final document = chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).doc();
      String doc_id = document.id;
-     print("string");
-     print(doc_id);
      docIds.add(doc_id);
      Map<String ,dynamic> msgObject = {
-        "time":Timestamp.now(),
-        "senderId":currentUserId,
-        "content":doc_id,
-        "senderName":name,
-        "type": "UPLOADING"
+       FirestoreConstants.time:FieldValue.serverTimestamp(),
+       FirestoreConstants.senderId:currentUserId,
+       FirestoreConstants.content:doc_id,
+       FirestoreConstants.senderName:name,
+       FirestoreConstants.type: "UPLOADING"
       };
      document.set(msgObject);
     });
@@ -157,11 +182,28 @@ class ChatVM extends ChangeNotifier {
     for(int i = 0;i<docIds.length;i++){
 
       List<String> fileUrl = await chatService!.getMediaUrl(files[i]);
-      Map<String,dynamic> map = {"type":fileUrl[1],"content":fileUrl[0]};
+      Map<String,dynamic> map = {FirestoreConstants.type:fileUrl[1],FirestoreConstants.content:fileUrl[0]};
       print("url");
       print(docIds[i]);
       chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).doc(docIds[i]).update(map);
     }
+  }
+
+  sendAudio(File file) async {
+    final document = chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).doc();
+    String doc_id = document.id;
+    Map<String ,dynamic> msgObject = {
+      FirestoreConstants.time:FieldValue.serverTimestamp(),
+      FirestoreConstants.senderId:currentUserId,
+      FirestoreConstants.content:doc_id,
+      FirestoreConstants.senderName:name,
+      FirestoreConstants.type: "UPLOADINGAUDIO"
+    };
+    document.set(msgObject);
+    List<String> fileUrl = await chatService!.getMediaUrlForAudio(file);
+    Map<String,dynamic> map = {FirestoreConstants.type:fileUrl[1],FirestoreConstants.content:fileUrl[0]};
+    chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).doc(doc_id).update(map);
+
   }
 
   Future<List<XFile>?> imgFromGallery() async {
@@ -177,7 +219,6 @@ class ChatVM extends ChangeNotifier {
       return images;
     }
   }
-
 
   Future<FilePickerResult?> documnetFormFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -218,6 +259,82 @@ class ChatVM extends ChangeNotifier {
     print(file.lengthSync());
     print(result!.lengthSync());
     return result;
+  }
+
+  Future initRecorder() async {
+    if(kIsWeb){
+     CommanWidgets.askWebMicrophonePermission();
+    }else{
+      final status  = await Permission.microphone.request();
+      if(status != PermissionStatus.granted){
+        throw "MicroPhone permission not Granted.";
+      }
+    }
+
+    await recorder.openRecorder();
+    final session = await AS.AudioSession.instance;
+    await session.configure(AS.AudioSessionConfiguration(
+      avAudioSessionCategory: AS.AVAudioSessionCategory.playAndRecord,
+      avAudioSessionCategoryOptions:
+      AS.AVAudioSessionCategoryOptions.allowBluetooth |
+      AS.AVAudioSessionCategoryOptions.defaultToSpeaker,
+      avAudioSessionMode: AS.AVAudioSessionMode.spokenAudio,
+      avAudioSessionRouteSharingPolicy:
+      AS.AVAudioSessionRouteSharingPolicy.defaultPolicy,
+      avAudioSessionSetActiveOptions: AS.AVAudioSessionSetActiveOptions.none,
+      androidAudioAttributes: const AS.AndroidAudioAttributes(
+        contentType: AS.AndroidAudioContentType.speech,
+        flags: AS.AndroidAudioFlags.none,
+        usage: AS.AndroidAudioUsage.voiceCommunication,
+      ),
+      androidAudioFocusGainType: AS.AndroidAudioFocusGainType.gain,
+      androidWillPauseWhenDucked: true,
+    ));
+    isRecorderReady = true;
+    recorder.setSubscriptionDuration(const Duration(milliseconds: 500));
+  }
+
+  initPlayer(){
+    /*https://www.youtube.com/watch?v=MB3YGQ-O`1lk*/
+    soundPlayer.onPlayerStateChanged.listen((state) {
+      print("onPlayerStateChanged");
+      isPlaying = CommanWidgets().isPLAYING(state);
+      notifyListeners();
+    });
+
+    soundPlayer.onPlayerComplete.listen((event) {
+      playerPostion = Duration.zero;
+      soundPlayer.stop();
+    });
+    soundPlayer.onDurationChanged.listen((newDuration) {
+      playerDuration = newDuration;
+      notifyListeners();
+    });
+
+    soundPlayer.onPositionChanged.listen((newPosition) {
+      playerPostion =newPosition;
+      notifyListeners();
+    });
+  }
+
+  Future stopRecording () async{
+    /*if(!isRecorderReady) return;*/
+    final path = await recorder.stopRecorder();
+    final audioFile = File(path!);
+    this.audioFile =audioFile;
+    print("Recorded Audio File : $audioFile");
+
+  }
+
+  Future startRecording () async{
+    if(!isRecorderReady) return;
+    print("startttttt");
+    await recorder.startRecorder(toFile: 'audio');
+  }
+
+  void disposeChat() {
+    recorder.closeRecorder();
+    soundPlayer.dispose();
   }
 
 }

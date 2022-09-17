@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -40,18 +41,25 @@ class ChatService extends MainService {
   }
 
   Future<List<String>> getMediaUrl(XFile file) async {
-    print("5555555555");
 
     String fileName = DateTime.now().toIso8601String();
-    print("666666666666");
     Uint8List data = await file.readAsBytes();
-    print("77777777777777");
     var snapshot = await imageStorageRefrrence.child("image/$fileName").putData(data);
-    print("88888888888");
     List<String> strings =[];
     String one = await snapshot.ref.getDownloadURL();
     strings.add(one);
     strings.add("IMAGE");
+    return strings;
+  }
+
+  Future<List<String>> getMediaUrlForAudio(File file) async {
+    String fileName = DateTime.now().toIso8601String();
+    Uint8List data = await file.readAsBytes();
+    var snapshot = await imageStorageRefrrence.child("audio/$fileName").putData(data);
+    List<String> strings =[];
+    String one = await snapshot.ref.getDownloadURL();
+    strings.add(one);
+    strings.add("AUDIO");
     return strings;
   }
 }

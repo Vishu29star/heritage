@@ -43,7 +43,7 @@ class _SettingPageState extends State<SettingPage> {
                       color: Colors.white),
                 ),
               ),
-              body: model.isDataLoaded ?bodyWidget(model) :HeritageNoDataWidget(),
+              body: model.isDataLoaded ? bodyWidget(model) :HeritageNoDataWidget(),
             );
           })),
     );
@@ -57,27 +57,23 @@ class _SettingPageState extends State<SettingPage> {
           padding: EdgeInsets.symmetric(vertical: 20),
           child: Row(
             children: [
-              Row(
-                children: [
-                  Icon(Icons.chat,size: 25,),
-                  SizedBox(width: 20,),
-                  Expanded(
-                    child: Text(context.resources.strings.chatDeleteTime, style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),),
-                  ),
-                  SizedBox(width: 20,),
-                  Text(model.chatDeleteTime),
-                  SizedBox(width: 20,),
-                  TextButton(onPressed: () async {
-                    var resultLabel = await showTextInputDialog(context,title: "Update Chat Delete Time",hint_Value: "90",initalValue: model.chatDeleteTime);
+              Icon(Icons.chat,size: 25,),
+              SizedBox(width: 20,),
+              Expanded(
+                child: Text(context.resources.strings.chatDeleteTime, style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),),
+              ),
+              SizedBox(width: 20,),
+              Text(model.chatDeleteTime),
+              SizedBox(width: 20,),
+              TextButton(onPressed: () async {
+                var resultLabel = await showTextInputDialog(context,title: "Update Chat Delete Time",hint_Value: "90",initalValue: model.chatDeleteTime);
 
-                    if(resultLabel != null){
-                      if(resultLabel != model.chatDeleteTime){
-                        model.updateChatDeleteTime(resultLabel);
-                      }
-                    }
-                  }, child: Text(context.resources.strings.update, style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700,color: Colors.green),)),
-                ],
-              )
+                if(resultLabel != null){
+                  if(resultLabel != model.chatDeleteTime){
+                    model.updateChatDeleteTime(resultLabel);
+                  }
+                }
+              }, child: Text(context.resources.strings.update, style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700,color: Colors.green),)),
             ],
           ),
         )

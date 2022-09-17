@@ -32,7 +32,6 @@ class HomeVM extends ChangeNotifier {
   String selectedUserId = "";
   String currentUserId = "";
   late UserModel currentUserModel ;
-  List<Map<String, dynamic>> searchResult = [];
 
   BuildContext? context;
   var width;
@@ -41,22 +40,32 @@ class HomeVM extends ChangeNotifier {
   int pagePosition = 0;
   bool isCollapsed = true;
   bool isDataLoad = false;
-        bool NoUserData = false;
+  bool NoUserData = false;
   late String name, email, userType;
 
   List<String> homeItems = [];
   List<Widget> generateItems = [];
-  List<dynamic> searchTypes = [];
-  dynamic? selectedSearchType;
 
+
+//Admin users data
+
+  DateTime? employeeDeleteStartDate;
+  DateTime? employeeDeleteEndDate;
+
+  final TextEditingController searchController = new TextEditingController();
+  bool showClearText = false;
   bool isSearching = false;
+  List<dynamic> searchTypes = [];
+  List<Map<String, dynamic>> searchResult = [];
+  dynamic? selectedSearchType;
 
   firstInt(BuildContext context) async {
     isDataLoad = false;
-    //notifyListeners();
     this.context = context;
-    await addNavItems();
-    listenForFirebaseTokenUpdate(currentUserId);
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    currentUserId = await preferences.getString(FirestoreConstants.uid) ?? "currentUserId";
+    await setUserData(preferences);
+    await addNavItems(preferences);
     homeItems.addAll([
       "Express Entry",
       "Spousal sponsership",
@@ -66,9 +75,157 @@ class HomeVM extends ChangeNotifier {
       "Work Permits",
       "visitor Visa"
     ]);
-
     isDataLoad = true;
     notifyListeners();
+
+    listenForFirebaseTokenUpdate(currentUserId);
+    deleteAllOldChat(preferences);
+  }
+
+  changeHomeItem(int pagePosition) {
+    print("pagePosition");
+    print(pagePosition);
+    for (int i = 0; i < generateItems.length; i++) {
+      /* if(i==pagePosition){
+        generateItems[i].isSelected = true;
+      }else{
+        generateItems[i].isSelected = false;
+      }*/
+    }
+    this.pagePosition = pagePosition;
+    notifyListeners();
+  }
+
+  handleServiceClick(String title, String userId) {
+    switch (title) {
+      case "Student visa":
+        if (Responsive.isMobile(context!)) {
+          myNavigator.pushNamed(context!, Routes.studentForm,
+              arguments: userId);
+        } else {
+          showDialog(
+              context: context!,
+              builder: (BuildContext context) {
+                return Dialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0)),
+                    child: Container(
+                        constraints:
+                            BoxConstraints(minWidth: 300, maxWidth: 450),
+                        child: StudenFormWidegt(
+                          userId: userId,
+                        )));
+              });
+        }
+        break;
+      case "Express Entry":
+        if (Responsive.isMobile(context!)) {
+          myNavigator.pushNamed(context!, Routes.cisForm);
+        } else {
+          showDialog(
+              context: context!,
+              builder: (BuildContext context) {
+                return Dialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0)),
+                    child: Container(
+                        constraints:
+                            BoxConstraints(minWidth: 300, maxWidth: 450),
+                        child: CISFormWidget()));
+              });
+        }
+        break;
+    }
+  }
+
+  initSearch() {
+    initSearchTypes();
+    searchController.addListener(() {
+      if (searchController.text.trim().length == 0) {
+        searchResult.clear();
+        notifyListeners();
+      }
+    });
+    print("ftgvybuhnijmokl,.;,l");
+  }
+
+  initSearchTypes() {
+    print("vgbhjnkmlkjbhjnkm");
+    searchTypes.add({
+      "key": context!.resources.strings.firstName,
+      "value": FirestoreConstants.first_name,
+      "isSelected": false
+    });
+    searchTypes.add({
+      "key": context!.resources.strings.lastName,
+      "value": FirestoreConstants.last_name,
+      "isSelected": false
+    });
+    searchTypes.add({
+      "key": context!.resources.strings.phonenumber,
+      "value": FirestoreConstants.phone_number,
+      "isSelected": false
+    });
+    searchTypes.add({
+      "key": context!.resources.strings.email,
+      "value": FirestoreConstants.email,
+      "isSelected": false
+    });
+    searchTypes.add({
+      "key": context!.resources.strings.createdAt,
+      "value": FirestoreConstants.createdAt,
+      "isSelected": false
+    });
+    searchTypes.add({
+      "key": context!.resources.strings.updatedAt,
+      "value": FirestoreConstants.updatedAt,
+      "isSelected": false
+    });
+    selectedSearchType = searchTypes[0];
+  }
+
+  searchUser() async {
+    isSearching = true;
+    notifyListeners();
+    QuerySnapshot? querySnapshot = await homeService?.searchUser(
+        encrydecry().encryptMsg(searchController.text.trim()),
+        selectedSearchType["value"]);
+    if (querySnapshot != null) {
+      print("querySnapshot.size");
+      print(querySnapshot.size);
+      searchResult.clear();
+      var data = querySnapshot.docs
+          .map((e) => e.data() as Map<String, dynamic>)
+          .toList();
+      searchResult.addAll(data);
+    }
+    isSearching = false;
+    notifyListeners();
+  }
+
+  changeSearchType(int index) {
+    for (int i = 0; i < searchTypes.length; i++) {
+      if (index == i) {
+        searchTypes[i]["isSelected"] = true;
+        selectedSearchType = searchTypes[index]!;
+      } else {
+        searchTypes[i]["isSelected"] = false;
+      }
+    }
+    notifyListeners();
+  }
+
+  selectuser(String selectedUserId, {bool isFirst = false}) {
+    this.selectedUserId = selectedUserId;
+    print("selectedUserId");
+    print(selectedUserId);
+    if (!isFirst) {
+      notifyListeners();
+    } else {
+      Future.delayed(Duration(seconds: 1), () {
+        notifyListeners();
+      });
+    }
   }
 
   openDrawer() {
@@ -78,14 +235,8 @@ class HomeVM extends ChangeNotifier {
   closeDrawer(){
     key.currentState!.closeDrawer();
   }
-  Future<void> _signOut() async {
-    await FirebaseAuth.instance.signOut();
-    myNavigator.popAllAndPushNamedReplacement(context!, Routes.login);
-  }
 
-  getLocalData() {}
-
-  setUserData(String currentUserId, SharedPreferences preferences) async {
+  setUserData(SharedPreferences preferences) async {
     var mapData =  await homeService!.getCurrentUserData(currentUserId);
     if(!mapData.containsKey(FirestoreConstants.user_type)){
       await homeService!.updateUserData({FirestoreConstants.uid:currentUserId,FirestoreConstants.user_type:"customer"});
@@ -103,11 +254,14 @@ class HomeVM extends ChangeNotifier {
     name = userModel.first_name!;
     userType = userModel.user_type!;
   }
-  addNavItems() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    currentUserId = await preferences.getString(FirestoreConstants.uid) ?? "currentUserId";
 
-    await setUserData(currentUserId,preferences);
+  Future<void> _signOut(SharedPreferences preferences) async {
+    await FirebaseAuth.instance.signOut();
+    await preferences.clear();
+    myNavigator.popAllAndPushNamedReplacement(context!, Routes.login);
+  }
+
+  addNavItems(SharedPreferences preferences) async {
     generateItems.addAll([
       UserAccountsDrawerHeader(
         // <-- SEE HERE
@@ -215,17 +369,11 @@ class HomeVM extends ChangeNotifier {
         ),
         title: const Text('Logout'),
         onTap: () {
-          _signOut();
+          _signOut(preferences);
         },
       ),
     ]);
   }
-
-  DateTime? employeeDeleteStartDate;
-  DateTime? employeeDeleteEndDate;
-
-
-
 
   listenForFirebaseTokenUpdate(String currentUserId){
     FirebaseMessaging.instance.onTokenRefresh
@@ -253,12 +401,24 @@ class HomeVM extends ChangeNotifier {
       // Error getting token.
     });
   }
-  openClosedDrawer(bool collapsed) {
-    isCollapsed = collapsed;
-    print("isCollapsed");
-    print(isCollapsed);
-    notifyListeners();
+
+  deleteAllOldChat(SharedPreferences preferences) async {
+    int? lastChatDeleteTime = await preferences.getInt(FirestoreConstants.lastChatDeleteTime);
+    String chatDeletTime = await homeService!.getChatDeleteTimeCount(FirestoreConstants.chatDeleteTimeInDays);
+    if(lastChatDeleteTime!=null){
+      DateTime lastChatDeletedDateTime = DateTime.fromMillisecondsSinceEpoch(lastChatDeleteTime);
+      DateTime chatDeleteTime = lastChatDeletedDateTime.add(Duration(days: int.parse(chatDeletTime)));
+      DateTime currentTime = DateTime.now();
+      if(currentTime.isAfter(chatDeleteTime)){
+        homeService!.deleteChat(currentUserId,chatDeletTime);
+      }
+
+    }else{
+      homeService!.deleteChat(currentUserId,chatDeletTime);
+      await preferences.setInt(FirestoreConstants.lastChatDeleteTime, DateTime.now().millisecondsSinceEpoch);
+    }
   }
+
   Future<void> showOptionsDialog() {
     return showDialog(
         context: context!,
@@ -375,155 +535,4 @@ class HomeVM extends ChangeNotifier {
     }
   }
 
-  changeHomeItem(int pagePosition) {
-    print("pagePosition");
-    print(pagePosition);
-    for (int i = 0; i < generateItems.length; i++) {
-      /* if(i==pagePosition){
-        generateItems[i].isSelected = true;
-      }else{
-        generateItems[i].isSelected = false;
-      }*/
-    }
-    this.pagePosition = pagePosition;
-    notifyListeners();
-  }
-
-  handleServiceClick(String title, String userId) {
-    switch (title) {
-      case "Student visa":
-        if (Responsive.isMobile(context!)) {
-          myNavigator.pushNamed(context!, Routes.studentForm,
-              arguments: userId);
-        } else {
-          showDialog(
-              context: context!,
-              builder: (BuildContext context) {
-                return Dialog(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0)),
-                    child: Container(
-                        constraints:
-                            BoxConstraints(minWidth: 300, maxWidth: 450),
-                        child: StudenFormWidegt(
-                          userId: userId,
-                        )));
-              });
-        }
-        break;
-      case "Express Entry":
-        if (Responsive.isMobile(context!)) {
-          myNavigator.pushNamed(context!, Routes.cisForm);
-        } else {
-          showDialog(
-              context: context!,
-              builder: (BuildContext context) {
-                return Dialog(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0)),
-                    child: Container(
-                        constraints:
-                            BoxConstraints(minWidth: 300, maxWidth: 450),
-                        child: CISFormWidget()));
-              });
-        }
-        break;
-    }
-  }
-
-  //Admin users data
-
-  final TextEditingController searchController = new TextEditingController();
-  String _searchText = '';
-  bool showClearText = false;
-
-  initSearch() {
-    initSearchTypes();
-    searchController.addListener(() {
-      if (searchController.text.trim().length == 0) {
-        searchResult.clear();
-        notifyListeners();
-      }
-    });
-    print("ftgvybuhnijmokl,.;,l");
-  }
-
-  initSearchTypes() {
-    print("vgbhjnkmlkjbhjnkm");
-    searchTypes.add({
-      "key": context!.resources.strings.firstName,
-      "value": FirestoreConstants.first_name,
-      "isSelected": false
-    });
-    searchTypes.add({
-      "key": context!.resources.strings.lastName,
-      "value": FirestoreConstants.last_name,
-      "isSelected": false
-    });
-    searchTypes.add({
-      "key": context!.resources.strings.phonenumber,
-      "value": FirestoreConstants.phone_number,
-      "isSelected": false
-    });
-    searchTypes.add({
-      "key": context!.resources.strings.email,
-      "value": FirestoreConstants.email,
-      "isSelected": false
-    });
-    searchTypes.add({
-      "key": context!.resources.strings.createdAt,
-      "value": FirestoreConstants.createdAt,
-      "isSelected": false
-    });
-    searchTypes.add({
-      "key": context!.resources.strings.updatedAt,
-      "value": FirestoreConstants.updatedAt,
-      "isSelected": false
-    });
-    selectedSearchType = searchTypes[0];
-  }
-
-  searchUser() async {
-    isSearching = true;
-    notifyListeners();
-    QuerySnapshot? querySnapshot = await homeService?.searchUser(
-        encrydecry().encryptMsg(searchController.text.trim()),
-        selectedSearchType["value"]);
-    if (querySnapshot != null) {
-      print("querySnapshot.size");
-      print(querySnapshot.size);
-      searchResult.clear();
-      var data = querySnapshot.docs
-          .map((e) => e.data() as Map<String, dynamic>)
-          .toList();
-      searchResult.addAll(data);
-    }
-    isSearching = false;
-    notifyListeners();
-  }
-
-  changeSearchType(int index) {
-    for (int i = 0; i < searchTypes.length; i++) {
-      if (index == i) {
-        searchTypes[i]["isSelected"] = true;
-        selectedSearchType = searchTypes[index]!;
-      } else {
-        searchTypes[i]["isSelected"] = false;
-      }
-    }
-    notifyListeners();
-  }
-
-  selectuser(String selectedUserId, {bool isFirst = false}) {
-    this.selectedUserId = selectedUserId;
-    print("selectedUserId");
-    print(selectedUserId);
-    if (!isFirst) {
-      notifyListeners();
-    } else {
-      Future.delayed(Duration(seconds: 1), () {
-        notifyListeners();
-      });
-    }
-  }
 }

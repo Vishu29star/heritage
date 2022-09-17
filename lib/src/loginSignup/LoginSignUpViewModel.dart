@@ -356,22 +356,13 @@ class LoginSignUpViewModel extends ChangeNotifier{
       if(userCredential!=null){
         uid  = userCredential.user?.uid;
         user  = userCredential.user!;
-        print("rO0v4Zkqj3PmrkPmUX9uusk77Kq2");
-        print(uid);
         await user.updateEmail(pageOneEmailController.text.trim());
 
         mainModel?.showTopSuccessMessage(context!, context?.resources.strings.loginSuccessfully);
         if(user.displayName!=null){
-          print("11111");
           String? device_id = await mainModel?.getDeviceId();
-          print("222222");
           String? appVersion = await mainModel?.getAppVersionId();
-          print("3333333");
           String? firebaseToken = await mainModel?.getFirebaseToken();
-          print(device_id);
-          print(appVersion);
-          print(firebaseToken);
-          print("44444");
 
           Map<String,dynamic> uploadData ={
             FirestoreConstants.device_id:device_id,
@@ -386,15 +377,10 @@ class LoginSignUpViewModel extends ChangeNotifier{
               uploadData.addAll({FirestoreConstants.android_firebase_token:firebaseToken,FirestoreConstants.device_type:"android"});
             }
           }
-          print("555555555");
           await loginSignUpService!.userRefrence.doc(uid).update(uploadData);
-
           var response = await loginSignUpService!.userRefrence.doc(uid).get();
-          print("6666666666");
           Map<String, dynamic> data = response.data() as Map<String, dynamic>;
           UserModel userModel = UserModel.fromJson(data);
-          print("77777777777");
-
           await updateLocalLoginData(user.displayName!,user.email!,uid,userModel.user_type??"customer");
           if(!user.emailVerified){
             user.sendEmailVerification();
@@ -402,7 +388,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
               mainModel?.showTopInfoMessage(context!, context?.resources.strings.verificationEmailSent);
             });
           }
-    context!.loaderOverlay.hide();
+          context!.loaderOverlay.hide();
           myNavigator.pushNamed(context!, Routes.home, /*arguments: {"mobile": mobile.text.toString()}*/);
         }else{
           context!.loaderOverlay.hide();
@@ -463,11 +449,6 @@ class LoginSignUpViewModel extends ChangeNotifier{
         await user.updateEmail(pageOneEmailController.text.trim());
         //user.sendEmailVerification();
         String userType = "customer";
-        if(pageOneEmailController.text.toLowerCase().trim()=="admin@heritage.com"){
-          userType = "admin";
-        }else if(pageOneEmailController.text.toLowerCase().trim()=="super@heritage.com"){
-          userType = "superadmin";
-        }
         Map<String,dynamic> data = {
           FirestoreConstants.email:encrydecry().encryptMsg(pageOneEmailController.text.trim()) ,
           FirestoreConstants.createdAt:FieldValue.serverTimestamp(),
@@ -505,9 +486,6 @@ class LoginSignUpViewModel extends ChangeNotifier{
     try{
       if(isProfileValidate()){
         mainModel?.showhideprogress(true, context!);
-        print("wdateOfBirthController.text.trim()");
-        print(dateOfBirthController.text.trim());
-        print(phoneNumberController.text.trim());
         DateTime birthDate = DateTimeUtils.formatToDate(dateOfBirthController.text.trim());
         Timestamp dateOfBirthTimeStamp = Timestamp.fromDate(birthDate);
         String? device_id = await mainModel?.getDeviceId();
@@ -554,6 +532,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
 
   Future<void> updateLocalData(Map<String, dynamic> data) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.clear();
     await preferences.setString(FirestoreConstants.name, encrydecry().decryptMsg(data[FirestoreConstants.first_name]) + " " + encrydecry().decryptMsg(data[FirestoreConstants.last_name]));
    // await preferences.setString(FirestoreConstnats.phone_number, encrydecry().decryptMsg(data[FirestoreConstnats.phone_number]));
     await preferences.setString(FirestoreConstants.email, pageOneEmailController.text);
@@ -561,6 +540,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
   }
   Future<void> updateLocalLoginData(String name  ,String email, String uid, String user_type) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.clear();
     await preferences.setString(FirestoreConstants.name, name);
     await preferences.setString(FirestoreConstants.email, email);
     await preferences.setString(FirestoreConstants.uid, uid);

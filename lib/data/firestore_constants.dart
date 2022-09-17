@@ -44,8 +44,9 @@
   static String web_firebase_token = "web_firebase_token";
   static String studentFormCaseID = "studentFormCaseID";
   static String studentFormPercent = "studentFormPercent";
+  static String lastChatDeleteTime = "lastChatDeleteTime";
 
-
+  //chat group feild
   static String groupChatId = "groupChatId";
   static String groupChatName = "groupChatName";
   static String groupChatUserIds = "groupChatUserIds";
@@ -55,6 +56,12 @@
   static String groupChatCreatorId = "groupChatCreatorId";
   static String groupChatlastMessageUpdateTime = "groupChatlastMessageUpdateTime";
   static String groupChatlastMessageUserId = "groupChatlastMessageUserId";
+
+  //chat feild
+  static String senderId = "senderId";
+  static String content = "content";
+  static String senderName = "senderName";
+  static String type = "type";
 
   //studentForm feilds
   static String case_id = "case_id";

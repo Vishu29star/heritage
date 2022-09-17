@@ -7,6 +7,7 @@ import 'package:Heritage/src/cisForm/cis_form_widget.dart';
 import 'package:Heritage/src/home/homeVM.dart';
 import 'package:Heritage/src/home/userWidget/UserDetail.dart';
 import 'package:Heritage/src/notifications/notifications_screen.dart';
+import 'package:Heritage/src/settings/settingPage.dart';
 import 'package:Heritage/utils/audioPlayer/audio_example.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
@@ -139,7 +140,7 @@ class Routes {
         if(args!=null){
           map = args as  UserModel;
           return CupertinoPageRoute(
-            builder: (_) => NotiFicationScreen(map),
+            builder: (_) => SettingPage(map),
           );
         }
         return MaterialPageRoute(builder: (_) {

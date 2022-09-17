@@ -6,7 +6,6 @@ import '../../data/remote/mainService.dart';
 class HomeService extends MainService{
   final Stream<QuerySnapshot> usersStream = FirebaseFirestore.instance.collection(userCollection).orderBy(FirestoreConstants.updatedAt).snapshots();
   final CollectionReference userdoc = FirebaseFirestore.instance.collection(userCollection);
-  final CollectionReference chatDocref = FirebaseFirestore.instance.collection(groupChatChannel);
 
 
   Future<QuerySnapshot> searchUser(String search,String searchType) async {
