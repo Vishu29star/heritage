@@ -51,6 +51,7 @@ class EngLishStrings extends Strings {
   String get studentForm => "Student Form";
   String get selectDate => "Select date";
   String get date => "Date";
+  String get passportExpiryDate => "Passport Expiry Date";
   String get enterName => "Enter Name";
   String get refferedby => "Reffered By";
   String get DOB => "DOB";
@@ -119,6 +120,7 @@ class EngLishStrings extends Strings {
   String get chatDeleteTime=> "Chat Delete Time";
   String get admins=> "Admins";
   String get update=> "Update";
+  String get passportNotiFicationTime=> "Passport Notification Time";
   String get addAdmins=> "Add Admins";
   String get anyProvincePreferenceInCanadaIfNoThenMentionNONE=> "Any Province preference (In Canada), if no then mention NONE";
   String get anyCollegeProgramPreferenceIFNoThenMentionNONE=> "Any College/Program Preference, if no then mention NONE";

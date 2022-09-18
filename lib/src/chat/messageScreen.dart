@@ -29,6 +29,7 @@ import '../../utils/fullImage_view/full_image_view.dart';
 import '../../utils/responsive/responsive.dart';
 import 'package:Heritage/route/myNavigator.dart';
 import 'addChatUser.dart';
+import 'mediaUrlWidget.dart';
 
 class SingleChatPage extends StatefulWidget {
   final ChatVM model;
@@ -128,7 +129,6 @@ class _SingleChatPageState extends State<SingleChatPage> {
           if (snapshot.hasError) {
             return HeritageErrorWidget();
           }
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Container(
               child: Center(
@@ -228,7 +228,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
       ],
     );
   }
-  Widget audioPlayerWidget({bool isUrl = false,String url = ""}){
+  Widget audioPlayerWidget(){
     String twoDigits(int n) => n.toString().padLeft(1);
     final twoDigitMinutes = twoDigits(widget.model.playerPostion.inMinutes.remainder(60));
     final twoDigitSeconds = twoDigits(widget.model.playerPostion.inSeconds.remainder(60));
@@ -242,12 +242,13 @@ class _SingleChatPageState extends State<SingleChatPage> {
 
             });
           }else{
-            if(isUrl){
+            await widget.model.soundPlayer.play(DeviceFileSource(widget.model.audioFile.path));
+      /*      if(isUrl){
               await widget.model.soundPlayer.play(UrlSource(url));
             }else{
-              await widget.model.soundPlayer.play(DeviceFileSource(widget.model.audioFile.path));
-            }
 
+            }
+*/
             widget.model.isPlaying  = true;
             setState(() {
             });
@@ -294,13 +295,13 @@ class _SingleChatPageState extends State<SingleChatPage> {
                   ]),
               child: Row(
                 children: [
-                  SizedBox(
+                 /* SizedBox(
                     width: 10,
                   ),
                   Icon(
                     Icons.insert_emoticon,
                     color: Colors.grey[500],
-                  ),
+                  ),*/
                   SizedBox(
                     width: 10,
                   ),
@@ -352,7 +353,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
                           ? IconButton(
                           onPressed: () async {
                             XFile? file = await widget.model.imageFromCamera();
-                            Navigator.of(context).pop();
+                            //Navigator.of(context).pop();
 
                             if(file!=null){
                               List<XFile> files = [];
@@ -580,17 +581,24 @@ class _SingleChatPageState extends State<SingleChatPage> {
       );
     }
     else if(type == "UPLOADINGAUDIO"){
-      return  Container(
-        padding: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
-        child: Center(child: LinearProgressIndicator(
-          minHeight: 10,
-        ),),
+      return  ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.70,
+          maxHeight: MediaQuery.of(context).size.height * 0.20,
+        ),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
+          child: Center(child: LinearProgressIndicator(
+            minHeight: 10,
+          ),),
+        ),
       );
     }
     else if(type == "AUDIO"){
+      AudioPlayer player = AudioPlayer();
       return  Container(
         padding: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
-        child: audioPlayerWidget(isUrl: true,url: content),
+        child: MediaPlayerUrl({"url":content,"isPlaying":false},player),
       );
     }
     return Container();

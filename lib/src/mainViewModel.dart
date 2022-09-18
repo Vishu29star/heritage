@@ -208,43 +208,32 @@ class MainViewMoel extends ChangeNotifier {
     return mainService.getFilteruser(filterName: filterName);
   }
 
-  Future<List<File>?> imgFromGallery() async {
+  Future<XFile?> imgFromGallery() async {
     ImagePicker _imagePicker = ImagePicker();
-    List<XFile>? images = await _imagePicker.pickMultiImage();
+    XFile? images = await _imagePicker.pickImage(source: ImageSource.gallery);
     if (images != null) {
-      List<File> compressFiles = [];
-      images.forEach((element) async {
-        File file = await compressFile(File(element.path));
-        compressFiles.add(file);
-      });
 
-      return compressFiles;
+      return images;
     }
   }
 
-  Future<List<File>?> documnetFormFile() async {
+  Future<FilePickerResult?> documnetFormFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
+      allowMultiple: false,
       type: FileType.custom,
       allowedExtensions: ['pdf', 'doc'],
     );
     if (result != null) {
-      List<File> files = result.paths.map((path) => File(path!)).toList();
-      List<File> compressFiles = [];
-      files.forEach((element) async {
-        File file = await compressFile(element);
-        compressFiles.add(file);
-      });
-      return compressFiles;
+      return result;
     }
   }
 
-  Future<File?> imageFromCamera(int type) async {
+  Future<XFile?> imageFromCamera() async {
     ImagePicker _imagePicker = ImagePicker();
     XFile? image = await _imagePicker.pickImage(source: ImageSource.camera, imageQuality: 100);
     if (image != null) {
       File file = File(image.path);
-      return await compressFile(file);
+      return image;
     }
 
   }

@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../data/firestore_constants.dart';
@@ -52,14 +54,22 @@ class ChatService extends MainService {
     return strings;
   }
 
-  Future<List<String>> getMediaUrlForAudio(File file) async {
+  Future<List<String>> getMediaUrlForAudio(String filepath) async {
     String fileName = DateTime.now().toIso8601String();
-    Uint8List data = await file.readAsBytes();
-    var snapshot = await imageStorageRefrrence.child("audio/$fileName").putData(data);
+
+    var snapshot;
+    if(kIsWeb){
+      http.Response response = await http.get(Uri.parse(filepath));
+      snapshot = await imageStorageRefrrence.child("audio/$fileName").putData(response.bodyBytes);
+    }else{
+      Uint8List data = await File(filepath).readAsBytes();
+      snapshot = await imageStorageRefrrence.child("audio/$fileName").putData(data);
+    }
     List<String> strings =[];
     String one = await snapshot.ref.getDownloadURL();
     strings.add(one);
     strings.add("AUDIO");
     return strings;
   }
+
 }

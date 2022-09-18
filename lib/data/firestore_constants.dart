@@ -13,9 +13,11 @@
   static String updatedAt = "updatedAt";
   static String logs = "logs";
   static String time = "time";
-  static String chatDeleteTimeInDays = "chatDeleteTimeInDays";
   static String studentformcount = "studentformcount";
 
+  //super admin feild
+  static String chatDeleteTimeInDays = "chatDeleteTimeInDays";
+  static String passportNotificicationTime = "passportNotificicationTime";
   //notificatin Feild
   static String notification_data = "notification_data";
   static String notification_object = "notification_object";

@@ -6,24 +6,24 @@ import '../../data/firestore_constants.dart';
 
 class SettingService extends MainService{
   String constantDoc_id = "";
-  Future<String> getChatDeleteTimeCount(String feildName) async {
+  Future<Map<String,dynamic>?> getSuperAdminConstantData() async {
     CollectionReference constantCollection= FirebaseFirestore.instance.collection(FirestoreConstants.firestoreConstants);
     try{
       var documentsnapshot = await constantCollection.get();
 
       constantDoc_id = documentsnapshot.docs.first.id;
       Map<String,dynamic> data = documentsnapshot.docs.first.data()! as Map<String,dynamic>;
-      return data[feildName];
+      return data;
     }catch(e){
-      return "";
+      return null;
     }
 
   }
 
-  Future<void> UpdateChatDeleteTime(String feildName,String feildValue) async {
+  Future<void> UpdateChatDeleteTime(Map<String,dynamic> updateData) async {
     CollectionReference constantCollection= FirebaseFirestore.instance.collection(FirestoreConstants.firestoreConstants);
     try{
-      await constantCollection.doc(constantDoc_id).update({feildName:feildValue});
+      await constantCollection.doc(constantDoc_id).update(updateData);
     }catch(e){
       CommanWidgets.showToast(e.toString());
     }

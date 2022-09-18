@@ -1,6 +1,4 @@
 
-import 'dart:html';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,10 +46,8 @@ import '../colors/appColors.dart';
    }
  }
 
-  static void askWebMicrophonePermission() {
-    window.navigator.getUserMedia(audio: true);
   }
-}
+
 
 class Comman extends StatelessWidget {
   const Comman({Key? key}) : super(key: key);

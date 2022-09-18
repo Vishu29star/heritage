@@ -6,9 +6,13 @@ import 'package:Heritage/route/routes.dart';
 import 'package:Heritage/src/studenntForm/studentFormService.dart';
 import 'package:Heritage/utils/extension.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +22,7 @@ import 'package:Heritage/route/myNavigator.dart';
 import '../../constants/FormWidgetTextField.dart';
 import '../../constants/HeritageYesNoWidget.dart';
 import '../../constants/HeritagedatePicker.dart';
+import '../../constants/image_picker_utils.dart';
 import '../../constants/pdfPreview.dart';
 import '../../data/firestore_constants.dart';
 import '../../models/user_model.dart';
@@ -54,10 +59,15 @@ class StudentFormVM extends ChangeNotifier {
   var pdfFont ;
   var cityVillageErrorText = null;
   var studentContactError = null;
+  var PPIMageError = null;
+  var tenMSError = null;
+  var tweleveMSError = null;
   var studentemailError = null;
   var emailParentError = null;
   DateTime date = DateTime.now();
+  DateTime passportzExpiryDate = DateTime.now();
   TextEditingController nameController = TextEditingController();
+  Map<String,dynamic>? PPImage = null;
   TextEditingController refferdByController = TextEditingController();
   TextEditingController emailStudentController = TextEditingController();
   TextEditingController emailParentController = TextEditingController();
@@ -77,9 +87,11 @@ class StudentFormVM extends ChangeNotifier {
   TextEditingController parentContactController = TextEditingController();
   late DateTime tenFromDate = DateTime.now();
   late DateTime tenToDate = DateTime.now();
+  Map<String,dynamic>? tenMarkSheetImage= null;
   late DateTime twelveFromDate = DateTime.now();
   late DateTime twelveToDate = DateTime.now();
   late DateTime ieltsYear = DateTime.now();
+  Map<String,dynamic>? twelveMarkSheetImage = null;
   TextEditingController tenthStreamController = TextEditingController();
   TextEditingController tenthPercentagemarksController = TextEditingController();
   TextEditingController tenthBacklogController = TextEditingController();
@@ -520,6 +532,81 @@ class StudentFormVM extends ChangeNotifier {
                   labelText: context.resources.strings.enterEmail,
                   keyboardType: TextInputType.emailAddress,
                 ),
+                Container(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Passport Image",style: TextStyle(color: Theme.of(context).primaryColor,fontWeight: FontWeight.w700),),
+                          InkWell(
+                            onTap: (){
+                              ImagePickerUtils2.show(
+                                context: context,
+                                onGalleryClicked: () async {
+                                 XFile? files = await mainModel!.imgFromGallery();
+                                  Navigator.of(context).pop();
+                                  if(files!=null){
+                                    PPImage = {"type":"xfile","data":files};
+
+                                  }
+                                },
+                                onDocumentClicked: () async {
+                                  FilePickerResult? result  = await mainModel!.documnetFormFile();
+                                  Navigator.of(context).pop();
+                                  if(result!=null){
+                                    PPImage = {"type":"filPicker","data":result};
+
+                                  }
+                                },
+                                onCamerTaped: () async {
+                                  XFile? file =  await mainModel!.imageFromCamera();
+                                  Navigator.of(context).pop();
+                                  if(file !=null){
+                                    PPImage = {"type":"xfile","data":file};
+                                  }
+                                },
+                              );
+                            },
+                            child: PPImage == null ? Neumorphic(
+                              style: NeumorphicStyle(
+                                  shape: NeumorphicShape.concave,
+                                  boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                                  depth: 8,
+                                  lightSource: LightSource.topLeft,
+                                  color: Colors.white
+                              ),
+                              padding: EdgeInsets.all(12),
+                              child: Center(child:Text( "upload Image",style: TextStyle(color: Colors.black))
+                                  ))
+                                : ConstrainedBox(constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.30,
+                            maxHeight: MediaQuery.of(context).size.height * 0.30,
+                          ),child: getFileWidget(PPImage!),),
+
+                          )
+                        ],
+                      ),
+                      Container(
+                        alignment: Alignment.centerRight,
+                        child: PPIMageError == null ? Container() : Text(PPIMageError),
+                      )
+                    ],
+                  ),
+                ),
+
+                HeritagedatePicker(
+                  isEnable: true,
+                  onDateSelection: (dd){
+                    passportzExpiryDate = dd;
+                  },
+                  rowORColumn: 1,
+                  result: passportzExpiryDate,
+                  dateFormat: context.resources.strings.DDMMYYYY,
+                  labelText: context.resources.strings.passportExpiryDate,
+                ),
+                Divider(),
                 HeritageTextFeild(
                   errorText: emailParentError,
                   controller: emailParentController,
@@ -1237,6 +1324,10 @@ class StudentFormVM extends ChangeNotifier {
           studentContactError = "Please enter valid phone number";
           isValid = false;
         }
+        if(PPImage==null){
+          PPIMageError == "Please upload Passport Image";
+          isValid = false;
+        }
         if (emailStudentController.text.trim().isEmpty) {
           isValid = false;
           studentemailError =  context.resources.strings.cantBeEmpty;
@@ -1301,6 +1392,14 @@ class StudentFormVM extends ChangeNotifier {
       }
       case 3:{
         if(tenToDate.isBefore(tenFromDate)){
+          isValid = false;
+        }
+        if(tenMarkSheetImage==null){
+          tenMSError == "Please upload 10th MarkSheet";
+          isValid = false;
+        }
+        if(twelveMarkSheetImage==null){
+          tweleveMSError == "Please upload 12th MarkSheet";
           isValid = false;
         }
         if(tenthStreamController.text.trim().isEmpty ){
@@ -1638,5 +1737,23 @@ class StudentFormVM extends ChangeNotifier {
         )
       ],
     );
+  }
+
+  Widget getFileWidget(Map<String , dynamic > fileData){
+    if(fileData["type"]=="xfile"){
+      return kIsWeb
+          ? Image.network(fileData["data"].path)
+          : Image.file(File(fileData["data"].path));
+    }
+    if(fileData["type"]=="filPicker"){
+      return Center(child: Icon(Icons.picture_as_pdf,size: 30,),);
+    }
+    if(fileData["type"]=="document"){
+      return Center(child: Icon(Icons.picture_as_pdf,size: 30,),);
+    }
+    if(fileData["type"]=="image"){
+      return Image.network(fileData["data"].path);
+    }
+    return Container();
   }
 }

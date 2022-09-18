@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:Heritage/utils/webComman/web_comman.dart';
 import 'package:audio_session/audio_session.dart' as AS;
 import 'package:Heritage/src/chat/chatService.dart';
 import 'package:Heritage/src/mainViewModel.dart';
@@ -44,6 +45,7 @@ class ChatVM extends ChangeNotifier {
   bool isRecorderReady = false;
   bool isPlayerReady = false;
   var audioFile;
+  var audioPath;
   var soundPlayer = AudioPlayer();
   bool isPlaying = false;
   Duration playerDuration = Duration.zero;
@@ -62,7 +64,7 @@ class ChatVM extends ChangeNotifier {
   init() async {
     preferences = await SharedPreferences.getInstance();
     var data = await preferences.getString(FirestoreConstants.userProfile) ?? "name";
-    UserModel currentUserModel =UserModel.fromJson(jsonDecode(data));
+    UserModel currentUserModel = UserModel.fromJson(jsonDecode(data));
     name = currentUserModel.name ?? (currentUserModel.first_name! + currentUserModel.last_name!);
     initRecorder();
     initPlayer();
@@ -84,6 +86,7 @@ class ChatVM extends ChangeNotifier {
       });
     }
   }
+
   createGroup() async {
     List<String> userIds = await getFrontDeskUserIds() ?? [];
     List<String> userEmail = [];
@@ -153,7 +156,6 @@ class ChatVM extends ChangeNotifier {
       };
       document.set(msgObject);
     });
-    print("11111111");
     for(int i = 0;i<docIds.length;i++){
       List<String> fileUrl = await chatService!.getMediaUrlFromBytes(filess[i]!,filesNames[i]!);
       Map<String,dynamic> map = {FirestoreConstants.type:fileUrl[1],FirestoreConstants.content:fileUrl[0]};
@@ -200,10 +202,9 @@ class ChatVM extends ChangeNotifier {
       FirestoreConstants.type: "UPLOADINGAUDIO"
     };
     document.set(msgObject);
-    List<String> fileUrl = await chatService!.getMediaUrlForAudio(file);
+    List<String> fileUrl = await chatService!.getMediaUrlForAudio(audioPath);
     Map<String,dynamic> map = {FirestoreConstants.type:fileUrl[1],FirestoreConstants.content:fileUrl[0]};
     chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).doc(doc_id).update(map);
-
   }
 
   Future<List<XFile>?> imgFromGallery() async {
@@ -263,14 +264,16 @@ class ChatVM extends ChangeNotifier {
 
   Future initRecorder() async {
     if(kIsWeb){
-     CommanWidgets.askWebMicrophonePermission();
+     bool result = await WebComman.askWebMicrophonePermission();
+     if(!result){
+       throw "MicroPhone permission not Granted.";
+     }
     }else{
       final status  = await Permission.microphone.request();
       if(status != PermissionStatus.granted){
         throw "MicroPhone permission not Granted.";
       }
     }
-
     await recorder.openRecorder();
     final session = await AS.AudioSession.instance;
     await session.configure(AS.AudioSessionConfiguration(
@@ -306,11 +309,11 @@ class ChatVM extends ChangeNotifier {
       playerPostion = Duration.zero;
       soundPlayer.stop();
     });
-    soundPlayer.onDurationChanged.listen((newDuration) {
-      playerDuration = newDuration;
-      notifyListeners();
-    });
 
+    soundPlayer.onDurationChanged.listen((newPosition) {
+      playerDuration =newPosition;
+
+    });
     soundPlayer.onPositionChanged.listen((newPosition) {
       playerPostion =newPosition;
       notifyListeners();
@@ -320,8 +323,10 @@ class ChatVM extends ChangeNotifier {
   Future stopRecording () async{
     /*if(!isRecorderReady) return;*/
     final path = await recorder.stopRecorder();
+    print(path);
+    audioPath = path;
     final audioFile = File(path!);
-    this.audioFile =audioFile;
+    this.audioFile = audioFile;
     print("Recorded Audio File : $audioFile");
 
   }

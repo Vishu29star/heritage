@@ -12,22 +12,28 @@ class SettingVM extends ChangeNotifier {
   final BuildContext context;
   bool isDataLoaded = false;
   String chatDeleteTime = "";
+  String passportNotificicationTime = "";
+  String error = "";
+  Map<String, dynamic>? superAdminConstantData = {};
 
   SettingVM(this.settingService, this.mainViewMoel,this.userModel,this.context): super() {
-    print("userModel.uid");
-    print(userModel.uid);
-    getChatDeleteTimeCount();
+    getAllData();
   }
 
-  Future<void> getChatDeleteTimeCount() async {
-    chatDeleteTime = await settingService.getChatDeleteTimeCount(FirestoreConstants.chatDeleteTimeInDays);
+  Future<void> getAllData() async {
+    superAdminConstantData = await settingService.getSuperAdminConstantData();
+    if(superAdminConstantData != null){
+      chatDeleteTime = superAdminConstantData![FirestoreConstants.chatDeleteTimeInDays];
+      passportNotificicationTime = superAdminConstantData![FirestoreConstants.passportNotificicationTime];
+    }else{
+      error = "Something went wrong";
+    }
     isDataLoaded = true;
     notifyListeners();
   }
 
-  Future<void> updateChatDeleteTime(String chatDeletetime) async {
-    await settingService.UpdateChatDeleteTime(FirestoreConstants.chatDeleteTimeInDays,chatDeletetime);
-    this.chatDeleteTime = chatDeletetime;
+  Future<void> updateChatDeleteTime(Map<String,dynamic> updateData) async {
+    await settingService.UpdateChatDeleteTime(updateData);
     notifyListeners();
   }
 

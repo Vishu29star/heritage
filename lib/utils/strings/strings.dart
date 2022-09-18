@@ -49,6 +49,7 @@ abstract class Strings {
   String get studentForm ;
   String get selectDate ;
   String get date;
+  String get passportExpiryDate;
   String get enterName;
   String get refferedby;
   String get DOB;
@@ -117,6 +118,7 @@ abstract class Strings {
   String get notificatons ;
   String get setting ;
   String get chatDeleteTime ;
+  String get passportNotiFicationTime ;
   String get admins ;
   String get update ;
   String get addAdmins ;
