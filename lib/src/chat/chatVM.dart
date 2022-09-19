@@ -67,7 +67,7 @@ class ChatVM extends ChangeNotifier {
     UserModel currentUserModel = UserModel.fromJson(jsonDecode(data));
     name = currentUserModel.name ?? (currentUserModel.first_name! + currentUserModel.last_name!);
     initRecorder();
-    initPlayer();
+    //initPlayer();
   }
 
   selectGroupChatId(Map<String,dynamic> group, {bool isFirst = false}){
@@ -264,10 +264,10 @@ class ChatVM extends ChangeNotifier {
 
   Future initRecorder() async {
     if(kIsWeb){
-     bool result = await WebComman.askWebMicrophonePermission();
+    /* bool result = await WebComman.askWebMicrophonePermission();
      if(!result){
        throw "MicroPhone permission not Granted.";
-     }
+     }*/
     }else{
       final status  = await Permission.microphone.request();
       if(status != PermissionStatus.granted){
@@ -312,7 +312,6 @@ class ChatVM extends ChangeNotifier {
 
     soundPlayer.onDurationChanged.listen((newPosition) {
       playerDuration =newPosition;
-
     });
     soundPlayer.onPositionChanged.listen((newPosition) {
       playerPostion =newPosition;

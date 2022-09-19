@@ -5,10 +5,12 @@ import 'dart:typed_data';
 import 'package:Heritage/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 import '../firestore_constants.dart';
 
@@ -259,6 +261,23 @@ class MainService {
     }
   }
 
+  Future<Map<String,dynamic>> getMediaUrlFromByte(FilePickerResult result) async {
+    Uint8List file = result.files.first.bytes!;
+    String name = result.files.first.name;
+    var snapshot = await docuMentStorageRefrrence.child("document/$name").putData(file);
+    String one = await snapshot.ref.getDownloadURL();
+    return {"type":"DOCUMENT","data":one};
+  }
+
+  Future<Map<String,dynamic>> getSingleMediaUrl(XFile file) async {
+
+    String fileName = DateTime.now().toIso8601String();
+    Uint8List data = await file.readAsBytes();
+    var snapshot = await imageStorageRefrrence.child("image/$fileName").putData(data);
+
+    String one = await snapshot.ref.getDownloadURL();
+    return {"type":"IMAGE","data":one};
+  }
   Future<Uint8List> getByteData(String url) async {
     http.Response response = await http.get(
       Uri.parse(url),

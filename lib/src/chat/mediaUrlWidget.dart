@@ -20,7 +20,7 @@ class _MediaPlayerUrlState extends State<MediaPlayerUrl> {
   @override
   void initState() {
     // TODO: implement initState
-    initPlayer();
+    //initPlayer();
     super.initState();
   }
 
@@ -49,7 +49,7 @@ class _MediaPlayerUrlState extends State<MediaPlayerUrl> {
       playerDuration =newPosition;
     });
     widget.audioPlayer.onPositionChanged.listen((newPosition) {
-      playerPostion =newPosition;
+      playerPostion = newPosition;
       setState(() {});
     });
   }

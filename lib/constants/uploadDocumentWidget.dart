@@ -1,33 +1,46 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../global/global.dart';
 import '../utils/extension.dart';
 import '../utils/onHover.dart';
 import '../utils/responsive/responsive.dart';
+import 'image_picker_utils.dart';
 
 
-class HeritageDoumentUpload extends StatelessWidget {
-  final String? hintText;
-  final String? labelText;
-  final String? errorText;
-  final bool? isObsecure;
-  final TextEditingController? controller;
-  final TextInputType? keyboardType;
-  final int? maxlenth;
-  final String? prefixText;
-  final List<TextInputFormatter>? inputformator;
-  final bool? isEnable;
-  HeritageDoumentUpload({Key? key,this.hintText = "", required this.labelText,this.errorText = null, required this.controller, this.isObsecure = false, this.keyboardType = TextInputType.text,this.maxlenth = null,this.prefixText = "",this.inputformator = null,this.isEnable = true}) : super(key: key);
+class HeritageDoumentUpload extends StatefulWidget {
+  String? imageError = null;
+  Map<String,dynamic>? image = null;
+  final String labelText;
+  Function? onImageSelection;
 
+  HeritageDoumentUpload({Key? key,this.imageError = null, required this.labelText, required this.image , required this.onImageSelection}) : super(key: key);
+
+  @override
+  State<HeritageDoumentUpload> createState() => _HeritageDoumentUploadState();
+}
+
+class _HeritageDoumentUploadState extends State<HeritageDoumentUpload> {
   bool showLoading  = false;
+
   var multiply = 1.0;
+
   var textmultiply = 1.0;
+
   var width_multiply = 1.0;
+
   double width = 0;
+
   double height = 0;
+
   String whichPLatform = "";
+
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
@@ -50,309 +63,135 @@ class HeritageDoumentUpload extends StatelessWidget {
       multiply = 1.6;
       textmultiply = 1.4;
     }
-    print("hintrcfvtybunim,Text");
-    print(labelText);
-    print(hintText);
-    if(Responsive.isDesktop(context)){
-      return Container(
-        margin: EdgeInsets.symmetric(vertical:10*multiply),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(labelText!,style: TextStyle(
-                color: errorText == null ? Theme.of(context).primaryColor : context.resources.color.colorPrimary,
-                fontSize: 16,fontWeight: FontWeight.w500
-            )),
-            SizedBox(height: 10,),
-            Neumorphic(
-              style: NeumorphicStyle(
-                shape: NeumorphicShape.concave,
-                boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(50)),
-                depth: -48,
-                //intensity: 10,
-                surfaceIntensity: 0.1,
-                lightSource: LightSource.bottomRight,
-                color: Colors.white,
-                oppositeShadowLightSource: true,
-              ),
+   return Container(
+     padding: EdgeInsets.symmetric(vertical: 16),
+     child: Column(
+       mainAxisSize: MainAxisSize.min,
+       children: [
+         Row(
+           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+           children: [
+             Text(widget.labelText,style: TextStyle(color: Theme.of(context).primaryColor,fontWeight: FontWeight.w700),),
+             SizedBox(width: 16,),
+             Expanded(
+               child: InkWell(
+                 onTap: (){
+                   ImagePickerUtils2.show(
+                     context: context,
+                     onGalleryClicked: () async {
+                       XFile? files = await imgFromGallery();
+                       Navigator.of(context).pop();
+                       if(files!=null){
+                         widget.image = {"type":"xfile","data":files};
+                         widget.imageError == null;
+                         widget.onImageSelection!(widget.image);
+                         setState(() {
 
-              drawSurfaceAboveChild: false,
-              padding: EdgeInsets.symmetric(horizontal: 8*multiply,vertical: 4*multiply  ),
-              child: TextField(
-                controller: controller,
-                keyboardType: keyboardType,
-                obscureText: isObsecure!,
-                maxLength: maxlenth,
-                inputFormatters: inputformator,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  enabled: isEnable!,
-                  hintText: hintText != "" ? hintText : labelText,
-                  hintStyle: TextStyle(
-                      color: Theme.of(context).primaryColor.withOpacity(0.5),
-                      fontSize: 16,fontWeight: FontWeight.w600
-                  ),
-                  prefixText: prefixText == "" ? null : prefixText,
-                ),
-                maxLines: 1,
-              ),
-            ),
-            SizedBox(height: 10,),
-            errorText != null
-                ?Padding(
-              padding: const EdgeInsets.only(top: 0.0),
-              child: Text(errorText!,style: TextStyle(color:context.resources.color.colorRed,fontWeight: FontWeight.w400)),
-            ):Container(),
+                         });
+                       }
+                     },
+                     onDocumentClicked: () async {
+                       FilePickerResult? result  = await documnetFormFile();
+                       Navigator.of(context).pop();
+                       if(result!=null){
+                         widget.image = {"type":"filPicker","data":result};
+                         widget.onImageSelection!(widget.image);
+                         widget.imageError == null;
+                         setState(() {
 
-          ],
-        ),
-      );
-    }else{
-      return Container(
-        margin: EdgeInsets.symmetric(vertical:10*multiply),
-        child: TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          obscureText: isObsecure!,
-          maxLength: maxlenth,
-          inputFormatters: inputformator,
-          decoration: InputDecoration(
-            enabled: isEnable!,
-            hintText: hintText != "" ? hintText : labelText,
-            hintStyle: TextStyle(
-                color: Theme.of(context).primaryColor.withOpacity(0.5),
-                fontSize: 20,fontWeight: FontWeight.w600
-            ),
-            prefixText: prefixText == "" ? null : prefixText,
-            labelText: labelText,
-            labelStyle: TextStyle(
-                color: errorText == null ? Theme.of(context).primaryColor : context.resources.color.colorPrimary,
-                fontSize: 16,fontWeight: FontWeight.w500
-            ),
-            errorText: errorText,
-            floatingLabelBehavior:FloatingLabelBehavior.always,
-            errorStyle: TextStyle(
-                color: context.resources.color.colorRed,
-                fontSize: 16,fontWeight: FontWeight.w400
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
-                color: Theme.of(context).primaryColor.withOpacity(0.5),
-                width: 1,
-              ),
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(color: Theme.of(context).primaryColor.withOpacity(0.5)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(color: Theme.of(context).primaryColor),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(color: context.resources.color.colorRed,style: BorderStyle.solid),
-            ),
-          ),
-        ),
-      );
+                         });
+                       }
+                     },
+                     onCamerTaped: () async {
+                       XFile? file =  await imageFromCamera();
+                       Navigator.of(context).pop();
+                       if(file !=null){
+                         widget.image = {"type":"xfile","data":file};
+                         widget.onImageSelection!(widget.image);
+                         widget.imageError == null;
+                         setState(() {
+
+                         });
+                       }
+                     },
+                   );
+                 },
+                 child: widget.image == null ? Neumorphic(
+                     style: NeumorphicStyle(
+                         shape: NeumorphicShape.concave,
+                         boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                         depth: 8,
+                         lightSource: LightSource.topLeft,
+                         color: Colors.white
+                     ),
+                     padding: EdgeInsets.all(12),
+                     child: Center(child:Text( "Select Image",style: TextStyle(color: Colors.black))
+                     ))
+                     : ConstrainedBox(constraints: BoxConstraints(
+                   maxWidth: MediaQuery.of(context).size.width * 0.30,
+                   maxHeight: MediaQuery.of(context).size.height * 0.30,
+                 ),child: getFileWidget(widget.image!),),
+
+               ),
+             )
+           ],
+         ),
+         widget.imageError != null
+             ? Container(
+           padding: EdgeInsets.symmetric(vertical: 8),
+           alignment: Alignment.centerRight,
+           child:Text(widget.imageError!),
+         )
+             : Container(),
+       ],
+     ),
+   );
+  }
+  Future<XFile?> imgFromGallery() async {
+    ImagePicker _imagePicker = ImagePicker();
+    XFile? images = await _imagePicker.pickImage(source: ImageSource.gallery);
+    if (images != null) {
+
+      return images;
     }
   }
-}
 
-class RoundHeritageTextFeild extends StatelessWidget {
-  final String? hintText;
-  final String? labelText;
-  final String? errorText;
-  final bool? isObsecure;
-  final TextEditingController? controller;
-  final TextInputType? keyboardType;
-  final int? maxlenth;
-  final String? prefixText;
-  final List<TextInputFormatter>? inputformator;
-  final bool? isEnable;
-  const RoundHeritageTextFeild({Key? key,this.hintText = "", required this.labelText,this.errorText = null, required this.controller, this.isObsecure = false, this.keyboardType = TextInputType.text,this.maxlenth = null,this.prefixText = "",this.inputformator = null,this.isEnable = true}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: isObsecure!,
-      maxLength: maxlenth,
-      inputFormatters: inputformator,
-      decoration: InputDecoration(
-        enabled: isEnable!,
-        hintText: hintText != "" ? hintText : labelText,
-        hintStyle: TextStyle(
-            color: Theme.of(context).primaryColor.withOpacity(0.5),
-            fontSize: 20,fontWeight: FontWeight.w600
-        ),
-        prefixText: prefixText == "" ? null : prefixText,
-        labelText: labelText,
-        labelStyle: TextStyle(
-            color: errorText == null ? Theme.of(context).primaryColor : context.resources.color.colorPrimary,
-            fontSize: 16,fontWeight: FontWeight.w500
-        ),
-        errorText: errorText,
-        floatingLabelBehavior:FloatingLabelBehavior.always,
-        errorStyle: TextStyle(
-            color: context.resources.color.colorRed,
-            fontSize: 16,fontWeight: FontWeight.w400
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(
-            color: Theme.of(context).primaryColor.withOpacity(0.5),
-            width: 1,
-          ),
-        ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor.withOpacity(0.5)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: context.resources.color.colorRed,style: BorderStyle.solid),
-        ),
-      ),
+  Future<FilePickerResult?> documnetFormFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc'],
     );
+    if (result != null) {
+      return result;
+    }
   }
-}
-class Button extends StatelessWidget {
-  final String labelText;
-  final bool isEnabled;
-  final VoidCallback? onPressed;
-  const Button(
-      {Key? key,
-        required this.labelText,
-        required this.onPressed,
-        this.isEnabled = true,})
-      : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-
-    if(getDeviceType()!="phone"){
-      return OnHover(builder: ((isHovered) {
-        var enableDecoration = BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: <Color>[
-                Color(0xffB5651D),
-                Color(0xff654420),
-              ],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: isHovered
-                    ? context.resources.color.colorPrimary.withOpacity(0.5)
-                    : Colors.white
-                    .withOpacity(0.5), //color of shadow
-                spreadRadius: 5, //spread radius
-                blurRadius: 7, // blur radius
-                offset: Offset(0, 2), // changes position of shadow
-                //first paramerter of offset is left-right
-                //second parameter is top to down
-              ),
-            ],
-            borderRadius: BorderRadius.all(Radius.circular(30.0)));
-        var diableDecoration = BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: <Color>[
-                Colors.grey,
-                Colors.white,
-              ],
-            ),
-            boxShadow: [
-              /*  BoxShadow(
-            color: isHovered
-                ? context.resources.color.colorPrimary.withOpacity(0.5)
-                : Colors.white
-                .withOpacity(0.5), //color of shadow
-            spreadRadius: 5, //spread radius
-            blurRadius: 7, // blur radius
-            offset: Offset(0, 0), // changes position of shadow
-            //first paramerter of offset is left-right
-            //second parameter is top to down
-          ),*/
-            ],
-            borderRadius: BorderRadius.all(Radius.circular(30.0)));
-
-        return Material(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0)),
-            elevation: isHovered ? 4 : 0,
-            child: InkWell(
-              onTap: onPressed,
-              child: Container(
-                decoration: isEnabled ? enableDecoration : diableDecoration,
-                child: Center(
-                  child: Text(
-                    labelText,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ),
-            ));
-
-      } ));
-    }else{
-      var enableDecoration = BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: <Color>[
-              Color(0xffB5651D),
-              Color(0xff654420),
-            ],
-          ),
-          borderRadius: BorderRadius.all(Radius.circular(30.0)));
-      var diableDecoration = BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: <Color>[
-              Colors.grey,
-              Colors.white,
-            ],
-          ),
-
-          borderRadius: BorderRadius.all(Radius.circular(30.0)));
-      return Material(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30.0)),
-          elevation:0,
-          child: InkWell(
-            onTap: onPressed,
-            child: Container(
-              decoration: isEnabled ? enableDecoration : diableDecoration,
-              child: Center(
-                child: Text(
-                  labelText,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500),
-                ),
-              ),
-            ),
-          ));
+  Future<XFile?> imageFromCamera() async {
+    ImagePicker _imagePicker = ImagePicker();
+    XFile? image = await _imagePicker.pickImage(source: ImageSource.camera, imageQuality: 100);
+    if (image != null) {
+      File file = File(image.path);
+      return image;
     }
 
+  }
+  Widget getFileWidget(Map<String , dynamic > fileData){
+    if(fileData["type"]=="xfile"){
+      return kIsWeb
+          ? Image.network(fileData["data"].path)
+          : Image.file(File(fileData["data"].path));
+    }
+    if(fileData["type"]=="filPicker"){
+      return Center(child: Icon(Icons.picture_as_pdf,size: 30,),);
+    }
+    if(fileData["type"]=="document"){
+      return Center(child: Icon(Icons.picture_as_pdf,size: 30,),);
+    }
+    if(fileData["type"]=="image"){
+      return Image.network(fileData["data"].path);
+    }
+    return Container();
   }
 }
 

@@ -75,6 +75,7 @@ class StudentFormService extends MainService{
       print(e);
     }
   }
+
   Future<void> updateUserWithStudentFormId(String case_id,String user_id) async {
     CollectionReference userCollection1= FirebaseFirestore.instance.collection(userCollection);
     try{
@@ -84,13 +85,14 @@ class StudentFormService extends MainService{
     }
   }
 
-  Future<void> updateUserPercentStudentFormId(String user_id, double percentProfile) async {
+  Future<void> updateUserPercentStudentFormId(String user_id, Map<String ,dynamic> data) async {
     CollectionReference userCollection1= FirebaseFirestore.instance.collection(userCollection);
     try{
-      userCollection1.doc(user_id).update({FirestoreConstants.studentFormPercent:percentProfile.ceil()});
+      userCollection1.doc(user_id).update(data);
     }catch(e){
       print(e);
     }
   }
+
 
 }

@@ -72,6 +72,8 @@
   static String student_form_name = "student_form_name";
   static String student_form_reffered_by = "student_form_reffered_by";
   static String student_form_DOB = "student_form_DOB";
+  static String passport_image = "passport_image";
+  static String passport_expiry_date = "passport_expiry_date";
   static String student_form_city_village = "student_form_city_village";
   static String form_1_employee_comment = "form_1_employee_comment";
   static String form_1_customer_comment = "form_1_customer_comment";
@@ -99,12 +101,14 @@
   static String student_tenth_to_date = "student_tenth_to_date";
   static String student_tenth_stream = "student_tenth_stream";
   static String student_tenth_board = "student_tenth_board";
+  static String student_form_tenth_MS = "student_form_tenth_MS";
   static String student_tenth_marks_percentage = "student_tenth_marks_percentage";
   static String student_tenth_backlog = "student_tenth_backlog";
   static String student_twelve_from_date = "student_twelve_from_date";
   static String student_twelve_to_date = "student_twelve_to_date";
   static String student_twelve_stream = "student_twelve_stream";
   static String student_twelve_board = "student_twelve_board";
+  static String student_form_twelve_MS = "student_form_twelve_MS";
   static String student_twelve_marks_percentage = "student_twelve_marks_percentage";
   static String student_twelve_backlog = "student_twelve_backlog";
   static String form_4_employee_comment = "form_4_employee_comment";

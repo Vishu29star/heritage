@@ -24,6 +24,7 @@ import '../../constants/HeritageYesNoWidget.dart';
 import '../../constants/HeritagedatePicker.dart';
 import '../../constants/image_picker_utils.dart';
 import '../../constants/pdfPreview.dart';
+import '../../constants/uploadDocumentWidget.dart';
 import '../../data/firestore_constants.dart';
 import '../../models/user_model.dart';
 import '../../utils/Utils.dart';
@@ -65,9 +66,10 @@ class StudentFormVM extends ChangeNotifier {
   var studentemailError = null;
   var emailParentError = null;
   DateTime date = DateTime.now();
-  DateTime passportzExpiryDate = DateTime.now();
+  DateTime passportExpiryDate = DateTime.now();
   TextEditingController nameController = TextEditingController();
   Map<String,dynamic>? PPImage = null;
+  bool isPassportUpdated = false;
   TextEditingController refferdByController = TextEditingController();
   TextEditingController emailStudentController = TextEditingController();
   TextEditingController emailParentController = TextEditingController();
@@ -532,77 +534,19 @@ class StudentFormVM extends ChangeNotifier {
                   labelText: context.resources.strings.enterEmail,
                   keyboardType: TextInputType.emailAddress,
                 ),
-                Container(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Passport Image",style: TextStyle(color: Theme.of(context).primaryColor,fontWeight: FontWeight.w700),),
-                          InkWell(
-                            onTap: (){
-                              ImagePickerUtils2.show(
-                                context: context,
-                                onGalleryClicked: () async {
-                                 XFile? files = await mainModel!.imgFromGallery();
-                                  Navigator.of(context).pop();
-                                  if(files!=null){
-                                    PPImage = {"type":"xfile","data":files};
-
-                                  }
-                                },
-                                onDocumentClicked: () async {
-                                  FilePickerResult? result  = await mainModel!.documnetFormFile();
-                                  Navigator.of(context).pop();
-                                  if(result!=null){
-                                    PPImage = {"type":"filPicker","data":result};
-
-                                  }
-                                },
-                                onCamerTaped: () async {
-                                  XFile? file =  await mainModel!.imageFromCamera();
-                                  Navigator.of(context).pop();
-                                  if(file !=null){
-                                    PPImage = {"type":"xfile","data":file};
-                                  }
-                                },
-                              );
-                            },
-                            child: PPImage == null ? Neumorphic(
-                              style: NeumorphicStyle(
-                                  shape: NeumorphicShape.concave,
-                                  boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-                                  depth: 8,
-                                  lightSource: LightSource.topLeft,
-                                  color: Colors.white
-                              ),
-                              padding: EdgeInsets.all(12),
-                              child: Center(child:Text( "upload Image",style: TextStyle(color: Colors.black))
-                                  ))
-                                : ConstrainedBox(constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.30,
-                            maxHeight: MediaQuery.of(context).size.height * 0.30,
-                          ),child: getFileWidget(PPImage!),),
-
-                          )
-                        ],
-                      ),
-                      Container(
-                        alignment: Alignment.centerRight,
-                        child: PPIMageError == null ? Container() : Text(PPIMageError),
-                      )
-                    ],
-                  ),
+                HeritageDoumentUpload(imageError: PPIMageError,image: PPImage,labelText: "Passport Image",
+                  onImageSelection: (image){
+                    PPImage = image;
+                  },
                 ),
 
                 HeritagedatePicker(
                   isEnable: true,
                   onDateSelection: (dd){
-                    passportzExpiryDate = dd;
+                    passportExpiryDate = dd;
                   },
                   rowORColumn: 1,
-                  result: passportzExpiryDate,
+                  result: passportExpiryDate,
                   dateFormat: context.resources.strings.DDMMYYYY,
                   labelText: context.resources.strings.passportExpiryDate,
                 ),
@@ -812,6 +756,9 @@ class StudentFormVM extends ChangeNotifier {
                         )),
                   ],
                 ),
+                HeritageDoumentUpload(imageError: tenMSError,image: tenMarkSheetImage,labelText: "10th MarkSheet",onImageSelection: (image){
+                  tenMarkSheetImage = image;
+                },),
                 SizedBox(
                   height: 16,
                 ),
@@ -890,6 +837,9 @@ class StudentFormVM extends ChangeNotifier {
 
                   ],
                 ),
+                HeritageDoumentUpload(imageError: tweleveMSError,image: twelveMarkSheetImage,labelText: "12th MarkSheet",onImageSelection: (image){
+                  twelveMarkSheetImage = image;
+                },),
                 HeritageTextFeild(
                   controller: form4CustomerCommentController,
                   hintText: context.resources.strings.customerComment,
@@ -1135,8 +1085,15 @@ class StudentFormVM extends ChangeNotifier {
       return;
     }
     try{
-      var result = await studentFormService!.updateStudentForm(getMapData(), studentCaseId);
-      studentFormService?.updateUserPercentStudentFormId(formUserId,profilePerCent);
+      Map<String ,dynamic> mapData = await getMapData();
+      var result = await studentFormService!.updateStudentForm(mapData, studentCaseId);
+      Map<String,dynamic> userUpdateData = {FirestoreConstants.studentFormPercent:profilePerCent.ceil()};
+      if(isPassportUpdated){
+        userUpdateData.addAll({FirestoreConstants.passport_image:mapData[FirestoreConstants.passport_image]});
+        userUpdateData.addAll({FirestoreConstants.passport_expiry_date:passportExpiryDate.millisecondsSinceEpoch});
+        isPassportUpdated = false;
+      }
+      studentFormService?.updateUserPercentStudentFormId(formUserId,userUpdateData);
       if(pagePostion==4 /*&& !isNotificationAlreadySend*/){
         List<UserModel>? financeuser = await mainModel!.mainService.getFilteruser(filterName: "2");
         List<String> tokenList = [];
@@ -1190,13 +1147,32 @@ class StudentFormVM extends ChangeNotifier {
     //notifyListeners();
   }
 
-  Map<String ,dynamic> getMapData(){
+  Future<Map<String,dynamic>> uploadFile(Map<String,dynamic> imageObject,{bool isPassport = false}) async {
+    if(imageObject["type"] == "xfile" || imageObject["type"] == "filPicker"){
+      if(imageObject["type"] == "xfile"){
+        Map<String,dynamic>  dddd =  await studentFormService!.getSingleMediaUrl(imageObject["data"]);
+        if(isPassport){
+          dddd.addAll({"update":true});
+        }
+        return dddd;
+      } else {
+        Map<String,dynamic>  dddd =  await studentFormService!.getMediaUrlFromByte(imageObject["data"]);
+        if(isPassport){
+          dddd.addAll({"update":true});
+        }
+        return dddd;
+      }
+    }
+    return imageObject;
+  }
+  Future<Map<String, dynamic>> getMapData() async {
     profilePerCent = 0.0;
     Map<String ,dynamic> data = {};
     switch(pagePostion){
       case 0:{
+
         data.addAll(
-            {FirestoreConstants.student_form_date:date.millisecondsSinceEpoch,
+            {
               FirestoreConstants.student_form_DOB:DOBDate.millisecondsSinceEpoch,
               FirestoreConstants.student_form_name:nameController.text.trim(),
               FirestoreConstants.student_form_reffered_by:refferdByController.text.trim(),
@@ -1211,8 +1187,15 @@ class StudentFormVM extends ChangeNotifier {
       case 1:{
         print("DOmarriedBDate");
         print(married);
+        Map<String,dynamic> imageObject =  await uploadFile(PPImage!,isPassport: true);
+        if(imageObject.containsKey("update")) {
+          imageObject.remove("update");
+          isPassportUpdated = true;
+        }
         data.addAll(
-            {FirestoreConstants.student_form_contact:studentContactController.text.trim(),
+            {FirestoreConstants.passport_image:imageObject,
+              FirestoreConstants.passport_expiry_date:passportExpiryDate.millisecondsSinceEpoch,
+              FirestoreConstants.student_form_contact:studentContactController.text.trim(),
               FirestoreConstants.student_form_email:emailStudentController.text.trim(),
               FirestoreConstants.student_form_parent_email:emailParentController.text.trim(),
               FirestoreConstants.student_form_number_of_children:noOfChildren.text.trim(),
@@ -1244,9 +1227,13 @@ class StudentFormVM extends ChangeNotifier {
         break;
       }
       case 3:{
+        Map<String,dynamic> tenthMS =  await uploadFile(tenMarkSheetImage!);
+        Map<String,dynamic> twelveMS =  await uploadFile(twelveMarkSheetImage!);
         data.addAll(
             {FirestoreConstants.student_tenth_to_date:tenToDate.millisecondsSinceEpoch,
               FirestoreConstants.student_tenth_from_date:tenFromDate.millisecondsSinceEpoch,
+              FirestoreConstants.student_form_tenth_MS:tenthMS,
+              FirestoreConstants.student_form_twelve_MS:twelveMS,
               FirestoreConstants.student_tenth_backlog:tenthBacklogController.text.trim(),
               FirestoreConstants.student_tenth_board:tenthBoardController.text.trim(),
               FirestoreConstants.student_tenth_stream:tenthStreamController.text.trim(),
@@ -1325,8 +1312,19 @@ class StudentFormVM extends ChangeNotifier {
           isValid = false;
         }
         if(PPImage==null){
-          PPIMageError == "Please upload Passport Image";
+          print("yvygbhnjklm,l");
+          PPIMageError == "Please select passport image";
           isValid = false;
+        }
+        print("passportExpiryDate");
+        print(passportExpiryDate);
+        if(passportExpiryDate == null){
+          isValid = false;
+          //passport_expiry_date =  "Please add passport expiry date";
+        }
+        if (emailStudentController.text.trim().isEmpty) {
+          isValid = false;
+          studentemailError =  context.resources.strings.cantBeEmpty;
         }
         if (emailStudentController.text.trim().isEmpty) {
           isValid = false;
@@ -1394,14 +1392,6 @@ class StudentFormVM extends ChangeNotifier {
         if(tenToDate.isBefore(tenFromDate)){
           isValid = false;
         }
-        if(tenMarkSheetImage==null){
-          tenMSError == "Please upload 10th MarkSheet";
-          isValid = false;
-        }
-        if(twelveMarkSheetImage==null){
-          tweleveMSError == "Please upload 12th MarkSheet";
-          isValid = false;
-        }
         if(tenthStreamController.text.trim().isEmpty ){
           isValid = false;
         }
@@ -1421,6 +1411,14 @@ class StudentFormVM extends ChangeNotifier {
           isValid = false;
         }
         if(twelvePercentagemarksController.text.trim().isEmpty ){
+          isValid = false;
+        }
+        if(tenMarkSheetImage==null){
+          tenMSError == "Please select 10th Marksheet";
+          isValid = false;
+        }
+        if(twelveMarkSheetImage==null){
+          tweleveMSError == "Please select 12th Marksheet";
           isValid = false;
         }
         break;

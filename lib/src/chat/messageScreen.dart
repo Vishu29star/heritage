@@ -42,20 +42,45 @@ class SingleChatPage extends StatefulWidget {
 class _SingleChatPageState extends State<SingleChatPage> {
   String messageContent = "";
 
-
+  bool isPlaying = false;
   bool _changeKeyboardType = false;
   int _menuIndex = 0;
+  Duration playerPostion = Duration.zero;
 
   @override
   void initState() {
     widget.model.messageController.addListener(() {
       setState(() {});
     });
-
+    initPlayer();
     //FIXME: call get all messages
     super.initState();
   }
+  initPlayer(){
+    /*https://www.youtube.com/watch?v=MB3YGQ-O`1lk*/
+    widget.model.soundPlayer.onPlayerStateChanged.listen((state) {
+      print("onPlayerStateChanged");
+      isPlaying = CommanWidgets().isPLAYING(state);
 
+    });
+
+    widget.model.soundPlayer.onPlayerComplete.listen((event) {
+      playerPostion = Duration.zero;
+      widget.model.soundPlayer.stop();
+      isPlaying = false;
+    });
+
+    widget.model.soundPlayer.onDurationChanged.listen((newPosition) {
+      print("onDurationChanged");
+      print(newPosition);
+      widget.model.playerDuration = newPosition;
+    });
+    widget.model.soundPlayer.onPositionChanged.listen((newPosition) {
+     playerPostion =newPosition;
+      setState(() {
+      });
+    });
+  }
   @override
   void dispose() {
     widget.model.messageController.dispose();
@@ -228,38 +253,43 @@ class _SingleChatPageState extends State<SingleChatPage> {
       ],
     );
   }
+
   Widget audioPlayerWidget(){
+    print("playerPostion");
+    print(playerPostion);
+    print(widget.model.playerDuration);
     String twoDigits(int n) => n.toString().padLeft(1);
-    final twoDigitMinutes = twoDigits(widget.model.playerPostion.inMinutes.remainder(60));
-    final twoDigitSeconds = twoDigits(widget.model.playerPostion.inSeconds.remainder(60));
+    final twoDigitMinutes = twoDigits(playerPostion.inMinutes.remainder(60));
+    final twoDigitSeconds = twoDigits(playerPostion.inSeconds.remainder(60));
     return Row(
       children: [
         InkWell(onTap : () async {
-          if(widget.model.isPlaying){
+          if(isPlaying){
             await widget.model.soundPlayer.pause();
-            widget.model.isPlaying = false;
+            isPlaying = false;
+            print("tyhujiko");
             setState(() {
 
             });
           }else{
-            await widget.model.soundPlayer.play(DeviceFileSource(widget.model.audioFile.path));
-      /*      if(isUrl){
-              await widget.model.soundPlayer.play(UrlSource(url));
-            }else{
-
-            }
-*/
-            widget.model.isPlaying  = true;
+            print("ecrvtbynumi,");
+            await widget.model.soundPlayer.setSource(DeviceFileSource(widget.model.audioFile.path));
+            //widget.model.playerDuration = await widget.model.soundPlayer.getDuration() ?? Duration(seconds: 10);
+            await widget.model.soundPlayer.resume();
+            //await widget.model.soundPlayer.play(DeviceFileSource(widget.model.audioFile.path));
+            print("widget.model.playerDuration");
+            print(widget.model.playerDuration);
+           isPlaying  = true;
             setState(() {
             });
           }
-        }, child: widget.model.isPlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow)),
+        }, child:isPlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow)),
         SizedBox(width: 16,),
         Expanded(
           child: Slider(
             min: 0,
             max: widget.model.playerDuration.inSeconds.toDouble(),
-            value: widget.model.playerPostion.inSeconds.toDouble(),
+            value: playerPostion.inSeconds.toDouble(),
             onChanged: (value) async {
               final position = Duration(seconds: value.toInt());
               await widget.model.soundPlayer.seek(position);
@@ -340,6 +370,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
                               FilePickerResult? result  = await widget.model.documnetFormFile();
                               Navigator.of(context).pop();
                               if(result!=null){
+
                                 widget.model.sendMediabyte(result);
                               }
                             },
@@ -604,283 +635,3 @@ class _SingleChatPageState extends State<SingleChatPage> {
     return Container();
   }
 }
-
-/*
-import 'dart:async';
-
-import 'package:Heritage/route/myNavigator.dart';
-import 'package:Heritage/route/routes.dart';
-import 'package:Heritage/src/chat/chatVM.dart';
-import 'package:Heritage/src/chat/entities/text_message_entity.dart';
-import 'package:bubble/bubble.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
-import '../../constants/HeritageErrorWidget(.dart';
-import '../../constants/pdfPreview.dart';
-import '../../data/firestore_constants.dart';
-import '../../utils/fullImage_view/full_image_view.dart';
-import '../../utils/responsive/responsive.dart';
-import 'addChatUser.dart';
-
-class SingleChatPage extends StatefulWidget {
-  final ChatVM model;
-  SingleChatPage({Key? key, required this.model}) : super(key: key);
-
-  @override
-  _SingleChatPageState createState() => _SingleChatPageState();
-}
-
-class _SingleChatPageState extends State<SingleChatPage> {
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.model.selectedgroupChatId == "") {
-      return Container();
-    }
-    if(widget.model.chatStream==null){
-      return Container();
-    }
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.black),
-        backgroundColor: Colors.white,
-        title: Text(
-          widget.model.userType != "customer" ? "${widget.model.selectedgroup[FirestoreConstants.groupChatName]}":"Admin",
-          style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 24,
-              color: Theme.of(context).primaryColor),
-        ),
-        actions: [
-          widget.model.userType != "customer"
-              ? TextButton(
-              onPressed: (){
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return Dialog(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0)),
-                          child: Container(
-                              constraints: BoxConstraints(
-                                  minWidth: 300, maxWidth: 450),
-                              child: AddChatUser(widget.model,createGroup: false,)));
-                    });
-              }, child: Text("Add Chat User",style: TextStyle(color: Colors.white),))
-              : Container()],
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: widget.model.chatStream,
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) {
-            return HeritageErrorWidget();
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Container(
-              child: Center(
-                child: Column(
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Text("Loading.....")
-                  ],
-                ),
-              ),
-            );
-          }
-          List<TextMessageEntity> messageList = [];
-          // List<TextMessageEntity> messageList = [];
-          for (int i = 0; i < snapshot.data!.docs.length; i++) {
-            var data = snapshot.data!.docs[i].data()! as Map<String, dynamic>;
-            TextMessageEntity textMessageEntity =
-                TextMessageEntity.fromJson(data);
-            messageList.add(textMessageEntity);
-          }
-          return _messagesListWidget(messageList);
-        },
-      ),
-    );
-  }
-
-  Widget _messagesListWidget(List<TextMessageEntity> messageList) {
-    Timer(Duration(milliseconds: 100), () {
-      widget.model.scrollController.animateTo(
-        widget.model.scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeInQuad,
-      );
-    });
-    print("messageList.length");
-    print(messageList.length);
-    return Expanded(
-      child: ListView.builder(
-        controller: widget.model.scrollController,
-        itemCount: messageList.length,
-        itemBuilder: (_, index) {
-          final message = messageList[index];
-
-          if (message.senderId == widget.model.currentUserId)
-            return _messageLayout(
-              name: "Me",
-              alignName: TextAlign.end,
-              color: Colors.lightGreen[400],
-              time: DateFormat('hh:mm a').format(message.time!.toDate()),
-              align: TextAlign.left,
-              boxAlign: CrossAxisAlignment.start,
-              crossAlign: CrossAxisAlignment.end,
-              nip: BubbleNip.rightTop,
-              text: message.content,
-              type: message.type,
-            );
-          else
-            return _messageLayout(
-              color: Colors.white,
-              name: "${message.senderName}",
-              alignName: TextAlign.end,
-              time: DateFormat('hh:mm a').format(message.time!.toDate()),
-              align: TextAlign.left,
-              boxAlign: CrossAxisAlignment.start,
-              crossAlign: CrossAxisAlignment.start,
-              nip: BubbleNip.leftTop,
-              text: message.content,
-              type: message.type,
-            );
-        },
-      ),
-    );
-  }
-
-  Widget _messageLayout({
-    text,
-    time,
-    color,
-    align,
-    boxAlign,
-    nip,
-    crossAlign,
-    String? name,
-    alignName,
-    type
-  }) {
-    return Column(
-      crossAxisAlignment: crossAlign,
-      children: [
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.90,
-          ),
-          child: Container(
-            padding: EdgeInsets.all(8),
-            margin: EdgeInsets.all(3),
-            child: Bubble(
-              color: color,
-              nip: nip,
-              child: Column(
-                crossAxisAlignment: crossAlign,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "$name",
-                    textAlign: alignName,
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                  ),
-                  getDataType(type,text,align),
-                  Text(
-                    time,
-                    textAlign: align,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.black.withOpacity(
-                        .4,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget getDataType(String type,String content, align){
-    if(type == "TEXT"){
-      return  Text(
-        content,
-        textAlign: align,
-        style: TextStyle(fontSize: 16),
-      );
-    }else if(type == "UPLOADING"){
-      return  Container(
-        height: 200,
-        width: 200,
-        child: Center(child: CircularProgressIndicator(),),
-      );
-    }else if(type == "IMAGE"){
-      return InkWell(
-        onTap:(){
-          List<String> imageList = [];
-          imageList.add(content);
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => FullscreenImageScreen(
-                    attachment: imageList,
-                  )));
-        },
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.50,
-            maxHeight: MediaQuery.of(context).size.height * 0.50,
-          ),
-          child: CachedNetworkImage(
-            imageUrl: content,
-            placeholder: (context, url) => CircularProgressIndicator(),
-            errorWidget: (context, url, error) => Icon(Icons.error),
-          ),
-        ),
-      );
-    }else if(type == "DOCUMENT"){
-      return  InkWell(
-        onTap:() async {
-          var ppp = await widget.model.chatService!.getByteData(content);
-          if(Responsive.isMobile(context)){
-            myNavigator.pushNamed(context, Routes.pdfPreview, arguments: ppp);
-          }
-          else{
-            showDialog(
-                context: context,
-                builder: (BuildContext context){
-                  return Dialog(
-                      shape: RoundedRectangleBorder(
-                          borderRadius:
-                          BorderRadius.circular(20.0)),
-                      child: Container(constraints: BoxConstraints(minWidth: 300, maxWidth: 450),child:PdfPreviewPage(ppp)));
-                }
-            );
-          }
-          */
-/*if (content.endsWith(".pdf")) {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => PdfViewScreen(content)));
-          }*//*
-
-        },
-        child: Container(
-          height: 200,
-          width: 200,
-          child: Center(child: Icon(Icons.picture_as_pdf,size: 40,),),
-        ),
-      );
-    }
-
-    return Container();
-  }
-}
-*/
