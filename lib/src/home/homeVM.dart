@@ -32,6 +32,7 @@ class HomeVM extends ChangeNotifier {
   String selectedUserId = "";
   String currentUserId = "";
   late UserModel currentUserModel ;
+  List<String> selectedItemValue = [];
 
   BuildContext? context;
   var width;
@@ -79,6 +80,9 @@ class HomeVM extends ChangeNotifier {
     notifyListeners();
 
     listenForFirebaseTokenUpdate(currentUserId);
+    if(userType == "superadmin" || userType == "1"  || userType == "2" || userType == "3" || userType == "4" || userType == "5"){
+      checkForPassportExpirtDateNotification(preferences);
+    }
     deleteAllOldChat(preferences);
   }
 
@@ -150,7 +154,6 @@ class HomeVM extends ChangeNotifier {
   }
 
   initSearchTypes() {
-    print("vgbhjnkmlkjbhjnkm");
     searchTypes.add({
       "key": context!.resources.strings.firstName,
       "value": FirestoreConstants.first_name,
@@ -191,8 +194,6 @@ class HomeVM extends ChangeNotifier {
         encrydecry().encryptMsg(searchController.text.trim()),
         selectedSearchType["value"]);
     if (querySnapshot != null) {
-      print("querySnapshot.size");
-      print(querySnapshot.size);
       searchResult.clear();
       var data = querySnapshot.docs
           .map((e) => e.data() as Map<String, dynamic>)
@@ -402,6 +403,62 @@ class HomeVM extends ChangeNotifier {
     });
   }
 
+  updateUserData(Map<String,dynamic> data){
+    data.addAll({FirestoreConstants.uid:selectedUserId});
+    mainModel!.mainService.updateUserDataMain(data);
+  }
+  checkForPassportExpirtDateNotification(SharedPreferences preferences) async {
+    int? lastChatDeleteTime = await preferences.getInt(FirestoreConstants.lastPassportExpiryTime);
+    String chatDeletTime = await homeService!.getChatDeleteTimeCount(FirestoreConstants.passportNotificicationTime);
+    QuerySnapshot? querySnapshot = await homeService?.getAllUser();
+    var data = querySnapshot!.docs.map((e) => e.data() as Map<String, dynamic>).toList();
+    List<String> tokenId = [];
+    List<String> uids = [];
+    for(int i = 0;i<data.length;i++){
+      if(data[i].containsKey(FirestoreConstants.passport_expiry_date)){
+        var expirtDate = DateTime.fromMillisecondsSinceEpoch(data[i][FirestoreConstants.passport_expiry_date]);
+        var expiryDate = expirtDate.subtract(Duration(days: int.parse(chatDeletTime)));
+        var currentDate = DateTime.now();
+        if(currentDate.isAfter(expiryDate)){
+          uids.add(data[i][FirestoreConstants.uid]);
+          if(data[i].containsKey(FirestoreConstants.web_firebase_token) && data[i][FirestoreConstants.web_firebase_token] != ""){
+            tokenId.add(data[i][FirestoreConstants.web_firebase_token]);
+          }
+          if(data[i].containsKey(FirestoreConstants.iOS_firebase_token) && data[i][FirestoreConstants.iOS_firebase_token] != ""){
+            tokenId.add(data[i][FirestoreConstants.iOS_firebase_token]);
+          }
+          if(data[i].containsKey(FirestoreConstants.android_firebase_token) && data[i][FirestoreConstants.android_firebase_token] != ""){
+            tokenId.add(data[i][FirestoreConstants.android_firebase_token]);
+          }
+        }
+      }
+    }
+    Map<String,dynamic> notificationObject = {
+      "title": "Passport Expire",
+      "body":"Passport Expire date is near. Please renew your passport",
+      "mutable_content": true,
+      "sound": "Tri-tone"};
+    Map<String,dynamic> dataObject = {
+      "dl": "",
+      "type":"passport_expire"
+    };
+
+    await mainModel!.sendNotification(tokenId, notificationObject, dataObject);
+    await mainModel!.createNotification(uids, notificationObject, dataObject);
+    if(lastChatDeleteTime!=null){
+      DateTime lastChatDeletedDateTime = DateTime.fromMillisecondsSinceEpoch(lastChatDeleteTime);
+      DateTime chatDeleteTime = lastChatDeletedDateTime.add(Duration(days: int.parse(chatDeletTime)));
+      DateTime currentTime = DateTime.now();
+      if(currentTime.isAfter(chatDeleteTime)){
+        homeService!.deleteChat(currentUserId,chatDeletTime);
+      }
+
+    }else{
+      homeService!.deleteChat(currentUserId,chatDeletTime);
+      await preferences.setInt(FirestoreConstants.lastChatDeleteTime, DateTime.now().millisecondsSinceEpoch);
+    }
+  }
+
   deleteAllOldChat(SharedPreferences preferences) async {
     int? lastChatDeleteTime = await preferences.getInt(FirestoreConstants.lastChatDeleteTime);
     String chatDeletTime = await homeService!.getChatDeleteTimeCount(FirestoreConstants.chatDeleteTimeInDays);
@@ -534,5 +591,7 @@ class HomeVM extends ChangeNotifier {
       }
     }
   }
+
+
 
 }

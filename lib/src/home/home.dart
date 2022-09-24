@@ -25,7 +25,6 @@ import '../../utils/responsive/responsive.dart';
 import '../superAdmin/admins/adminList/admin_list.dart';
 import '../superAdmin/superAdminReport/superAdminreport.dart';
 
-
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -34,7 +33,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   @override
   void initState() {
     // TODO: implement initState
@@ -48,8 +46,7 @@ class _HomeState extends State<Home> {
         create: (_) => HomeVM(HomeService(), MainViewMoel()),
         child: Consumer<HomeVM>(
           builder: (context, model, child) {
-
-            if(model.firstInit==0){
+            if (model.firstInit == 0) {
               model.firstInit++;
               model.firstInt(context);
             }
@@ -64,11 +61,13 @@ class _HomeState extends State<Home> {
               overlayColor: Colors.black,
               overlayOpacity: 0.8,
               child: model.mainModel!.isNetworkPresent
-                  ? model.isDataLoad ? Responsive(
-                      mobile: HomeItem(model, 1),
-                      tablet: HomeItem(model, 2),
-                      desktop: HomeItem(model, 3),
-                    ):Container()
+                  ? model.isDataLoad
+                      ? Responsive(
+                          mobile: HomeItem(model, 1),
+                          tablet: HomeItem(model, 2),
+                          desktop: HomeItem(model, 3),
+                        )
+                      : Container()
                   : Center(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -93,7 +92,6 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-
 }
 
 class HomeItem extends StatelessWidget {
@@ -104,14 +102,23 @@ class HomeItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    double drawerWidth = Responsive.isDesktop(context) ? size.width * 0.3 : Responsive.isTablet(context) ? size.width * 0.3 : size.width * 0.5;
+    double drawerWidth = Responsive.isDesktop(context)
+        ? size.width * 0.3
+        : Responsive.isTablet(context)
+            ? size.width * 0.3
+            : size.width * 0.5;
     return SafeArea(
       child: Scaffold(
         key: model.key,
-         appBar: AppBar(
+        appBar: AppBar(
           //backgroundColor: Colors.white,
           elevation: 0,
-          title: Text("Heritage",style: TextStyle(color: Colors.white,),),
+          title: Text(
+            "Heritage",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
           centerTitle: true,
         ),
         /*Drawer Example link https://blog.logrocket.com/how-to-add-navigation-drawer-flutter*/
@@ -123,12 +130,14 @@ class HomeItem extends StatelessWidget {
             ),
           ),
         ),
-        body: model.userType == "customer" ? getHomeBody(model, context)! : getAdminBody(model, context),
+        body: model.userType == "customer"
+            ? getHomeBody(model, context)!
+            : getAdminBody(model, context),
       ),
     );
   }
 
-  Widget? getAdminBody(HomeVM model, BuildContext context){
+  Widget? getAdminBody(HomeVM model, BuildContext context) {
     switch (model.pagePosition) {
       case 0:
         return AdminDashboardBody(
@@ -138,11 +147,15 @@ class HomeItem extends StatelessWidget {
         return AdminDashboardBody(model);
       case 2:
         return AdminDashboardBody(model);
-        //Super Admin views
+      //Super Admin views
       case 11:
-        return SuperAdminReportScreen(homeModel: model,);
+        return SuperAdminReportScreen(
+          homeModel: model,
+        );
       case 12:
-        return AdminList(homeModel: model,);
+        return AdminList(
+          homeModel: model,
+        );
     }
   }
 
@@ -165,24 +178,32 @@ class AdminDashboardBody extends StatelessWidget {
   const AdminDashboardBody(this.model, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-print("model.userType");
-print(model.userType);
+    print("model.userType");
+    print(model.userType);
     final Stream<QuerySnapshot> userStream;
-    if(model.userType =="2"){
-      userStream = model.homeService!.userdoc.where(FirestoreConstants.assign_admins,arrayContainsAny: ["2"]).snapshots();
-    }else
-    {
-      userStream  =  model.homeService!.usersStream;
+    if (model.userType != "superadmin" && model.userType != "1" ) {
+      userStream = model.homeService!.userdoc.where(
+          FirestoreConstants.assign_admins,
+          arrayContainsAny: [model.userType]).snapshots();
+    } else {
+      userStream = model.homeService!.usersStream;
     }
-    
+
     return Scaffold(
-      floatingActionButton: model.userType == "superAdmin" ? null : FloatingActionButton.extended(onPressed: (){
-        Map<String,dynamic> map = {
-          "currentUserId":model.currentUserId,
-          "userType":model.userType,
-        };
-        myNavigator.pushNamed(context, Routes.chatScreen, arguments: map);
-      }, label: Text("Chat"),icon: Icon(Icons.chat),),
+      floatingActionButton: model.userType == "superAdmin"
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () {
+                Map<String, dynamic> map = {
+                  "currentUserId": model.currentUserId,
+                  "userType": model.userType,
+                };
+                myNavigator.pushNamed(context, Routes.chatScreen,
+                    arguments: map);
+              },
+              label: Text("Chat"),
+              icon: Icon(Icons.chat),
+            ),
       body: StreamBuilder<QuerySnapshot>(
         stream: userStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -193,19 +214,19 @@ print(model.userType);
           if (snapshot.connectionState == ConnectionState.waiting) {
             return HeritageProgressBar();
           }
-          return Responsive.isMobile(context) ? UserList(snapshot,model):Row(
-            children: [
-              Expanded(flex:3,child: UserList(snapshot,model)),
-              Expanded(flex:7,child: UserDetail(model)),
-            ],
-          );
+          return Responsive.isMobile(context)
+              ? UserList(snapshot, model)
+              : Row(
+                  children: [
+                    Expanded(flex: 3, child: UserList(snapshot, model)),
+                    Expanded(flex: 7, child: UserDetail(model)),
+                  ],
+                );
         },
       ),
     );
   }
 }
-
-
 
 class DashBoardBody extends StatelessWidget {
   final HomeVM model;
@@ -221,69 +242,75 @@ class DashBoardBody extends StatelessWidget {
             : 1;
 
     return StreamBuilder<DocumentSnapshot>(
-      stream: model.homeService!.userdoc.doc(model.currentUserId).snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return HeritageErrorWidget();
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return HeritageProgressBar();
-        }
-
-        for (int i = 0; i < model.homeItems.length; i++) {
-          int count = 1;
-          double ratio = 1.50;
-          if (i == model.homeItems.length - 1) {
-            if (crossAxisCount == 2 || crossAxisCount == 3) {
-              count = crossAxisCount;
-              ratio = 3.50;
-            }
+        stream: model.homeService!.userdoc.doc(model.currentUserId).snapshots(),
+        builder:
+            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return HeritageErrorWidget();
           }
-          children.add(StaggeredGridTile.fit(
-              crossAxisCellCount: count,
-              child: _buildServiceCardNew(model.homeItems[i], ratio,snapshot)));
-        }
-        return Scaffold(
-          floatingActionButton: FloatingActionButton.extended(onPressed: (){
-            Map<String,dynamic> map = {
-              "currentUserId":model.currentUserId,
-              "userType":model.userType,
-            };
-            myNavigator.pushNamed(context, Routes.chatScreen, arguments: map);
-          }, label: Text("Chat"),icon: Icon(Icons.chat),),
-            body: Center(
-              child: Padding(
-                  padding: EdgeInsets.all(16.sp),
-                  child: SingleChildScrollView(
-                    child: StaggeredGrid.count(
-                      crossAxisCount: crossAxisCount,
-                      mainAxisSpacing: 20.sp,
-                      crossAxisSpacing: 20.sp,
-                      children: children,
-                    ),
-                  )),
-            ));
-      }
-    );
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return HeritageProgressBar();
+          }
+
+          for (int i = 0; i < model.homeItems.length; i++) {
+            int count = 1;
+            double ratio = 1.50;
+            if (i == model.homeItems.length - 1) {
+              if (crossAxisCount == 2 || crossAxisCount == 3) {
+                count = crossAxisCount;
+                ratio = 3.50;
+              }
+            }
+            children.add(StaggeredGridTile.fit(
+                crossAxisCellCount: count,
+                child:
+                    _buildServiceCardNew(model.homeItems[i], ratio, snapshot)));
+          }
+          return Scaffold(
+              floatingActionButton: FloatingActionButton.extended(
+                onPressed: () {
+                  Map<String, dynamic> map = {
+                    "currentUserId": model.currentUserId,
+                    "userType": model.userType,
+                  };
+                  myNavigator.pushNamed(context, Routes.chatScreen,
+                      arguments: map);
+                },
+                label: Text("Chat"),
+                icon: Icon(Icons.chat),
+              ),
+              body: Center(
+                child: Padding(
+                    padding: EdgeInsets.all(16.sp),
+                    child: SingleChildScrollView(
+                      child: StaggeredGrid.count(
+                        crossAxisCount: crossAxisCount,
+                        mainAxisSpacing: 20.sp,
+                        crossAxisSpacing: 20.sp,
+                        children: children,
+                      ),
+                    )),
+              ));
+        });
   }
 
-  Widget _buildServiceCardNew(String item, double aspectRatio, AsyncSnapshot<DocumentSnapshot<Object?>> snapshot) {
+  Widget _buildServiceCardNew(String item, double aspectRatio,
+      AsyncSnapshot<DocumentSnapshot<Object?>> snapshot) {
     int studentPercent = 0;
-    Color studentPercentColor  = Colors.green;
+    Color studentPercentColor = Colors.green;
     Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-    if(data.containsKey(FirestoreConstants.studentFormCaseID)){
-      if(data.containsKey(FirestoreConstants.studentFormPercent)){
+    if (data.containsKey(FirestoreConstants.studentFormCaseID)) {
+      if (data.containsKey(FirestoreConstants.studentFormPercent)) {
         studentPercent = data[FirestoreConstants.studentFormPercent];
-        if(studentPercent<25){
-          studentPercentColor  = Colors.redAccent;
-        }else if(studentPercent<50){
-          studentPercentColor  = Colors.orangeAccent;
+        if (studentPercent < 25) {
+          studentPercentColor = Colors.redAccent;
+        } else if (studentPercent < 50) {
+          studentPercentColor = Colors.orangeAccent;
+        } else if (studentPercent < 75) {
+          studentPercentColor = Colors.blueAccent;
         }
-        else if(studentPercent<75){
-          studentPercentColor  = Colors.blueAccent;
-        }
-      }else{
+      } else {
         studentPercentColor = Colors.redAccent;
       }
     }
@@ -294,7 +321,7 @@ class DashBoardBody extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () {
-             model.handleServiceClick(item,model.currentUserId);
+            model.handleServiceClick(item, model.currentUserId);
           },
           child: Stack(
             fit: StackFit.expand,
@@ -352,18 +379,19 @@ class DashBoardBody extends StatelessWidget {
                             letterSpacing: 0.15,
                           ),
                         ),
-                        item == "Student visa"?Text(
-                          studentPercent.toString(),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: studentPercentColor,
-                            fontSize: 14.sp,
-                            height: 1.25,
-                            letterSpacing: 0.15,
-                          ),
-                        ):Container(),
-
+                        item == "Student visa"
+                            ? Text(
+                                studentPercent.toString(),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: studentPercentColor,
+                                  fontSize: 14.sp,
+                                  height: 1.25,
+                                  letterSpacing: 0.15,
+                                ),
+                              )
+                            : Container(),
                       ],
                     ),
                   ],

@@ -5,7 +5,7 @@ import 'package:Heritage/utils/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../constants/GetNameTextFeild.dart';
+import '../../constants/app_popUps.dart';
 import '../../data/firestore_constants.dart';
 import '../../models/user_model.dart';
 import '../mainViewModel.dart';

@@ -13,6 +13,11 @@ class HomeService extends MainService{
    return snapshot;
   }
 
+  Future<QuerySnapshot> getAllUser() async {
+    var snapshot =  await userdoc.where(FirestoreConstants.user_type,isEqualTo: "customer").get();
+    return snapshot;
+  }
+
   Future<void> updateUserData(Map<String, dynamic> data) async {
     data.addAll({FirestoreConstants.updatedAt:FieldValue.serverTimestamp()});
     print(data[FirestoreConstants.uid]);

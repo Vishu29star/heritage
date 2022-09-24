@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/FormWidgetTextField.dart';
-import '../../constants/GetNameTextFeild.dart';
+import '../../constants/app_popUps.dart';
 import '../../constants/HeritageCircularProgressBar.dart';
 import '../../constants/HeritageErrorWidget(.dart';
 import '../../data/firestore_constants.dart';

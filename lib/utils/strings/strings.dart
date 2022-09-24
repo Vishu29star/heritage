@@ -62,6 +62,7 @@ abstract class Strings {
   String get enterParentemail;
   String get numberOfChildren;
   String get married;
+  String get paymentReceived;
   String get emailHint ;
   String get zero ;
   String get manager  ;

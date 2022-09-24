@@ -40,6 +40,7 @@
   static String device_type = "device_type";
   static String app_version = "app_version";
   static String assign_admins = "assign_admins";
+  static String adminSuggestion = "adminSuggestion";
   static String is_payment_done = "is_payment_done";
   static String android_firebase_token = "android_firebase_token";
   static String iOS_firebase_token = "iOS_firebase_token";
@@ -47,6 +48,8 @@
   static String studentFormCaseID = "studentFormCaseID";
   static String studentFormPercent = "studentFormPercent";
   static String lastChatDeleteTime = "lastChatDeleteTime";
+  static String lastPassportExpiryTime = "lastPassportExpiryTime";
+  static String isLastAdminReached = "isLastAdminReached";
 
   //chat group feild
   static String groupChatId = "groupChatId";
@@ -72,8 +75,6 @@
   static String student_form_name = "student_form_name";
   static String student_form_reffered_by = "student_form_reffered_by";
   static String student_form_DOB = "student_form_DOB";
-  static String passport_image = "passport_image";
-  static String passport_expiry_date = "passport_expiry_date";
   static String student_form_city_village = "student_form_city_village";
   static String form_1_employee_comment = "form_1_employee_comment";
   static String form_1_customer_comment = "form_1_customer_comment";
@@ -81,6 +82,8 @@
   static String student_form_contact = "student_form_contact";
   static String student_form_email = "student_form_email";
   static String student_form_parent_email = "student_form_parent_email";
+  static String passport_image = "passport_image";
+  static String passport_expiry_date = "passport_expiry_date";
   static String student_form_number_of_children = "student_form_number_of_children";
   static String student_form_married = "student_form_married";
   static String form_2_employee_comment = "form_2_employee_comment";

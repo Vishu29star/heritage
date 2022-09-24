@@ -177,19 +177,20 @@ class _HeritageDoumentUploadState extends State<HeritageDoumentUpload> {
 
   }
   Widget getFileWidget(Map<String , dynamic > fileData){
-    if(fileData["type"]=="xfile"){
+    print(fileData);
+    if(fileData["type"].toString().toLowerCase()=="xfile"){
       return kIsWeb
           ? Image.network(fileData["data"].path)
           : Image.file(File(fileData["data"].path));
     }
-    if(fileData["type"]=="filPicker"){
+    if(fileData["type"].toString().toLowerCase()=="filepicker" || fileData["type"].toString().toLowerCase()=="filpicker" ){
       return Center(child: Icon(Icons.picture_as_pdf,size: 30,),);
     }
-    if(fileData["type"]=="document"){
+    if(fileData["type"].toString().toLowerCase()=="document"){
       return Center(child: Icon(Icons.picture_as_pdf,size: 30,),);
     }
-    if(fileData["type"]=="image"){
-      return Image.network(fileData["data"].path);
+    if(fileData["type"].toString().toLowerCase()=="image"){
+      return Image.network(fileData["data"]);
     }
     return Container();
   }

@@ -64,6 +64,7 @@ class EngLishStrings extends Strings {
   String get enterParentemail => "Enter Parent's Email";
   String get numberOfChildren => "No. of children (If any)";
   String get married => "Married";
+  String get paymentReceived => "Payment Received";
   String get emailHint => "tom@gmail.com";
   String get zero => "0";
   String get manager => "Manager";

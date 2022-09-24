@@ -1,10 +1,16 @@
 import 'package:Heritage/constants/roundExpansionTile.dart';
+import 'package:Heritage/models/user_model.dart';
 import 'package:Heritage/route/myNavigator.dart';
 import 'package:Heritage/route/routes.dart';
+import 'package:Heritage/utils/colors/appColors.dart';
+import 'package:Heritage/utils/comman/commanWidget.dart';
 import 'package:Heritage/utils/extension.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dropdown_button2/custom_dropdown_button2.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
+import '../../../constants/app_popUps.dart';
 import '../../../constants/noDataHeritageWidget.dart';
 import '../../../data/firestore_constants.dart';
 import '../../../utils/encryptry.dart';
@@ -54,7 +60,6 @@ class _UserListState extends State<UserList> {
        ),
      ));
     }
-    print("bhnjcrfvvfv ");
 
     return Column(
       children: [
@@ -94,47 +99,49 @@ class _UserListState extends State<UserList> {
 
   Widget listWidget(List<Map<String, dynamic>> searchResult){
     List<Map<String, dynamic>> finalList = [];
+    widget.model.selectedItemValue.clear();
+
     searchResult.forEach((element) {
       if(element[FirestoreConstants.user_type]=="customer"){
         finalList.add(element);
       }
     });
+
     if(finalList.length>0){
       return ListView.separated(
           separatorBuilder: (context, index) => Divider(color: Colors.black),
           itemCount: finalList.length,
           itemBuilder: (BuildContext ctx, int index) {
             Map<String, dynamic> data = finalList[index];
+            UserModel userModel = UserModel.fromJson(data);
             if (widget.model.selectedUserId == "") {
               widget.model.selectuser(finalList[0][FirestoreConstants.uid], isFirst: true);
             }
             String name = "";
             if (data.containsKey(FirestoreConstants.first_name)) {
-              name = encrydecry()
-                  .decryptMsg(data[FirestoreConstants.first_name])
-                  .toString()
-                  .capitalize() +
+              name = userModel.first_name! +
                   " " +
-                  encrydecry()
-                      .decryptMsg(data[FirestoreConstants.last_name])
-                      .toString()
-                      .capitalize();
+                  userModel.last_name!.capitalize();
             }
-            String email =
-            encrydecry().decryptMsg(data[FirestoreConstants.email]);
-            return ListTile(
-              selected:
-              widget.model.selectedUserId == data[FirestoreConstants.uid],
-              onTap: () {
-                widget.model.selectuser(data[FirestoreConstants.uid]);
-                if (Responsive.isMobile(context)) {
-                  var passValue = {"model": widget.model};
-                  myNavigator.pushNamed(context, Routes.userDetail,
-                      arguments: passValue);
-                }
-              },
-              title: Text(name),
-              subtitle: Text(email),
+            String email = userModel.email!;
+            return Column(
+              children: [
+                ListTile(
+                  selected:
+                  widget.model.selectedUserId == data[FirestoreConstants.uid],
+                  onTap: () {
+                    widget.model.selectuser(data[FirestoreConstants.uid]);
+                    if (Responsive.isMobile(context)) {
+                      var passValue = {"model": widget.model};
+                      myNavigator.pushNamed(context, Routes.userDetail,
+                          arguments: passValue);
+                    }
+                  },
+                  title: Text(name),
+                  subtitle: Text(email),
+                ),
+                widget.model.userType == "superadmin" ? assignedAdmin(userModel) : userModel.isLastAdminReached ? assignAdminDropDown(widget.model.selectedItemValue,index) : assignToNextAdmin()
+              ],
             );
           });
     }
@@ -145,4 +152,110 @@ class _UserListState extends State<UserList> {
     };
 
   }
+  Widget assignToNextAdmin(){
+    return InkWell(
+      onTap: () async {
+        var result = await userAssignToAdminDialog(context ,isPaymentOption : widget.model.userType == "2" );
+        if(result != null){
+          var adminType = CommanWidgets.getNextAdminCode(widget.model.userType);
+          if(adminType=="4"){
+            result.addAll({FirestoreConstants.isLastAdminReached:true});
+          }
+          result.addAll({FirestoreConstants.assign_admins :[adminType]});
+          widget.model.updateUserData(result);
+        }
+
+      },
+      child: Container(
+        color: AppColor().colorPrimary,
+        padding: EdgeInsets.symmetric(horizontal: 16,vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("Assign to",style: TextStyle(color: Colors.white)),
+            Icon(Icons.arrow_forward,color: Colors.white,),
+            Text(CommanWidgets.getNextAdmin(widget.model.userType),style: TextStyle(color: Colors.white))
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget assignedAdmin(UserModel model){
+    return InkWell(
+      onTap: () async {
+      /*  var result = await userAssignToAdminDialog(context ,isPaymentOption : widget.model.userType == "2" );
+        if(result != null){
+          var adminType = CommanWidgets.getNextAdminCode(widget.model.userType);
+          if(adminType=="4"){
+            result.addAll({FirestoreConstants.isLastAdminReached:true});
+          }
+          result.addAll({FirestoreConstants.assign_admins :[adminType]});
+          widget.model.updateUserData(result);
+        }*/
+
+      },
+      child: Container(
+        color: AppColor().colorPrimary,
+        padding: EdgeInsets.symmetric(horizontal: 16,vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("Assiged Admin",style: TextStyle(color: Colors.white)),
+            Icon(Icons.arrow_forward,color: Colors.white,),
+            Text(CommanWidgets.getAdmin(model.assign_admins ?? [""]),style: TextStyle(color: Colors.white))
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget assignAdminDropDown(List<String> selectedItemValue, int index) {
+
+    selectedItemValue.add("FRONT  OFFICE");
+    List<String> ddl = CommanWidgets.getAdminList(widget.model.userType);
+    return Container(
+      //color: AppColor().colorPrimary,
+      padding: EdgeInsets.symmetric(horizontal: 16,vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text("Assign to"/*,style: TextStyle(color: Colors.white)*/),
+         // Icon(Icons.arrow_forward,color: Colors.white,),
+          CustomDropdownButton2(
+            //isExpanded: true,
+            value: selectedItemValue[index].toString(),
+
+            dropdownItems: ddl,
+            onChanged: (value) async {
+              selectedItemValue[index] = value.toString();
+              setState(() {
+
+              });
+              print(value.toString());
+              var result = await userAssignToAdminDialog(context);
+              if(result != null){
+                result.addAll({FirestoreConstants.assign_admins :[CommanWidgets.getNextAdminCode(widget.model.userType)]});
+                widget.model.updateUserData(result);
+              }
+            },
+            hint: 'Select Admin',
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<String>> _dropDownItem() {
+    List<String> ddl = CommanWidgets.getAdminList(widget.model.userType);
+    return ddl
+        .map((value) => DropdownMenuItem(
+
+      value: value,
+      child: Text(value),
+    ))
+        .toList();
+  }
+
+
 }

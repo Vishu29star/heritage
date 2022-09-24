@@ -277,6 +277,12 @@ class StudentFormVM extends ChangeNotifier {
     if(data.containsKey(FirestoreConstants.student_form_parent_email)){
       emailParentController.text = data[FirestoreConstants.student_form_parent_email];
     }
+    if(data.containsKey(FirestoreConstants.passport_image)){
+      PPImage = data[FirestoreConstants.passport_image];
+    }
+    if(data.containsKey(FirestoreConstants.student_form_date)){
+      passportExpiryDate = DateTime.fromMillisecondsSinceEpoch(data[FirestoreConstants.passport_expiry_date]);
+    }
     if(data.containsKey(FirestoreConstants.student_form_number_of_children)){
       noOfChildren.text = data[FirestoreConstants.student_form_number_of_children];
     }
@@ -362,8 +368,11 @@ class StudentFormVM extends ChangeNotifier {
     if(data.containsKey(FirestoreConstants.form_4_employee_comment)){
       form4EmployeeCommentController.text = data[FirestoreConstants.form_4_employee_comment];
     }
-    if(data.containsKey(FirestoreConstants.form_4_customer_comment)){
-      form4CustomerCommentController.text = data[FirestoreConstants.form_4_customer_comment];
+    if(data.containsKey(FirestoreConstants.student_form_tenth_MS)){
+      tenMarkSheetImage = data[FirestoreConstants.student_form_tenth_MS];
+    }
+    if(data.containsKey(FirestoreConstants.student_form_twelve_MS)){
+      twelveMarkSheetImage = data[FirestoreConstants.student_form_twelve_MS];
     }
 
     //student form 5
@@ -1119,7 +1128,8 @@ class StudentFormVM extends ChangeNotifier {
           "sound": "Tri-tone"};
         Map<String,dynamic> dataObject = {
           FirestoreConstants.uid: formUserModel.uid,
-          "dl": ""
+          "dl": "",
+          "type":"payment_finacial_admin"
         };
 
         await mainModel!.sendNotification(tokenList, notificationObject, dataObject);

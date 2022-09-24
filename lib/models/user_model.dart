@@ -18,10 +18,17 @@ class UserModel{
   String? _android_firebase_token;
   String? _iOS_firebase_token;
   String? _web_firebase_token;
+  String? _adminSuggestion;
+  dynamic? _assign_admins;
+  Map<String,dynamic>? _passportImageObj;
+  int? _passportExpiryDate;
+  bool _isPaymentDone = false;
+  bool _isLastAdminReached = false;
 
 
   String? get first_name => _first_name;
   set first_name(String? first_name) => _first_name = first_name;
+
   String? get last_name => _last_name;
   set last_name(String? last_name) => _last_name = last_name;
   String? get uid => _uid;
@@ -56,6 +63,20 @@ class UserModel{
   String? get iOS_firebase_token => _iOS_firebase_token;
   set iOS_firebase_token(String? iOS_firebase_token) => _iOS_firebase_token = iOS_firebase_token;
 
+  int? get passportExpiryDate=> _passportExpiryDate;
+  set passportExpiryDate(int? passportExpiryDate) => _passportExpiryDate = passportExpiryDate;
+  Map<String,dynamic>? get passportImageObj => _passportImageObj;
+  set passportImageObj(Map<String,dynamic>? passportImageObj) => _passportImageObj = passportImageObj;
+  bool get isPaymentDone => _isPaymentDone;
+  set isPaymentDone(bool isPaymentDone) => _isPaymentDone = isPaymentDone;
+  bool get isLastAdminReached => _isLastAdminReached;
+  set isLastAdminReached(bool isLastAdminReached) => _isLastAdminReached = isLastAdminReached;
+  dynamic? get assign_admins => _assign_admins;
+  set assign_admins(dynamic? assign_admins) => _assign_admins = assign_admins;
+  String? get adminSuggestion => _adminSuggestion;
+  set adminSuggestion(String? adminSuggestion) => _adminSuggestion = adminSuggestion;
+
+
   UserModel(
       {String? first_name = "",
         String? last_name = "",
@@ -74,6 +95,12 @@ class UserModel{
         String? android_firebase_token = "",
         String? web_firebase_token = "",
         String? iOS_firebase_token = "",
+        String? adminSuggestion = "",
+        Map<String,dynamic>? passportImageObj,
+        int? passportExpiryDate ,
+        bool? isLastAdminReached ,
+        bool? isPaymentDone ,
+        dynamic? assign_admins ,
      }) {
     if (first_name != null) {this._first_name = first_name;}
     if (last_name != null) {this._last_name = last_name;}
@@ -92,6 +119,12 @@ class UserModel{
     this._android_firebase_token = android_firebase_token;
     this._web_firebase_token = web_firebase_token;
     this._iOS_firebase_token = iOS_firebase_token;
+    this._passportImageObj = passportImageObj;
+    this._passportExpiryDate = passportExpiryDate;
+    this._isLastAdminReached = isLastAdminReached ?? false;
+    this._assign_admins = assign_admins ?? [""];
+    this._passportExpiryDate = passportExpiryDate;
+    this._adminSuggestion = adminSuggestion;
   }
 
   UserModel.fromJson(Map<String, dynamic> json) {
@@ -177,6 +210,33 @@ class UserModel{
     if(json.containsKey("iOS_firebase_token")){
       _iOS_firebase_token = json['iOS_firebase_token'];
     }
+    if(json.containsKey("passport_expiry_date")){
+      _passportExpiryDate = json['passport_expiry_date'];
+    }
+    if(json.containsKey("passport_image")){
+      _passportImageObj = json['passport_image'];
+    }
+    if(json.containsKey("isLastAdminReached")){
+      _isLastAdminReached = json['isLastAdminReached'];
+    }
+    if(json.containsKey("is_payment_done")){
+      if(json['is_payment_done'] is String){
+        if(json['is_payment_done'].toString().toLowerCase() == "yes"){
+          isPaymentDone = true;
+        }else{
+          isPaymentDone = false;
+        }
+      }else{
+        isPaymentDone = json['is_payment_done'];
+      }
+
+    }
+    if(json.containsKey("assign_admins")){
+      _assign_admins = json['assign_admins'];
+    }
+    if(json.containsKey("adminSuggestion")){
+      _adminSuggestion = json['adminSuggestion'];
+    }
   }
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
@@ -198,6 +258,12 @@ class UserModel{
     data['android_firebase_token'] = this._android_firebase_token;
     data['web_firebase_token'] = this._web_firebase_token;
     data['iOS_firebase_token'] = this._iOS_firebase_token;
+    data['passport_expiry_date'] = this._passportExpiryDate;
+    data['passport_image'] = this._passportImageObj;
+    data['is_payment_done'] = this.isPaymentDone;
+    data['isLastAdminReached'] = this.isLastAdminReached;
+    data['assign_admins'] = this.assign_admins;
+    data['adminSuggestion'] = this._adminSuggestion;
     return data;
   }
 }

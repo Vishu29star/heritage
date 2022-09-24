@@ -614,8 +614,8 @@ class _SingleChatPageState extends State<SingleChatPage> {
     else if(type == "UPLOADINGAUDIO"){
       return  ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.70,
-          maxHeight: MediaQuery.of(context).size.height * 0.20,
+          maxWidth: MediaQuery.of(context).size.width * 0.50,
+          maxHeight: MediaQuery.of(context).size.height * 0.10,
         ),
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
@@ -626,10 +626,16 @@ class _SingleChatPageState extends State<SingleChatPage> {
       );
     }
     else if(type == "AUDIO"){
-      AudioPlayer player = AudioPlayer();
-      return  Container(
-        padding: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
-        child: MediaPlayerUrl({"url":content,"isPlaying":false},player),
+      //AudioPlayer player = AudioPlayer();
+      return  ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.50,
+          maxHeight: MediaQuery.of(context).size.height * 0.10,
+        ),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
+          child: MediaPlayerUrl({"url":content,"isPlaying":false}),
+        ),
       );
     }
     return Container();
