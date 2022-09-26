@@ -127,7 +127,7 @@ class _HeritageDoumentUploadState extends State<HeritageDoumentUpload> {
                      padding: EdgeInsets.all(12),
                      child: Center(child:Text( "Select Image",style: TextStyle(color: Colors.black))
                      ))
-                     : ConstrainedBox(constraints: BoxConstraints(
+                     :   ConstrainedBox(constraints: BoxConstraints(
                    maxWidth: MediaQuery.of(context).size.width * 0.30,
                    maxHeight: MediaQuery.of(context).size.height * 0.30,
                  ),child: getFileWidget(widget.image!),),
