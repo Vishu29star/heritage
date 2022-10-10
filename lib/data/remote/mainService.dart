@@ -31,8 +31,8 @@ Map<ServerType, String> on8Srvers = {
 //configration too for ios and android
 ServerType appServerType = ServerType.dev;
 String userCollection = appServerType.name + FirestoreConstants.users;
-String studentFormCollection =
-    appServerType.name + FirestoreConstants.studentForms;
+String studentFormCollection = appServerType.name + FirestoreConstants.studentForms;
+String immigrationFormCollection = appServerType.name + FirestoreConstants.immigrationForms;
 String groupChatChannel =
     appServerType.name + FirestoreConstants.groupChatChannel;
 String messages = appServerType.name + FirestoreConstants.messages;
@@ -105,6 +105,8 @@ class MainService {
       return false;
     }
   }
+
+
 
   Future<void> updateUserDataMain(Map<String, dynamic> data) async {
     data.addAll({FirestoreConstants.updatedAt: FieldValue.serverTimestamp()});

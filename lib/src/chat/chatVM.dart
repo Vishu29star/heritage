@@ -5,7 +5,7 @@ import 'package:Heritage/utils/webComman/web_comman.dart';
 import 'package:audio_session/audio_session.dart' as AS;
 import 'package:Heritage/src/chat/chatService.dart';
 import 'package:Heritage/src/mainViewModel.dart';
-import 'package:audioplayers/audioplayers.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,12 +13,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/firestore_constants.dart';
 import '../../models/user_model.dart';
 import '../../utils/comman/commanWidget.dart';
+import 'mediaUrlWidget.dart';
 /*
 chat tutoril link
 https://abhaymanu1205.medium.com/flutter-voice-messaging-app-4d980bb4108a
@@ -30,7 +33,10 @@ class ChatVM extends ChangeNotifier {
 
   final MainViewMoel? mainModel;
   final ChatService? chatService;
-
+  int audioListindex =- 1;
+  bool isFirstAudio =false;
+  List<Map<String,dynamic>> audioList =[];
+  List<AudioPlayer> audioPlayerList =[];
   late String currentUserId;
   late String userType;
   String selectedgroupChatId = "";
@@ -297,27 +303,6 @@ class ChatVM extends ChangeNotifier {
     recorder.setSubscriptionDuration(const Duration(milliseconds: 500));
   }
 
-  initPlayer(){
-    /*https://www.youtube.com/watch?v=MB3YGQ-O`1lk*/
-    soundPlayer.onPlayerStateChanged.listen((state) {
-      print("onPlayerStateChanged");
-      isPlaying = CommanWidgets().isPLAYING(state);
-      notifyListeners();
-    });
-
-    soundPlayer.onPlayerComplete.listen((event) {
-      playerPostion = Duration.zero;
-      soundPlayer.stop();
-    });
-
-    soundPlayer.onDurationChanged.listen((newPosition) {
-      playerDuration =newPosition;
-    });
-    soundPlayer.onPositionChanged.listen((newPosition) {
-      playerPostion =newPosition;
-      notifyListeners();
-    });
-  }
 
   Future stopRecording () async{
     /*if(!isRecorderReady) return;*/
@@ -327,6 +312,7 @@ class ChatVM extends ChangeNotifier {
     final audioFile = File(path!);
     this.audioFile = audioFile;
     print("Recorded Audio File : $audioFile");
+    await  soundPlayer.setFilePath(audioFile.path);
 
   }
 
@@ -339,6 +325,9 @@ class ChatVM extends ChangeNotifier {
   void disposeChat() {
     recorder.closeRecorder();
     soundPlayer.dispose();
+    for(int i = 0;i<audioPlayerList.length;i++){
+      audioPlayerList[i].dispose();
+    }
   }
 
 }

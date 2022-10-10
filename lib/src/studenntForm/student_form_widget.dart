@@ -16,7 +16,6 @@ import '../mainViewModel.dart';
 
 class StudenFormWidegt extends StatefulWidget {
   final String userId;
-  final formKey = GlobalKey<FormState>();
 
   StudenFormWidegt({Key? key, required this.userId}) : super(key: key);
 
@@ -29,7 +28,6 @@ class _StudenFormWidegtState extends State<StudenFormWidegt> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      key: widget.formKey,
       backgroundColor: Colors.white,
       body: ChangeNotifierProvider<StudentFormVM>(
         create: (_) => StudentFormVM(StudentFormService(), MainViewMoel()),
@@ -141,10 +139,7 @@ class _StudenFormWidegtState extends State<StudenFormWidegt> {
   }
   Widget formBody(StudentFormVM model) {
     print("rftgyhujikolp");
-    final Stream<DocumentSnapshot> studentFormStream = model
-        .studentFormService!.studentFormDoc
-        .doc(model.studentCaseId)
-        .snapshots();
+    final Stream<DocumentSnapshot> studentFormStream = model.studentFormService!.studentFormDoc.doc(model.studentCaseId).snapshots();
     return StreamBuilder<DocumentSnapshot>(
       stream: studentFormStream,
       builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {

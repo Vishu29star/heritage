@@ -47,6 +47,7 @@ abstract class Strings {
 
 
   String get studentForm ;
+  String get immigrationForm ;
   String get selectDate ;
   String get date;
   String get passportExpiryDate;
@@ -123,4 +124,7 @@ abstract class Strings {
   String get admins ;
   String get update ;
   String get addAdmins ;
+  String get regularCorrespondance;
+  String get credentialAwarded;
+  String get markSheetAvailable;
 }

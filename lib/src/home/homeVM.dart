@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:Heritage/src/cisForm/cis_form_widget.dart';
+import 'package:Heritage/src/personForm/person_form_screen.dart';
 import 'package:Heritage/utils/encryptry.dart';
 import 'package:Heritage/utils/extension.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -124,7 +125,7 @@ class HomeVM extends ChangeNotifier {
         break;
       case "Express Entry":
         if (Responsive.isMobile(context!)) {
-          myNavigator.pushNamed(context!, Routes.cisForm);
+          myNavigator.pushNamed(context!, Routes.form,arguments: userId);
         } else {
           showDialog(
               context: context!,
@@ -135,7 +136,7 @@ class HomeVM extends ChangeNotifier {
                     child: Container(
                         constraints:
                             BoxConstraints(minWidth: 300, maxWidth: 450),
-                        child: CISFormWidget()));
+                        child: PersonFormScreen(userId)));
               });
         }
         break;
@@ -143,6 +144,7 @@ class HomeVM extends ChangeNotifier {
   }
 
   initSearch() {
+    searchTypes.clear();
     initSearchTypes();
     searchController.addListener(() {
       if (searchController.text.trim().length == 0) {

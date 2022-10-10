@@ -9,12 +9,8 @@ import 'package:mime/mime.dart';
 import '../colors/appColors.dart';
 
 class CommanWidgets {
-  Widget get loadingWidget => Container(
-        color: Colors.black.withOpacity(0.5),
-        child: Center(
-          child: const CircularProgressIndicator(),
-        ),
-      );
+
+  static List<String> educationLevel = ["Primary", "Secondary","Diploma","Graduate","Post-Graduate"];
 
   static String getNextAdmin(String userType){
     switch (userType) {
@@ -70,6 +66,15 @@ class CommanWidgets {
           return "1";
         }
     }
+  }
+
+  static bool isEmail(String em) {
+
+    String p = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+
+    RegExp regExp = new RegExp(p);
+
+    return regExp.hasMatch(em);
   }
 
   static String getAdmin(dynamic assignedAdmin){

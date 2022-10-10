@@ -2,6 +2,7 @@
   //collection names
   static String users = "users";
   static String studentForms = "studentForms";
+  static String immigrationForms = "studentforms";
   static String firestoreConstants = "constants";
   static String groupChatChannel = "groupChatChannel";
   static String messages = "messages";
@@ -46,6 +47,7 @@
   static String iOS_firebase_token = "iOS_firebase_token";
   static String web_firebase_token = "web_firebase_token";
   static String studentFormCaseID = "studentFormCaseID";
+  static String immigrationFormCaseID = "immigrationFormCaseID";
   static String studentFormPercent = "studentFormPercent";
   static String lastChatDeleteTime = "lastChatDeleteTime";
   static String lastPassportExpiryTime = "lastPassportExpiryTime";
@@ -138,5 +140,47 @@
   static String student_ielts_remark = "student_ielts_remark";
   static String form_6_employee_comment = "form_6_employee_comment";
   static String form_6_customer_comment = "form_6_customer_comment";
+
+
+  //immigration form feild
+
+  //   PERSONAL DETAIL CONSTANTS
+  static String immi_personal_detail = "immi_personal_detail";
+  static String immi_name = "immi_name";
+  static String immi_dob = "immi_dob";
+  static String immi_contact = "immi_contact";
+  static String immi_email = "immi_email";
+  static String immi_refferedBy = "immi_refferedBy";
+  static String immi_best_time_to_call = "immi_best_time_to_call";
+  static String immi_married = "immi_married";
+  static String immi_marriage_date = "immi_marriage_date";
+  static String immi_number_of_children = "immi_number_of_children";
+  static String immi_previous_marriage = "immi_previous_marriage";
+  static String immi_previous_marriage_ending_reason = "immi_previous_marriage_ending_reason";
+  static String immi_previous_marriage_releation_type = "immi_previous_marriage_releation_type";
+  static String immi_previous_marriage_number_of_children = "immi_previous_marriage_number_of_children";
+
+  // immi education
+
+ static String immi_education = "immi_education";
+ static String immi_education_level = "immi_education_level";
+ static String immi_education_to_date = "immi_education_to_date";
+ static String immi_education_from_date = "immi_education_from_date";
+ static String immi_education_regular_correspondance = "immi_education_regular_correspondance";
+ static String immi_education_credential_awarded = "immi_education_credential_awarded";
+ static String immi_education_marksheet_available = "immi_education_marksheet_available";
+ static String immi_education_stream = "immi_education_stream";
+ static String immi_education_university = "immi_education_university";
+ static String immi_education_marksheet = "immi_education_marksheet";
+
+
+ // work experience
+  static String immi_work_experience = "immi_work_experience";
+  static String immi_work_to_date = "immi_work_to_date";
+  static String immi_work_from_date = "immi_work_from_date";
+  static String immi_work_title = "immi_work_title";
+  static String immi_work_company_name = "immi_work_company_name";
+  static String immi_work_industry_type = "immi_work_industry_type";
+  static String immi_work_industry_location = "immi_work_industry_location";
 
  }

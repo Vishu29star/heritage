@@ -6,22 +6,25 @@ import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MediaPlayerUrl extends StatefulWidget {
-  final Map<String, dynamic> urlMap;
 
-  const MediaPlayerUrl(this.urlMap, {Key? key}) : super(key: key);
+  final List<Map<String, dynamic>> audioList;
+  final int audioListindex;
+  final List<AudioPlayer> audioPLayerList;
+
+  const MediaPlayerUrl(this.audioList,this.audioPLayerList, this.audioListindex,{Key? key}) : super(key: key);
 
   @override
   State<MediaPlayerUrl> createState() => _MediaPlayerUrlState();
 }
 
-class _MediaPlayerUrlState extends State<MediaPlayerUrl> {
-  final player = AudioPlayer();
+class _MediaPlayerUrlState extends State<MediaPlayerUrl> with AutomaticKeepAliveClientMixin{
+
 
   Stream<PositionData> get _positionDataStream =>
       Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
-          player.positionStream,
-          player.bufferedPositionStream,
-          player.durationStream,
+          widget.audioPLayerList[widget.audioListindex].positionStream,
+          widget.audioPLayerList[widget.audioListindex].bufferedPositionStream,
+          widget.audioPLayerList[widget.audioListindex].durationStream,
           (position, bufferedPosition, duration) => PositionData(
               position, bufferedPosition, duration ?? Duration.zero));
 
@@ -37,30 +40,27 @@ class _MediaPlayerUrlState extends State<MediaPlayerUrl> {
   void dispose() {
     // TODO: implement dispose
     //widget.audioPlayer.dispose();
-    player.dispose();
     super.dispose();
   }
 
   initPlayer() async {
     /*https://www.youtube.com/watch?v=MB3YGQ-O`1lk*/
-    final session = await AudioSession.instance;
-    await session.configure(const AudioSessionConfiguration.speech());
-    await player.setUrl(widget.urlMap["url"]) ?? Duration.zero;
-    player.playbackEventStream.listen((event) {
+
+    widget.audioPLayerList[widget.audioListindex].playbackEventStream.listen((event) {
     },
         onError: (Object e, StackTrace stackTrace) {
       print('A stream error occurred: $e');
     });
-    player.playerStateStream.listen((event) async {
+    widget.audioPLayerList[widget.audioListindex].playerStateStream.listen((event) async {
       switch (event.processingState) {
         case ProcessingState.completed:
           {
             print("completed;");
-            widget.urlMap["isPlaying"] = false;
-            await player.pause();
-            player.seek(Duration.zero);
-            setState(() {
-            });
+            print(widget.audioList[widget.audioListindex]["index"]);
+            widget.audioPLayerList[widget.audioListindex].seek(Duration.zero);
+            widget.audioList[widget.audioListindex]["isPlaying"] = false;
+            await widget.audioPLayerList[widget.audioListindex].pause();
+            setState(() {});
             break;
           }
         case ProcessingState.idle:
@@ -82,6 +82,9 @@ class _MediaPlayerUrlState extends State<MediaPlayerUrl> {
 
   @override
   Widget build(BuildContext context) {
+    print("widget.urlMapindex");
+    print(widget.audioList[widget.audioListindex]["index"]);
+    print(widget.audioList[widget.audioListindex]);
     return audioPlayerWidget();
   }
 
@@ -95,18 +98,34 @@ class _MediaPlayerUrlState extends State<MediaPlayerUrl> {
           children: [
             InkWell(
                 onTap: () async {
-                  if (widget.urlMap["isPlaying"]) {
+                  for(int i = 0; i < widget.audioList.length;i++){
+                    if(i != widget.audioListindex){
+                      if(widget.audioList[i]["isPlaying"]){
+                        print("uybybuno");
+                        widget.audioList[i]["isPlaying"] = false;
+                        await widget.audioPLayerList[i].pause();
+
+                        i == widget.audioList.length;
+                      }
+                    }
+                  }
+                  if (widget.audioList[widget.audioListindex]["isPlaying"]) {
                     //await widget.audioPlayer.pause();
-                    await player.pause();
-                    widget.urlMap["isPlaying"] = false;
+                    widget.audioList[widget.audioListindex]["isPlaying"] = false;
+
+                    await widget.audioPLayerList[widget.audioListindex].pause();
                     setState(() {});
                   } else {
-                    await player.play();
-                    widget.urlMap["isPlaying"] = true;
+                    widget.audioList[widget.audioListindex]["isPlaying"] = true;
+                    final session = await AudioSession.instance;
+                    await session.configure(const AudioSessionConfiguration.music());
+                    await widget.audioPLayerList[widget.audioListindex].setUrl(widget.audioList[widget.audioListindex]["url"]);
+                    await widget.audioPLayerList[widget.audioListindex].play();
                     setState(() {});
+
                   }
                 },
-                child: widget.urlMap["isPlaying"]
+                child: widget.audioList[widget.audioListindex]["isPlaying"]
                     ? Icon(Icons.stop)
                     : Icon(Icons.play_arrow)),
             SizedBox(
@@ -118,7 +137,7 @@ class _MediaPlayerUrlState extends State<MediaPlayerUrl> {
                 position: positionData?.position ?? Duration.zero,
                 bufferedPosition: positionData?.bufferedPosition ?? Duration.zero,
                 onChangeEnd: (newPosition) {
-                  player.seek(newPosition);
+                  widget.audioPLayerList[widget.audioListindex].seek(newPosition);
                 },
               ),
             ),
@@ -132,6 +151,10 @@ class _MediaPlayerUrlState extends State<MediaPlayerUrl> {
       },
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
 
 class SeekBar extends StatefulWidget {

@@ -7,6 +7,7 @@ import 'package:Heritage/src/cisForm/cis_form_widget.dart';
 import 'package:Heritage/src/home/homeVM.dart';
 import 'package:Heritage/src/home/userWidget/UserDetail.dart';
 import 'package:Heritage/src/notifications/notifications_screen.dart';
+import 'package:Heritage/src/personForm/person_form_screen.dart';
 import 'package:Heritage/src/settings/settingPage.dart';
 import 'package:Heritage/utils/audioPlayer/audio_example.dart';
 import 'package:animations/animations.dart';
@@ -30,6 +31,7 @@ class Routes {
   static const String splash = "splash";
   static const String login = "login";
   static const String studentForm = "studentForm";
+  static const String form = "form";
   static const String cisForm = "cisForm";
   static const String userDetail = "userDetail";
   static const String pdfPreview = "pdfPreview";
@@ -102,6 +104,11 @@ class Routes {
         String userid = args as String;
         return MaterialPageRoute(
           builder: (_) => StudenFormWidegt(userId: userid,),
+        );
+      case form:
+        String userid = args as String;
+        return MaterialPageRoute(
+          builder: (_) => PersonFormScreen(userid,),
         );
       case cisForm:
         return MaterialPageRoute(

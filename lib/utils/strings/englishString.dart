@@ -49,6 +49,7 @@ class EngLishStrings extends Strings {
 
 
   String get studentForm => "Student Form";
+  String get immigrationForm => "Immigration Form";
   String get selectDate => "Select date";
   String get date => "Date";
   String get passportExpiryDate => "Passport Expiry Date";
@@ -125,4 +126,7 @@ class EngLishStrings extends Strings {
   String get addAdmins=> "Add Admins";
   String get anyProvincePreferenceInCanadaIfNoThenMentionNONE=> "Any Province preference (In Canada), if no then mention NONE";
   String get anyCollegeProgramPreferenceIFNoThenMentionNONE=> "Any College/Program Preference, if no then mention NONE";
+  String get regularCorrespondance => 'Regular/Correspondance';
+  String get credentialAwarded => 'Credential Awarded';
+  String get markSheetAvailable => 'Mark Sheet Available';
 }

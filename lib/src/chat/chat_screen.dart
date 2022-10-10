@@ -85,7 +85,10 @@ class _ChatViewState extends State<ChatView> {
             }
             return noDataBody(widget.model);
           }
-
+          widget.model.audioListindex = -1;
+          widget.model.isFirstAudio = true;
+          widget.model.audioList = [];
+          widget.model.audioPlayerList = [];
           if(widget.model.userType == "customer"){
             List<Map<String, dynamic>> groupList = [];
             for(int i = 0;i <snapshot.data!.docs.length;i++){

@@ -6,9 +6,9 @@ import 'package:Heritage/route/routes.dart';
 import 'package:Heritage/src/chat/chatVM.dart';
 import 'package:Heritage/src/chat/entities/text_message_entity.dart';
 import 'package:Heritage/utils/comman/commanWidget.dart';
+import 'package:flutter/foundation.dart';
+import 'package:just_audio/just_audio.dart';
 
-
-import 'package:audioplayers/audioplayers.dart';
 import 'package:bubble/bubble.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -20,6 +20,7 @@ import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import '../../constants/HeritageErrorWidget(.dart';
@@ -39,14 +40,20 @@ class SingleChatPage extends StatefulWidget {
   _SingleChatPageState createState() => _SingleChatPageState();
 }
 
-class _SingleChatPageState extends State<SingleChatPage> {
+class _SingleChatPageState extends State<SingleChatPage> with AutomaticKeepAliveClientMixin{
   String messageContent = "";
 
   bool isPlaying = false;
   bool _changeKeyboardType = false;
   int _menuIndex = 0;
   Duration playerPostion = Duration.zero;
-
+  Stream<PositionData> get _positionDataStream =>
+      Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
+          widget.model.soundPlayer.positionStream,
+          widget.model.soundPlayer.bufferedPositionStream,
+          widget.model.soundPlayer.durationStream,
+              (position, bufferedPosition, duration) => PositionData(
+              position, bufferedPosition, duration ?? Duration.zero));
   @override
   void initState() {
     widget.model.messageController.addListener(() {
@@ -58,7 +65,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
   }
   initPlayer(){
     /*https://www.youtube.com/watch?v=MB3YGQ-O`1lk*/
-    widget.model.soundPlayer.onPlayerStateChanged.listen((state) {
+    /* widget.model.soundPlayer.onPlayerStateChanged.listen((state) {
       print("onPlayerStateChanged");
       isPlaying = CommanWidgets().isPLAYING(state);
 
@@ -79,7 +86,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
      playerPostion =newPosition;
       setState(() {
       });
-    });
+    });*/
   }
   @override
   void dispose() {
@@ -151,6 +158,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
       body: StreamBuilder<QuerySnapshot>(
         stream: widget.model.chatStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          widget.model.audioListindex = -1;
           if (snapshot.hasError) {
             return HeritageErrorWidget();
           }
@@ -210,7 +218,6 @@ class _SingleChatPageState extends State<SingleChatPage> {
               widget.model.sendAudio(widget.model.audioFile);
               widget.model.audioFile = null;
               setState(() {
-
               });
             },
             child: Container(
@@ -255,53 +262,63 @@ class _SingleChatPageState extends State<SingleChatPage> {
   }
 
   Widget audioPlayerWidget(){
-    print("playerPostion");
-    print(playerPostion);
-    print(widget.model.playerDuration);
-    String twoDigits(int n) => n.toString().padLeft(1);
-    final twoDigitMinutes = twoDigits(playerPostion.inMinutes.remainder(60));
-    final twoDigitSeconds = twoDigits(playerPostion.inSeconds.remainder(60));
-    return Row(
-      children: [
-        InkWell(onTap : () async {
-          if(isPlaying){
-            await widget.model.soundPlayer.pause();
-            isPlaying = false;
-            print("tyhujiko");
-            setState(() {
 
-            });
-          }else{
-            print("ecrvtbynumi,");
-            await widget.model.soundPlayer.setSource(DeviceFileSource(widget.model.audioFile.path));
-            //widget.model.playerDuration = await widget.model.soundPlayer.getDuration() ?? Duration(seconds: 10);
-            await widget.model.soundPlayer.resume();
-            //await widget.model.soundPlayer.play(DeviceFileSource(widget.model.audioFile.path));
-            print("widget.model.playerDuration");
-            print(widget.model.playerDuration);
-           isPlaying  = true;
-            setState(() {
-            });
-          }
-        }, child:isPlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow)),
-        SizedBox(width: 16,),
-        Expanded(
-          child: Slider(
-            min: 0,
-            max: widget.model.playerDuration.inSeconds.toDouble(),
-            value: playerPostion.inSeconds.toDouble(),
-            onChanged: (value) async {
-              final position = Duration(seconds: value.toInt());
-              await widget.model.soundPlayer.seek(position);
-            },
-          ),
-        ),
-        SizedBox(width: 16,),
-        Text(
-          '$twoDigitMinutes:$twoDigitSeconds',
-          style: TextStyle(fontSize: 15),
-        )
-      ],
+    return StreamBuilder<PositionData>(
+      stream: Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
+          widget.model.soundPlayer.positionStream,
+          widget.model.soundPlayer.bufferedPositionStream,
+          widget.model.soundPlayer.durationStream,
+              (position, bufferedPosition, duration) => PositionData(
+              position, bufferedPosition, duration ?? Duration.zero)),
+      builder: (context, snapshot) {
+        final positionData = snapshot.data;
+        return Row(
+          children: [
+            InkWell(onTap : () async {
+              if(isPlaying){
+                isPlaying = false;
+                await widget.model.soundPlayer.pause();
+                setState(() {
+
+                });
+              }else{
+                print("ecrvtbynumi,");
+                isPlaying  = true;
+                await  widget.model.soundPlayer.play();
+                setState(() {
+                });
+              }
+            }, child:isPlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow)),
+            SizedBox(width: 16,),
+            Expanded(
+              child: SeekBar(
+                duration: positionData?.duration ?? Duration.zero,
+                position: positionData?.position ?? Duration.zero,
+                bufferedPosition: positionData?.bufferedPosition ?? Duration.zero,
+                onChangeEnd: (newPosition) {
+                  widget.model.soundPlayer.seek(newPosition);
+                },
+              ),
+            ),
+           /* Expanded(
+              child: Slider(
+                min: 0,
+                max: widget.model.playerDuration.inSeconds.toDouble(),
+                value: playerPostion.inSeconds.toDouble(),
+                onChanged: (value) async {
+                  final position = Duration(seconds: value.toInt());
+                  await widget.model.soundPlayer.seek(position);
+                },
+              ),
+            ),
+            SizedBox(width: 16,),
+            Text(
+              '$twoDigitMinutes:$twoDigitSeconds',
+              style: TextStyle(fontSize: 15),
+            )*/
+          ],
+        );
+      }
     );
   }
 
@@ -411,6 +428,12 @@ class _SingleChatPageState extends State<SingleChatPage> {
           ),
           InkWell(
             onTap: () async {
+              if(kIsWeb){
+                if (widget.model.messageController.text.isNotEmpty) {
+                  widget.model.sendMessage(widget.model.messageController.text);
+                  widget.model.messageController.clear();
+                }
+              }
               if (widget.model.messageController.text.isEmpty) {
                 //TODO:send voice message
                 await widget.model.startRecording();
@@ -430,7 +453,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
                   color: Colors.green,
                   borderRadius: BorderRadius.all(Radius.circular(50))),
               child: Icon(
-                widget.model.messageController.text.isEmpty
+                kIsWeb ? Icons.send : widget.model.messageController.text.isEmpty
                     ? Icons.mic
                     : Icons.send,
                 color: Colors.white,
@@ -550,13 +573,15 @@ class _SingleChatPageState extends State<SingleChatPage> {
         textAlign: align,
         style: TextStyle(fontSize: 16),
       );
-    }else if(type == "UPLOADING"){
+    }
+    else if(type == "UPLOADING"){
       return  Container(
         height: 200,
         width: 200,
         child: Center(child: CircularProgressIndicator(),),
       );
-    }else if(type == "IMAGE"){
+    }
+    else if(type == "IMAGE"){
       return InkWell(
         onTap:(){
           List<String> imageList = [];
@@ -580,7 +605,8 @@ class _SingleChatPageState extends State<SingleChatPage> {
           ),
         ),
       );
-    }else if(type == "DOCUMENT"){
+    }
+    else if(type == "DOCUMENT"){
       return  InkWell(
         onTap:() async {
           var ppp = await widget.model.chatService!.getByteData(content);
@@ -626,6 +652,14 @@ class _SingleChatPageState extends State<SingleChatPage> {
       );
     }
     else if(type == "AUDIO"){
+      widget.model.isFirstAudio = false;
+      widget.model.audioListindex++;
+
+      widget.model.audioList.add({"url":content,"isPlaying":false,"index":widget.model.audioListindex});
+      widget.model.audioPlayerList.add(AudioPlayer());
+      if(widget.model.isFirstAudio){
+
+      }
       //AudioPlayer player = AudioPlayer();
       return  ConstrainedBox(
         constraints: BoxConstraints(
@@ -634,10 +668,14 @@ class _SingleChatPageState extends State<SingleChatPage> {
         ),
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
-          child: MediaPlayerUrl({"url":content,"isPlaying":false}),
+          child: MediaPlayerUrl(widget.model.audioList,widget.model.audioPlayerList,widget.model.audioListindex),
         ),
       );
     }
     return Container();
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

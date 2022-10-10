@@ -165,12 +165,9 @@ class StudentFormVM extends ChangeNotifier {
 
 
     if(currentUserEmail.toLowerCase().trim()=="super@heritage.com"){
-      print("lhfghkjlk;l");
       currentUserType = "superadmin";
     }
     currentUserType = currentUserModel.user_type!;
-    print("vgbhnjkm");
-    print(currentUID);
     isLoading = true;
     Future.delayed(Duration(microseconds: 100),(){
       mainModel?.showhideprogress(true, context);
@@ -178,17 +175,12 @@ class StudentFormVM extends ChangeNotifier {
     });
     try{
       ApiResponse? result = await studentFormService?.checkForStudentForm(formUserId);
-      print("1111111");
-
       if(result != null && result.status=="success"){
-        print("2222222");
         studentCaseId = result.data[FirestoreConstants.studentFormCaseID].toString();
-        print("studentCaseId");
-        print(studentCaseId);
         formUserModel = UserModel.fromJson(result.data);
         studentCaseId = formUserModel.studentFormCaseID;
         studentPercent = checkAndGetValue(result.data,FirestoreConstants.studentFormPercent,defaultValue: 0);
-        if(studentPercent>75){
+        if(studentPercent > 75){
           isNotificationAlreadySend = true;
         }
         ApiResponse? studentDataResponse = await studentFormService?.getUserStudentForm(studentCaseId);
@@ -1175,6 +1167,7 @@ class StudentFormVM extends ChangeNotifier {
     }
     return imageObject;
   }
+
   Future<Map<String, dynamic>> getMapData() async {
     profilePerCent = 0.0;
     Map<String ,dynamic> data = {};
