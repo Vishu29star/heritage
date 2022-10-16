@@ -28,6 +28,7 @@ class HeritageTextFeild extends StatelessWidget {
   double width = 0;
   double height = 0;
   String whichPLatform = "";
+
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
