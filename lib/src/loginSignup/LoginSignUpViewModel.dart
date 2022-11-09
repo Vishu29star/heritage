@@ -369,7 +369,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
             FirestoreConstants.app_version:appVersion,
           };
           if(kIsWeb){
-            uploadData.addAll({FirestoreConstants.web_firebase_token:firebaseToken,FirestoreConstants.device_type:"web"});
+            uploadData.addAll({FirestoreConstants.web_firebase_token:"firebaseToken",FirestoreConstants.device_type:"web"});
           }else{
             if(Platform.isIOS){
               uploadData.addAll({FirestoreConstants.iOS_firebase_token:firebaseToken,FirestoreConstants.device_type:"ios"});

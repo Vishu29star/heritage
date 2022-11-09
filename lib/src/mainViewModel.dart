@@ -182,7 +182,8 @@ class MainViewMoel extends ChangeNotifier {
     if (!kIsWeb) {
       return await FirebaseMessaging.instance.getToken();
     } else {
-      return await FirebaseMessaging.instance.getToken(vapidKey: web_vapid_key);
+
+      //return await FirebaseMessaging.instance.getToken(vapidKey: web_vapid_key);
     }
   }
 
