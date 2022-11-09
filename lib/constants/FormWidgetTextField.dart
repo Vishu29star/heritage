@@ -22,6 +22,7 @@ class HeritageTextFeild extends StatelessWidget {
   HeritageTextFeild({Key? key,this.hintText = "", required this.labelText,this.errorText = null, required this.controller, this.isObsecure = false, this.keyboardType = TextInputType.text,this.maxlenth = null,this.prefixText = "",this.inputformator = null,this.isEnable = true}) : super(key: key);
 
   bool showLoading  = false;
+
   var multiply = 1.0;
   var textmultiply = 1.0;
   var width_multiply = 1.0;
