@@ -39,6 +39,7 @@ class Routes {
   static const String notifications = "notifications";
   static const String messageScreen = "messageScreen";
   static const String setting = "setting";
+  static const String admins = "admins";
   static const String demo = "demo";
 
   static Route<T> fadeThrough<T>(RouteSettings settings, WidgetBuilder page,
@@ -128,6 +129,21 @@ class Routes {
           builder: (_) => ChatScreen(map),
         );
       case notifications:
+        UserModel map;
+        if(args!=null){
+          map = args as  UserModel;
+          return CupertinoPageRoute(
+            builder: (_) => NotiFicationScreen(map),
+          );
+        }
+        return MaterialPageRoute(builder: (_) {
+          return Scaffold(
+            body: Center(
+              child: Text("Error!! Route"),
+            ),
+          );
+        });
+      case admins:
         UserModel map;
         if(args!=null){
           map = args as  UserModel;

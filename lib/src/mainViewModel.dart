@@ -178,11 +178,15 @@ class MainViewMoel extends ChangeNotifier {
     return version;
   }
 
-  Future<String?> getFirebaseToken() async {
+  Future<String?> getWebFirebaseToken() async {
+    return await FirebaseMessaging.instance.getToken(vapidKey: web_vapid_key);
+  }
+  Future<String?> getMobileFirebaseToken() async {
+    return await FirebaseMessaging.instance.getToken();
     if (!kIsWeb) {
-      return await FirebaseMessaging.instance.getToken();
-    } else {
 
+    } else {
+      return null;
       //return await FirebaseMessaging.instance.getToken(vapidKey: web_vapid_key);
     }
   }

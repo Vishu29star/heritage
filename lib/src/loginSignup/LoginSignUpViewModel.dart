@@ -362,14 +362,17 @@ class LoginSignUpViewModel extends ChangeNotifier{
         if(user.displayName!=null){
           String? device_id = await mainModel?.getDeviceId();
           String? appVersion = await mainModel?.getAppVersionId();
-          String? firebaseToken = await mainModel?.getFirebaseToken();
+          String? firebaseToken;
+          if(!kIsWeb){
+           firebaseToken = await mainModel?.getMobileFirebaseToken();
+          }
 
           Map<String,dynamic> uploadData ={
             FirestoreConstants.device_id:device_id,
             FirestoreConstants.app_version:appVersion,
           };
           if(kIsWeb){
-            uploadData.addAll({FirestoreConstants.web_firebase_token:"firebaseToken",FirestoreConstants.device_type:"web"});
+            uploadData.addAll({FirestoreConstants.device_type:"web"});
           }else{
             if(Platform.isIOS){
               uploadData.addAll({FirestoreConstants.iOS_firebase_token:firebaseToken,FirestoreConstants.device_type:"ios"});
@@ -390,6 +393,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
           }
           context!.loaderOverlay.hide();
           myNavigator.pushNamed(context!, Routes.home, /*arguments: {"mobile": mobile.text.toString()}*/);
+          askWebNotificationPermission(uid);
         }else{
           context!.loaderOverlay.hide();
           pagePosition = 4;
@@ -403,6 +407,13 @@ class LoginSignUpViewModel extends ChangeNotifier{
     }
   }
 
+  askWebNotificationPermission(uid) async {
+    String? firebaseToken = await mainModel?.getWebFirebaseToken();
+    if(firebaseToken != null){
+      Map<String,dynamic> uploadData ={FirestoreConstants.web_firebase_token:firebaseToken,FirestoreConstants.device_type:"web"};
+      await loginSignUpService!.userRefrence.doc(uid).update(uploadData);
+    }
+  }
   Future<void> updatePassword() async {
 
   /*  if(!isRegisterPasswordOk()){
@@ -490,7 +501,10 @@ class LoginSignUpViewModel extends ChangeNotifier{
         Timestamp dateOfBirthTimeStamp = Timestamp.fromDate(birthDate);
         String? device_id = await mainModel?.getDeviceId();
         String? appVersion = await mainModel?.getAppVersionId();
-        String? firebaseToken = await mainModel?.getFirebaseToken();
+        String? firebaseToken;
+        if(!kIsWeb){
+          firebaseToken = await mainModel?.getMobileFirebaseToken();
+        }
 
         Map<String,dynamic> data = {
           FirestoreConstants.first_name: encrydecry().encryptMsg(firstNameController.text.trim()),
@@ -504,7 +518,7 @@ class LoginSignUpViewModel extends ChangeNotifier{
           FirestoreConstants.app_version:appVersion,
         };
         if(kIsWeb){
-          data.addAll({FirestoreConstants.web_firebase_token:firebaseToken,FirestoreConstants.device_type:"web"});
+          data.addAll({FirestoreConstants.device_type:"web"});
         }else{
           if(Platform.isIOS){
             data.addAll({FirestoreConstants.iOS_firebase_token:firebaseToken,FirestoreConstants.device_type:"ios"});
@@ -519,8 +533,8 @@ class LoginSignUpViewModel extends ChangeNotifier{
         await updateLocalData(data);
         mainModel?.showTopSuccessMessage(context!, context!.resources.strings.profileUpdated);
         mainModel?.showhideprogress(false, context!);
-
         myNavigator.pushNamed(context!, Routes.home, /*arguments: {"mobile": mobile.text.toString()}*/);
+        askWebNotificationPermission(uid);
       }else{
         mainModel?.showTopErrorMessage(context!, context!.resources.strings.pleaseEnterAllDetail);
       }
