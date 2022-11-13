@@ -95,7 +95,7 @@ class _ChatViewState extends State<ChatView> {
               var data = snapshot.data!.docs[i].data()! as Map<String, dynamic>;
               groupList.add(data);
             }
-            groupList.sort((a,b)=>a[FirestoreConstants.updatedAt].compareTo(b[FirestoreConstants.updatedAt]));
+            groupList.sort((a,b)=>a[FirestoreConstants.time].compareTo(b[FirestoreConstants.time]));
 
             if (widget.model.selectedgroupChatId == "") {
               widget.model.selectGroupChatId(groupList[0], isFirst: true);

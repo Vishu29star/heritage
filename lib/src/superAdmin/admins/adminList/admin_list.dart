@@ -36,7 +36,7 @@ class _AdminListState extends State<AdminList> {
             child: ConstrainedBox(
                 constraints: BoxConstraints(minWidth: 300, maxWidth: 450),
                 child: Scaffold(
-                  appBar: AppBar(
+                  /*appBar: AppBar(
                     leading: IconButton(
                       icon: Icon(Icons.arrow_back, color: Colors.black),
                       onPressed: () => Navigator.pop(context),
@@ -50,7 +50,7 @@ class _AdminListState extends State<AdminList> {
                           fontSize: 24,
                           color: context.resources.color.colorPrimary),
                     ),
-                  ),
+                  ),*/
                   floatingActionButton: FloatingActionButton.extended(
                     label: Text(
                       'Add Admin',
@@ -152,9 +152,9 @@ class _AdminListState extends State<AdminList> {
       case "3":
         return "Legal";
       case "4":
-        return "Admin 4";
+        return "Admin 1";
       case "5":
-        return "Admin 5" ;
+        return "Admin 2" ;
       default :
         return "Admin";
     }

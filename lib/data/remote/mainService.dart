@@ -251,15 +251,15 @@ class MainService {
     }
   }
 
-  Future<String> getChatDeleteTimeCount(String feildName) async {
+  Future<Map<String, dynamic>> getChatDeleteTimeCount() async {
     CollectionReference constantCollection = FirebaseFirestore.instance
         .collection(FirestoreConstants.firestoreConstants);
     try {
       var documentsnapshot = await constantCollection.get();
       Map<String, dynamic> data = documentsnapshot.docs.first.data()! as Map<String, dynamic>;
-      return data[feildName];
+      return data;
     } catch (e) {
-      return "";
+      return {};
     }
   }
 

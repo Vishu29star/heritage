@@ -24,11 +24,18 @@ class _ChatGroupsScreenState extends State<ChatGroupsScreen> {
     List<Map<String, dynamic>> groupList = [];
     for(int i = 0;i <widget.snapshot.data!.docs.length;i++){
       var data = widget.snapshot.data!.docs[i].data()! as Map<String, dynamic>;
+      print("group data");
+      print(data);
       groupList.add(data);
     }
-
-    //groupList.sort((a,b)=>a[FirestoreConstants.updatedAt].compareTo(b[FirestoreConstants.updatedAt]));
-
+ /*   groupList.sort((a,b) {
+      print("a");
+      print(a[FirestoreConstants.updatedAt]);
+      print("b");
+      print(b[FirestoreConstants.updatedAt]);
+      return a[FirestoreConstants.updatedAt].compareTo(b[FirestoreConstants.updatedAt]);
+    });
+    groupList = groupList.reversed.toList();*/
     if (widget.model.selectedgroupChatId == "") {
       widget.model.selectGroupChatId(groupList[0], isFirst: true);
     }

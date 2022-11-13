@@ -81,6 +81,7 @@ class ChatVM extends ChangeNotifier {
     messageController = TextEditingController();
     scrollController = ScrollController();
     selectedgroupChatId = group[FirestoreConstants.groupChatId];
+    print("edrftgyhuji");
     if (selectedgroupChatId != "") {
       chatStream = chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).orderBy('time').snapshots();
     }
@@ -124,6 +125,7 @@ class ChatVM extends ChangeNotifier {
       return ids;
     }
   }
+
   sendMessage(String message){
     Map<String ,dynamic> msgObject = {
     FirestoreConstants.time:FieldValue.serverTimestamp(),
@@ -137,10 +139,10 @@ class ChatVM extends ChangeNotifier {
       FirestoreConstants.groupChatlastMessageUserId:currentUserId,
       FirestoreConstants.groupChatlastMessage:message,
     };
-    chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).add(msgObject);
     chatService!.groupChatCollection.doc(selectedgroupChatId).update({
       FirestoreConstants.updatedAt:FieldValue.serverTimestamp(),
       FirestoreConstants.groupChatlastMessageObject:group});
+    chatService!.groupChatCollection.doc(selectedgroupChatId).collection(chatService!.messageCollection).add(msgObject);
   }
 
   sendMediabyte(FilePickerResult result) async {

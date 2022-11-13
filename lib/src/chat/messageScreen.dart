@@ -325,6 +325,7 @@ class _SingleChatPageState extends State<SingleChatPage> with AutomaticKeepAlive
   Widget _sendMessageTextField() {
     return Container(
       margin: EdgeInsets.only(bottom: 10, left: 4, right: 4),
+      padding: EdgeInsets.symmetric(horizontal: 16.sp,vertical: 4.sp),
       child: Row(
         children: [
           Expanded(
@@ -433,18 +434,20 @@ class _SingleChatPageState extends State<SingleChatPage> with AutomaticKeepAlive
                   widget.model.sendMessage(widget.model.messageController.text);
                   widget.model.messageController.clear();
                 }
-              }
-              if (widget.model.messageController.text.isEmpty) {
-                //TODO:send voice message
-                await widget.model.startRecording();
-                widget.model.isRecorderOpen = true;
-                setState(() {
+              }else{
+                if (widget.model.messageController.text.isEmpty) {
+                  //TODO:send voice message
+                  await widget.model.startRecording();
+                  widget.model.isRecorderOpen = true;
+                  setState(() {
 
-                });
-              } else {
-                widget.model.sendMessage(widget.model.messageController.text);
-                widget.model.messageController.clear();
+                  });
+                } else {
+                  widget.model.sendMessage(widget.model.messageController.text);
+                  widget.model.messageController.clear();
+                }
               }
+
             },
             child: Container(
               width: 45,
@@ -598,7 +601,7 @@ class _SingleChatPageState extends State<SingleChatPage> with AutomaticKeepAlive
             maxWidth: MediaQuery.of(context).size.width * 0.70,
             maxHeight: MediaQuery.of(context).size.height * 0.70,
           ),
-          child: FadeInImage(
+          child: kIsWeb ?CachedNetworkImage(imageUrl: content):FadeInImage(
             placeholder: MemoryImage(kTransparentImage),
             image: CachedNetworkImageProvider(content),
             fit: BoxFit.cover,

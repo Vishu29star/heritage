@@ -31,7 +31,7 @@ class _NotiFicationScreenState extends State<NotiFicationScreen> {
             return Scaffold(
               appBar: AppBar(
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.black),
+                  icon: Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
                 ),
                 iconTheme: IconThemeData(color: Colors.white),

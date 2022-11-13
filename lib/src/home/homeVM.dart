@@ -88,15 +88,7 @@ class HomeVM extends ChangeNotifier {
   }
 
   changeHomeItem(int pagePosition) {
-    print("pagePosition");
-    print(pagePosition);
-    for (int i = 0; i < generateItems.length; i++) {
-      /* if(i==pagePosition){
-        generateItems[i].isSelected = true;
-      }else{
-        generateItems[i].isSelected = false;
-      }*/
-    }
+
     this.pagePosition = pagePosition;
     notifyListeners();
   }
@@ -193,7 +185,7 @@ class HomeVM extends ChangeNotifier {
     isSearching = true;
     notifyListeners();
     QuerySnapshot? querySnapshot = await homeService?.searchUser(
-        encrydecry().encryptMsg(searchController.text.trim()),
+        encrydecry().encryptMsg(searchController.text.toLowerCase().trim()),
         selectedSearchType["value"]);
     if (querySnapshot != null) {
       searchResult.clear();
@@ -347,7 +339,7 @@ class HomeVM extends ChangeNotifier {
         ),
         ListTile(
           leading: Icon(
-            Icons.report,
+            Icons.person,
           ),
           title: const Text('Admins'),
           onTap: () {
@@ -358,7 +350,7 @@ class HomeVM extends ChangeNotifier {
         ),
         ListTile(
           leading: Icon(
-            Icons.report,
+            Icons.settings,
           ),
           title: const Text('Setting'),
           onTap: () {
@@ -411,72 +403,66 @@ class HomeVM extends ChangeNotifier {
     mainModel!.mainService.updateUserDataMain(data);
   }
   checkForPassportExpirtDateNotification(SharedPreferences preferences) async {
-    int? lastChatDeleteTime = await preferences.getInt(FirestoreConstants.lastPassportExpiryTime);
-    String chatDeletTime = await homeService!.getChatDeleteTimeCount(FirestoreConstants.passportNotificicationTime);
-    QuerySnapshot? querySnapshot = await homeService?.getAllUser();
-    var data = querySnapshot!.docs.map((e) => e.data() as Map<String, dynamic>).toList();
-    List<String> tokenId = [];
-    List<String> uids = [];
-    for(int i = 0;i<data.length;i++){
-      if(data[i].containsKey(FirestoreConstants.passport_expiry_date)){
-        var expirtDate = DateTime.fromMillisecondsSinceEpoch(data[i][FirestoreConstants.passport_expiry_date]);
-        var expiryDate = expirtDate.subtract(Duration(days: int.parse(chatDeletTime)));
-        var currentDate = DateTime.now();
-        if(currentDate.isAfter(expiryDate)){
-          uids.add(data[i][FirestoreConstants.uid]);
-          if(data[i].containsKey(FirestoreConstants.web_firebase_token) && data[i][FirestoreConstants.web_firebase_token] != ""){
-            tokenId.add(data[i][FirestoreConstants.web_firebase_token]);
-          }
-          if(data[i].containsKey(FirestoreConstants.iOS_firebase_token) && data[i][FirestoreConstants.iOS_firebase_token] != ""){
-            tokenId.add(data[i][FirestoreConstants.iOS_firebase_token]);
-          }
-          if(data[i].containsKey(FirestoreConstants.android_firebase_token) && data[i][FirestoreConstants.android_firebase_token] != ""){
-            tokenId.add(data[i][FirestoreConstants.android_firebase_token]);
+/*    int? lastChatDeleteTime = await preferences.getInt(FirestoreConstants.lastPassportExpiryTime);*/
+    Map<String, dynamic> constant_data =  await homeService!.getChatDeleteTimeCount();
+    String passportExpiryTime = constant_data[FirestoreConstants.passportNotificicationTime];
+    DateTime lastpassportExpiryTime = constant_data[FirestoreConstants.lastPassportExpiryTime].toDate();
+    bool isAfter = lastpassportExpiryTime.add(Duration(days: 10)).isAfter(DateTime.now());
+    if(!isAfter){
+      QuerySnapshot? querySnapshot = await homeService?.getAllUser();
+      var data = querySnapshot!.docs.map((e) => e.data() as Map<String, dynamic>).toList();
+      List<String> tokenId = [];
+      List<String> uids = [];
+      for(int i = 0;i<data.length;i++){
+        if(data[i].containsKey(FirestoreConstants.passport_expiry_date)){
+          var expirtDate = DateTime.fromMillisecondsSinceEpoch(data[i][FirestoreConstants.passport_expiry_date]);
+          var expiryDate = expirtDate.subtract(Duration(days: int.parse(passportExpiryTime)));
+          var currentDate = DateTime.now();
+          if(currentDate.isAfter(expiryDate)){
+            uids.add(data[i][FirestoreConstants.uid]);
+            if(data[i].containsKey(FirestoreConstants.web_firebase_token) && data[i][FirestoreConstants.web_firebase_token] != ""){
+              tokenId.add(data[i][FirestoreConstants.web_firebase_token]);
+            }
+            if(data[i].containsKey(FirestoreConstants.iOS_firebase_token) && data[i][FirestoreConstants.iOS_firebase_token] != ""){
+              tokenId.add(data[i][FirestoreConstants.iOS_firebase_token]);
+            }
+            if(data[i].containsKey(FirestoreConstants.android_firebase_token) && data[i][FirestoreConstants.android_firebase_token] != ""){
+              tokenId.add(data[i][FirestoreConstants.android_firebase_token]);
+            }
           }
         }
       }
-    }
-    Map<String,dynamic> notificationObject = {
-      "title": "Passport Expire",
-      "body":"Passport Expire date is near. Please renew your passport",
-      "mutable_content": true,
-      "sound": "Tri-tone"};
-    Map<String,dynamic> dataObject = {
-      "dl": "",
-      "type":"passport_expire"
-    };
+      if(tokenId.length>0){
+        Map<String,dynamic> notificationObject = {
+          "title": "Passport Expire",
+          "body":"Passport Expire date is near. Please renew your passport",
+          "mutable_content": true,
+          "sound": "Tri-tone"};
+        Map<String,dynamic> dataObject = {
+          "dl": "",
+          "type":"passport_expire"
+        };
 
-    await mainModel!.sendNotification(tokenId, notificationObject, dataObject);
-    await mainModel!.createNotification(uids, notificationObject, dataObject);
-    if(lastChatDeleteTime!=null){
-      DateTime lastChatDeletedDateTime = DateTime.fromMillisecondsSinceEpoch(lastChatDeleteTime);
-      DateTime chatDeleteTime = lastChatDeletedDateTime.add(Duration(days: int.parse(chatDeletTime)));
-      DateTime currentTime = DateTime.now();
-      if(currentTime.isAfter(chatDeleteTime)){
-        homeService!.deleteChat(currentUserId,chatDeletTime);
+        await mainModel!.sendNotification(tokenId, notificationObject, dataObject);
+        await mainModel!.createNotification(uids, notificationObject, dataObject);
+        Map<String,dynamic> updateData = {"lastPassportExpiryTime":Timestamp.fromDate(lastpassportExpiryTime.add(Duration(days: 10)))};
+        homeService!.updateConstantData(updateData);
       }
 
-    }else{
-      homeService!.deleteChat(currentUserId,chatDeletTime);
-      await preferences.setInt(FirestoreConstants.lastChatDeleteTime, DateTime.now().millisecondsSinceEpoch);
     }
   }
 
   deleteAllOldChat(SharedPreferences preferences) async {
-    int? lastChatDeleteTime = await preferences.getInt(FirestoreConstants.lastChatDeleteTime);
-    String chatDeletTime = await homeService!.getChatDeleteTimeCount(FirestoreConstants.chatDeleteTimeInDays);
-    if(lastChatDeleteTime!=null){
-      DateTime lastChatDeletedDateTime = DateTime.fromMillisecondsSinceEpoch(lastChatDeleteTime);
-      DateTime chatDeleteTime = lastChatDeletedDateTime.add(Duration(days: int.parse(chatDeletTime)));
-      DateTime currentTime = DateTime.now();
-      if(currentTime.isAfter(chatDeleteTime)){
-        homeService!.deleteChat(currentUserId,chatDeletTime);
-      }
-
-    }else{
+    Map<String, dynamic> constant_data =  await homeService!.getChatDeleteTimeCount();
+    String chatDeletTime = constant_data[FirestoreConstants.chatDeleteTimeInDays];
+    DateTime lastChatDeletedDateTime = constant_data[FirestoreConstants.lastChatDeleteTime];
+    DateTime chatDeleteTime = lastChatDeletedDateTime.add(Duration(days: int.parse("10")));
+    DateTime currentTime = DateTime.now();
+    if(currentTime.isAfter(chatDeleteTime)){
       homeService!.deleteChat(currentUserId,chatDeletTime);
-      await preferences.setInt(FirestoreConstants.lastChatDeleteTime, DateTime.now().millisecondsSinceEpoch);
     }
+    Map<String,dynamic> updateData = {"lastChatDeleteTime":Timestamp.fromDate(chatDeleteTime)};
+    homeService!.updateConstantData(updateData);
   }
 
   Future<void> showOptionsDialog() {
@@ -518,68 +504,84 @@ class HomeVM extends ChangeNotifier {
     return showDialog(
         context: context!,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Select Range"),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: [
-                  GestureDetector(
-                    child: Text(employeeDeleteStartDate!=null ? DateFormat(context.resources.strings.DDMMYYYY).format(employeeDeleteStartDate ?? DateTime.now()) : "Select Start Date"),
-                    onTap: () async {
-                      employeeDeleteStartDate =  await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2022,7,1),
-                        lastDate: DateTime.now(),
-                      );
-                      if(employeeDeleteStartDate!=null){
-                        notifyListeners();
-                      }
-                    },
-                  ),
-                  Padding(padding: EdgeInsets.all(10)),
-                  GestureDetector(
-                    child: Text(employeeDeleteEndDate!=null ? DateFormat(context.resources.strings.DDMMYYYY).format(employeeDeleteEndDate ?? DateTime.now()) : "Select End Date"),
-                    onTap: () async {
-                      if(employeeDeleteStartDate==null){
-                        mainModel?.showTopErrorMessage(context, "Please First Select Start Date");
-                        return;
-                      }
-                      employeeDeleteEndDate =  await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: employeeDeleteStartDate!,
-                        lastDate: DateTime.now(),
-                      );
-                      if(employeeDeleteEndDate!=null){
-                        notifyListeners();
-                      }
-                    },
-                  ),
+          return StatefulBuilder(builder: (context,setState){
+            return AlertDialog(
+              title: Text("Select Range"),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: [
+                    GestureDetector(
+                      child: Text(employeeDeleteStartDate!=null ? DateFormat(context.resources.strings.DDMMYYYY).format(employeeDeleteStartDate ?? DateTime.now()) : "Select Start Date"),
+                      onTap: () async {
+                        employeeDeleteStartDate =  await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2022,7,1),
+                          lastDate: DateTime.now(),
+                        );
+                        print("employeeDeleteStartDate");
+                        print(employeeDeleteStartDate);
+                        if(employeeDeleteStartDate!=null){
+                          setState(() {
 
-                  Padding(padding: EdgeInsets.all(30)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                          height: 50,
-                          width: 200,
-                          child: Button(
-                            isEnabled: true,
-                            onPressed: () async {
-                              if(employeeDeleteStartDate != null && employeeDeleteEndDate != null && employeeDeleteStartDate!.isBefore(employeeDeleteEndDate!)){
-                                deleteEmployyeComment(isFilterApplied:true);
-                                Navigator.pop(context);
-                              }
-                            },
-                            labelText:context.resources.strings.submit,
-                          ))
-                    ],
-                  )
-                ],
+                          });
+                        }
+                      },
+                    ),
+                    Padding(padding: EdgeInsets.all(10)),
+                    GestureDetector(
+                      child: Text(employeeDeleteEndDate!=null ? DateFormat(context.resources.strings.DDMMYYYY).format(employeeDeleteEndDate ?? DateTime.now()) : "Select End Date"),
+                      onTap: () async {
+                        if(employeeDeleteStartDate==null){
+                          mainModel?.showTopErrorMessage(context, "Please First Select Start Date");
+                          return;
+                        }
+                        employeeDeleteEndDate =  await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: employeeDeleteStartDate!,
+                          lastDate: DateTime.now(),
+                        );
+                        print("employeeDeleteEndDate");
+                        print(employeeDeleteEndDate);
+                        if(employeeDeleteEndDate!=null){
+                          setState(() {
+
+                          });
+                        }
+                      },
+                    ),
+
+                    Padding(padding: EdgeInsets.all(30)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                            height: 50,
+                            width: 200,
+                            child: Button(
+                              isEnabled: true,
+                              onPressed: () async {
+                                print("submit");
+                                print(employeeDeleteStartDate);
+                                print(employeeDeleteEndDate);
+                                print(employeeDeleteStartDate!.isBefore(employeeDeleteEndDate!));
+                                if(employeeDeleteStartDate != null && employeeDeleteEndDate != null && employeeDeleteStartDate!.isBefore(employeeDeleteEndDate!)){
+                                  deleteEmployyeComment(isFilterApplied:true);
+                                  Navigator.pop(context);
+                                }else{
+                                  mainModel!.showTopErrorMessage(context, "please fill all correct detail");
+                                }
+                              },
+                              labelText:context.resources.strings.submit,
+                            ))
+                      ],
+                    )
+                  ],
+                ),
               ),
-            ),
-          );
+            );
+          });
         });
   }
 

@@ -2,6 +2,7 @@ import 'package:Heritage/data/firestore_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../data/remote/mainService.dart';
+import '../../utils/comman/commanWidget.dart';
 
 class HomeService extends MainService{
   final Stream<QuerySnapshot> usersStream = FirebaseFirestore.instance.collection(userCollection).orderBy(FirestoreConstants.updatedAt).snapshots();
@@ -72,5 +73,19 @@ class HomeService extends MainService{
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     return data;
 
+  }
+
+  Future<void> updateConstantData(Map<String,dynamic> updateData) async {
+    String constantDoc_id = "";
+    CollectionReference constantCollection= FirebaseFirestore.instance.collection(FirestoreConstants.firestoreConstants);
+    try{
+      var documentsnapshot = await constantCollection.get();
+
+      constantDoc_id = documentsnapshot.docs.first.id;
+      await constantCollection.doc(constantDoc_id).update(updateData);
+
+    }catch(e){
+      CommanWidgets.showToast(e.toString());
+    }
   }
 }
