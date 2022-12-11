@@ -478,6 +478,7 @@ class _SingleChatPageState extends State<SingleChatPage> with AutomaticKeepAlive
     });
     return Expanded(
       child: ListView.builder(
+        primary: true,
         controller: widget.model.scrollController,
         cacheExtent: 9999,
         itemCount: messageList.length,
